@@ -1,0 +1,56 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-PagosAsignacionFamiliarApplication<pagos-asignacion-familiar>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "cl.gob.ips.pagos_asignacion_familiar.PagosAsignacionFamiliarApplication",
+            "projectName": "pagos-asignacion-familiar",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-CuentaBancariaApplication<cuenta-bancaria>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "cl.gob.ips.cuenta_bancaria.CuentaBancariaApplication",
+            "projectName": "cuenta-bancaria",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=60986 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=cuenta-bancaria"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-MantenedorComunasApplication<mantenedor-comunas>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "cl.gob.ips.mantenedor_comunas.MantenedorComunasApplication",
+            "projectName": "mantenedor-comunas",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=61466 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=mantenedor-comunas"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ProcesoPagoApplication<proceso-pago>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "cl.gob.ips.proceso_pago.ProcesoPagoApplication",
+            "projectName": "proceso-pago",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-SolicitudesPagoApplication<solicitudes-pago>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "cl.gob.ips.solicitudes_pago.SolicitudesPagoApplication",
+            "projectName": "solicitudes-pago",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
