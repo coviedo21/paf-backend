@@ -134,8 +134,8 @@ public class ComunaServiceImpl implements ComunaService {
             RegionDTO regionDTO = obtenerRegiones();
             boolean coincidenciaEncontrada = false;
 
-            LevenshteinDistance levenshtein = new LevenshteinDistance();
-            double desiredSimilarity = 0.80;  // Similitud deseada del 60%
+            //LevenshteinDistance levenshtein = new LevenshteinDistance();
+            //double desiredSimilarity = 0.80;  // Similitud deseada del 60%
 
             if (regionDTO != null && regionDTO.getResultado() != null) {
                 for (ResultadoRegionDTO regionExistente : regionDTO.getResultado()) {
@@ -144,19 +144,19 @@ public class ComunaServiceImpl implements ComunaService {
 
                     // Calcular el umbral en función de la longitud de la cadena
                     int maxLength = Math.max(regionIngresada.length(), regionBD.length());
-                    int threshold = (int) (maxLength * (1 - desiredSimilarity));
+                    //int threshold = (int) (maxLength * (1 - desiredSimilarity));
 
                     // Calcula la distancia de Levenshtein
-                    int distance = levenshtein.apply(regionIngresada, regionBD);
-
-                    if (distance == 0) {
+                    //int distance = levenshtein.apply(regionIngresada, regionBD);
+                    if(regionIngresada.equalsIgnoreCase(regionBD)){
+                    //if (distance == 0) {
                         regionEncontrada = new ResultadoRegionDTO();
                         regionEncontrada.setCodigoRegion(regionExistente.getCodigoRegion());
                         regionEncontrada.setNombreRegion(regionExistente.getNombreRegion());
                         return regionEncontrada;  // Son exactamente iguales, retorno el código de la región original
                     }
 
-                    if (distance <= threshold) {
+                    /*if (distance <= threshold) {
                         System.out.println("Región Encontrada: " + regionExistente.getNombreRegion());
                         coincidenciaEncontrada = true;
                         idCoincidencia = comunaDAO.insertarRegionMantenedor(
@@ -171,7 +171,7 @@ public class ComunaServiceImpl implements ComunaService {
                             regionEncontrada.setNombreRegion(regionExistente.getNombreRegion());
                         }
                         break;
-                    }
+                    }*/
                 }
             }
 
