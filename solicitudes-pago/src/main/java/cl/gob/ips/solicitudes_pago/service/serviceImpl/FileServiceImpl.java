@@ -64,7 +64,7 @@ public class FileServiceImpl implements FileService {
                 } else {
                     // Validar la región si no está en la caché
                     //String url = String.format("https://pagosafback-dev.azurewebsites.net/pagos-asignacion-familiar-v1/pagos/crear-solicitud");
-                    String url = String.format("http://localhost:8081/mantenedor/validarRegion/"+archivo.getRegionEmpleador());
+                    String url = String.format("http://localhost:8080/mantenedor/validarRegion/"+archivo.getRegionEmpleador());
                     region = restTemplate.getForObject(url, ResultadoRegionDTO.class);
                     //region = comunaService.validarRegion(archivo.getRegionEmpleador());
                     if (region != null) {
@@ -84,7 +84,7 @@ public class FileServiceImpl implements FileService {
                         comuna = comunaCache.get(comunaKey);
                     } else {
                         // Validar la comuna si no está en la caché
-                        String url = String.format("http://localhost:8081/mantenedor/validarComuna/"+region.getCodigoRegion()+"/"+archivo.getComunaEmpleador());
+                        String url = String.format("http://localhost:8080/mantenedor/validarComuna/"+region.getCodigoRegion()+"/"+archivo.getComunaEmpleador());
                         comuna = restTemplate.getForObject(url, ListaComunaDTO.class);
                         //comuna = comunaService.validarComuna(region.getCodigoRegion(), archivo.getComunaEmpleador());
                         if (comuna != null) {
