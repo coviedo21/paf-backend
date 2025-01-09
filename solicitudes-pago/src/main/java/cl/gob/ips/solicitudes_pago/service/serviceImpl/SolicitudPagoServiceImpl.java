@@ -12,6 +12,8 @@ import cl.gob.ips.solicitudes_pago.dao.SolicitudPagoDAO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
+import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
@@ -180,4 +182,11 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         return solicitudPagoDAO.obtenerSolicitudesPorOrigen(origen,proceso,estado);
     }
 
+    public List<MotivoRechazoDTO> obtenerMotivosRechazo(){
+        return solicitudPagoDAO.obtenerMotivosRechazo();
+    }
+
+    public List<OrigenArchivoDTO> obtenerOrigenesArchivo() {
+        return solicitudPagoDAO.obtenerOrigenesArchivo();
+    }
 }
