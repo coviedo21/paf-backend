@@ -35,6 +35,8 @@ import cl.gob.ips.solicitudes_pago.dto.CausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
+import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
@@ -365,4 +367,24 @@ public class SolicitudesPagosController {
     return null;
     }
         
+    @GetMapping("/obtenerMotivosRechazo")
+    public ResponseEntity<List<MotivoRechazoDTO>> obtenerMotivosRechazo() {
+        List<MotivoRechazoDTO> motivosRechazo = solicitudPagoService.obtenerMotivosRechazo();
+        if (motivosRechazo != null && !motivosRechazo.isEmpty()) {
+            return ResponseEntity.ok(motivosRechazo);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
+    @GetMapping("/obtenerOrigenesArchivo")
+    public ResponseEntity<List<OrigenArchivoDTO>> obtenerOrigenesArchivo() {
+        List<OrigenArchivoDTO> origenesArchivo = solicitudPagoService.obtenerOrigenesArchivo();
+        if (origenesArchivo != null && !origenesArchivo.isEmpty()) {
+            return ResponseEntity.ok(origenesArchivo);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
 }

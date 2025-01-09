@@ -1,6 +1,8 @@
 package cl.gob.ips.solicitudes_pago.dao.daoImpl;
 
 import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
+import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
 //import cl.gob.ips.solicitudes_pago.dto.ProcesoDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
@@ -1039,6 +1041,64 @@ public List<SolicitudDTO> obtenerSolicitudesPorOrigen(Integer origen, Integer pr
     }
     
     return solicitudes;
+}
+
+@Override
+public List<MotivoRechazoDTO> obtenerMotivosRechazo() {
+    String sql = "SELECT * FROM paf.fn_ObtenerMotivosRechazo()";
+
+    try {
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
+
+        List<MotivoRechazoDTO> motivosRechazo = new ArrayList<>();
+        for (Map<String, Object> row : results) {
+            MotivoRechazoDTO motivoRechazoDTO = new MotivoRechazoDTO();
+            if (row.get("iIdMotivoRechazo") != null) 
+                motivoRechazoDTO.setIdMotivoRechazo((Integer) row.get("iIdMotivoRechazo"));
+            if (row.get("vcNombre") != null) 
+                motivoRechazoDTO.setNombre((String) row.get("vcNombre"));
+            if (row.get("vcVigente") != null) 
+                motivoRechazoDTO.setVigente("S".equalsIgnoreCase((String) row.get("vcVigente")));
+            
+            motivosRechazo.add(motivoRechazoDTO);
+        }
+
+        return motivosRechazo;
+    } catch (Exception e) {
+        System.out.println("Error al obtener los motivos de rechazo: " + e.getMessage());
+        return new ArrayList<>();
+    }
+}
+
+@Override
+public List<OrigenArchivoDTO> obtenerOrigenesArchivo() {
+    String sql = "SELECT * FROM paf.fn_ObtenerOrigenesArchivo()";
+
+    try {
+        // Ejecutar la consulta
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
+
+        // Convertir los resultados en una lista de OrigenArchivoDTO
+        List<OrigenArchivoDTO> origenArchivos = new ArrayList<>();
+        for (Map<String, Object> row : results) {
+            OrigenArchivoDTO origenArchivo = new OrigenArchivoDTO();
+            if (row.get("iIdOrigenArchivo") != null) {
+                origenArchivo.setIdOrigen((Integer) row.get("iIdOrigenArchivo"));
+            }
+            if (row.get("nombre") != null) {
+                origenArchivo.setNombre((String) row.get("nombre"));
+            }
+            if (row.get("iEstadoOrigen") != null) {
+                origenArchivo.setEstadoOrigen((Integer) row.get("iEstadoOrigen"));
+            }
+            origenArchivos.add(origenArchivo);
+        }
+
+        return origenArchivos;
+    } catch (Exception e) {
+        System.out.println("Error al obtener los orígenes de archivo: " + e.getMessage());
+        return new ArrayList<>();
+    }
 }
 
 }
