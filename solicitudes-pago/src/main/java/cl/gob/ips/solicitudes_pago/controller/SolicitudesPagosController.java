@@ -332,9 +332,9 @@ public class SolicitudesPagosController {
         }
     }
 
-    @GetMapping("/obtenerOrigenes")
-    public ResponseEntity<List<OrigenDTO>> obtenerOrigenes() {
-        List<OrigenDTO> origenes = utilService.obtenerOrigenes();
+    @GetMapping("/obtenerOrigenes/{tipo}")
+    public ResponseEntity<List<OrigenDTO>> obtenerOrigenes(@PathVariable("tipo") Integer tipo) {
+        List<OrigenDTO> origenes = utilService.obtenerOrigenes(tipo);
         if (origenes != null && !origenes.isEmpty()) {
             return ResponseEntity.ok(origenes);
         } else {

@@ -14,7 +14,7 @@ public class UtilServiceImpl implements UtilService{
     @Autowired
     private UtilDAO utilDAO;
 
-    public List<OrigenDTO> obtenerOrigenes(){
-        return utilDAO.obtenerOrigenes();    
+    public List<OrigenDTO> obtenerOrigenes(int tipo){
+        return utilDAO.obtenerOrigenes(tipo);    
     }
 }
