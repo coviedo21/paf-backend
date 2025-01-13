@@ -1,7 +1,13 @@
 package cl.gob.ips.solicitudes_pago.controller;
 
-import java.io.InputStream;
-import java.io.PrintWriter;
+import cl.gob.ips.solicitudes_pago.dto.*;
+import cl.gob.ips.solicitudes_pago.service.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +66,6 @@ public class SolicitudesPagosController {
     @Autowired
     private CriterioSolicitudService criterioSolicitudService;
 
-    
     @Autowired
     private SolicitudPagoService solicitudPagoService;
 
@@ -75,6 +80,9 @@ public class SolicitudesPagosController {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private PersonaService personaService;
 
     @GetMapping("/obtenerCriterio/{id}")
     public ResponseEntity<List<CriterioSolicitudDTO>> consultarCriterio(@PathVariable("id") Integer id) {
@@ -399,4 +407,15 @@ public class SolicitudesPagosController {
         }
     }
 
+        @GetMapping("/detallePersona/{rut}")
+    public ResponseEntity<DetallePersonaDTO> obtenerDetallePersona(@PathVariable("rut") int rut) {
+
+        DetallePersonaDTO detallePersona = personaService.obtenerPersona(rut);
+
+        if (detallePersona != null) {
+            return ResponseEntity.ok(detallePersona);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
 }
