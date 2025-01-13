@@ -1,54 +1,17 @@
 package cl.gob.ips.solicitudes_pago.controller;
 
-import java.io.InputStream;
-import java.io.PrintWriter;
+import cl.gob.ips.solicitudes_pago.dto.*;
+import cl.gob.ips.solicitudes_pago.service.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
-import org.apache.commons.net.PrintCommandListener;
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPSClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import cl.gob.ips.solicitudes_pago.dto.ArchivoCriterioDTO;
-import cl.gob.ips.solicitudes_pago.dto.AuditoriaSolicitudDTO;
-import cl.gob.ips.solicitudes_pago.dto.CausanteDTO;
-import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
-import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
-import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
-import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
-import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
-import cl.gob.ips.solicitudes_pago.dto.OrigenDTO;
-import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
-import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
-import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
-import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
-import cl.gob.ips.solicitudes_pago.service.AuditoriaService;
-import cl.gob.ips.solicitudes_pago.service.CausanteService;
-import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
-import cl.gob.ips.solicitudes_pago.service.FileService;
-import cl.gob.ips.solicitudes_pago.service.SolicitudPagoService;
-import cl.gob.ips.solicitudes_pago.service.UtilService;
-import org.springframework.http.MediaType;
 
 @RestController
 @CrossOrigin("*")
@@ -59,7 +22,6 @@ public class SolicitudesPagosController {
     @Autowired
     private CriterioSolicitudService criterioSolicitudService;
 
-    
     @Autowired
     private SolicitudPagoService solicitudPagoService;
 
@@ -74,6 +36,9 @@ public class SolicitudesPagosController {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private PersonaService personaService;
 
     @GetMapping("/obtenerCriterio/{id}")
     public ResponseEntity<List<CriterioSolicitudDTO>> consultarCriterio(@PathVariable("id") Integer id) {
@@ -387,4 +352,15 @@ public class SolicitudesPagosController {
         }
     }
 
+        @GetMapping("/detallePersona/{rut}")
+    public ResponseEntity<DetallePersonaDTO> obtenerDetallePersona(@PathVariable("rut") int rut) {
+
+        DetallePersonaDTO detallePersona = personaService.obtenerPersona(rut);
+
+        if (detallePersona != null) {
+            return ResponseEntity.ok(detallePersona);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
 }
