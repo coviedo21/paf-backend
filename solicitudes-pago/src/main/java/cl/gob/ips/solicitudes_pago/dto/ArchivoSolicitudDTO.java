@@ -19,7 +19,8 @@ public class ArchivoSolicitudDTO {
     private int idComuna;
     private String nombreComuna;
     private String ciudadEmpleador;
-    private String regionEmpleador;
+    private int idRegion;
+    private String nombreRegion;
     private String rutTrabajador;
     private String dvTrabajador;
     private String apellidoPaternoTrabajador;

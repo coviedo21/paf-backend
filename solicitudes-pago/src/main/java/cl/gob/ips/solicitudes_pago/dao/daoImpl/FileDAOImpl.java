@@ -38,7 +38,8 @@ public class FileDAOImpl implements FileDAO{
                 //La Comuna viene en texto por lo que hay que buscar su ID
                 solicitud.setIdComuna(archivo.getIdComuna());
                 solicitud.setNombreComuna(archivo.getNombreComuna());
-                //solicitud.setIdRegion(Integer.parseInt(archivo.getRegionEmpleador()));
+                solicitud.setIdRegion(archivo.getIdRegion());
+                solicitud.setNombreRegion(archivo.getNombreRegion());
                 solicitud.setRutBeneficiario(Integer.parseInt(archivo.getRutTrabajador()));
                 solicitud.setDvBeneficiario(archivo.getDvTrabajador());
                 solicitud.setApellidoPaternoBeneficiario(archivo.getApellidoPaternoTrabajador());
@@ -60,6 +61,7 @@ public class FileDAOImpl implements FileDAO{
                 solicitud.setIdUsuario(1);
                 solicitud.setObservaciones("Solicitud Importada de Archivo");
                 solicitud.setListaCausantes(listaCausantes);
+                solicitud.setCiudadEmpleador(archivo.getCiudadEmpleador());
                 solicitudPagoService.insertarSolicitudPago(solicitud);
                 
             } catch (NumberFormatException | ParseException e) {

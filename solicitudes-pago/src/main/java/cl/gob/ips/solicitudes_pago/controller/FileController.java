@@ -70,7 +70,7 @@ public class FileController {
                 carga.setEmailEmpleador(fields[6]);
                 carga.setComunaEmpleador(fields[7]);
                 carga.setCiudadEmpleador(fields[8]);
-                carga.setRegionEmpleador(fields[9]);
+                carga.setNombreRegion(fields[9]);
                 carga.setRutTrabajador(fields[10]);
                 carga.setDvTrabajador(fields[11]);
                 carga.setApellidoPaternoTrabajador(fields[12]);
@@ -131,7 +131,7 @@ public class FileController {
                 carga.setEmailEmpleador(fields[6]);
                 carga.setComunaEmpleador(fields[7]);
                 carga.setCiudadEmpleador(fields[8]);
-                carga.setRegionEmpleador(fields[9]);
+                carga.setNombreRegion(fields[9]);
                 carga.setRutTrabajador(fields[10]);
                 carga.setDvTrabajador(fields[11]);
                 carga.setApellidoPaternoTrabajador(fields[12]);

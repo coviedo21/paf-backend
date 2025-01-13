@@ -35,6 +35,7 @@ import cl.gob.ips.solicitudes_pago.dto.CausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.DerechoCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenDTO;
@@ -317,6 +318,17 @@ public class SolicitudesPagosController {
         List<SolicitudDTO> solicitudes = solicitudPagoService.obtenerSolicitudesPorOrigen(origen, proceso, estado);
         if (solicitudes != null && !solicitudes.isEmpty()) {
             return ResponseEntity.ok(solicitudes);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
+    
+    @GetMapping("/obtenerDerechoCausantes/{rutBeneficiario}/{periodoDesde}/{periodoHasta}/{tipoBeneficiario}")
+    public ResponseEntity<List<DerechoCausanteDTO>> obtenerDerechoCausantes(@PathVariable("rutBeneficiario") Integer rutBeneficiario,@PathVariable("periodoDesde") Integer periodoDesde,@PathVariable("periodoHasta") Integer periodoHasta,@PathVariable("tipoBeneficiario") Integer tipoBeneficiario) {
+        List<DerechoCausanteDTO> derechoCausantes = causanteService.obtenerDerechoCausantes(rutBeneficiario,periodoDesde,periodoHasta,tipoBeneficiario);
+        if (derechoCausantes != null && !derechoCausantes.isEmpty()) {
+            return ResponseEntity.ok(derechoCausantes);
         } else {
             return ResponseEntity.noContent().build();
         }

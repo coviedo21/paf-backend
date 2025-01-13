@@ -59,6 +59,7 @@ public class SolicitudDTO {
     private Integer idCuentaBancaria;
     private Integer telefono;
     private Integer idRegion;
+    private String nombreRegion;
     private String finiquito;
     private Date fechaFiniquito;
     private Integer rutRepresentante;
@@ -69,4 +70,5 @@ public class SolicitudDTO {
     private String nombreOrigen;
     private List<CausanteSolicitudDTO> listaCausantes;
     private String cumpleCriterios;
+    String ciudadEmpleador;
 }
