@@ -352,7 +352,8 @@ public class SolicitudesPagosController {
         }
     }
 
-        @GetMapping("/detallePersona/{rut}")
+
+    @GetMapping("/detallePersona/{rut}")
     public ResponseEntity<DetallePersonaDTO> obtenerDetallePersona(@PathVariable("rut") int rut) {
 
         DetallePersonaDTO detallePersona = personaService.obtenerPersona(rut);
