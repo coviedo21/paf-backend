@@ -38,7 +38,7 @@ public class FileController {
 
     @PostMapping("/cargar-archivo-previred")
     public List<ArchivoSolicitudDTO> cargarArchivoPrevired( @RequestParam("file") MultipartFile file,
-            @RequestParam("origen") String origen) {
+            @RequestParam("origen") String origen, @RequestParam("periodo") String periodo) {
     List<ArchivoSolicitudDTO> listaSolicitudes = new ArrayList<>();
     /*String region [15,"valparíso"?¡];
     comuna[15,176,"vina del mar"]
@@ -99,7 +99,7 @@ public class FileController {
 
     @PostMapping("/cargar-archivo-especiales")
     public List<ArchivoSolicitudDTO> cargarArchivoEspeciales( @RequestParam("file") MultipartFile file,
-            @RequestParam("origen") String origen) {
+            @RequestParam("origen") String origen, @RequestParam("periodo") String periodo) {
     List<ArchivoSolicitudDTO> listaSolicitudes = new ArrayList<>();
     /*String region [15,"valparíso"?¡];
     comuna[15,176,"vina del mar"]
