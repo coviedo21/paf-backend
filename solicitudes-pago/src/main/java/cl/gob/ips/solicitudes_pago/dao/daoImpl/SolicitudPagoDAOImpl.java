@@ -65,29 +65,17 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("vcNombresBeneficiario", Types.VARCHAR),
                         new SqlParameter("vcApellidoPaternoBeneficiario", Types.VARCHAR),
                         new SqlParameter("vcApellidoMaternoBeneficiario", Types.VARCHAR),
-                        new SqlParameter("iRutCausante", Types.INTEGER),
-                        new SqlParameter("vcDvCausante", Types.VARCHAR),
-                        new SqlParameter("vcNombresCausante", Types.VARCHAR),
-                        new SqlParameter("vcApellidoPaternoCausante", Types.VARCHAR),
-                        new SqlParameter("vcApellidoMaternoCausante", Types.VARCHAR),
                         new SqlParameter("iRutReteniente", Types.INTEGER),
                         new SqlParameter("vcDvReteniente", Types.VARCHAR),
                         new SqlParameter("vcNombresReteniente", Types.VARCHAR),
                         new SqlParameter("vcApellidoPaternoReteniente", Types.VARCHAR),
                         new SqlParameter("vcApellidoMaternoReteniente", Types.VARCHAR),
-                        new SqlParameter("dInicioCompensacion", Types.DATE),
-                        new SqlParameter("dFinCompensacion", Types.DATE),
                         new SqlParameter("vcFilePathPrevired", Types.VARCHAR),
                         new SqlParameter("vcFilePathEspecial", Types.VARCHAR),
                         new SqlParameter("iOrigen", Types.INTEGER),
                         new SqlParameter("iTipoSolicitante", Types.INTEGER),
-                        new SqlParameter("iSubTipoSolicitante", Types.INTEGER),
                         new SqlParameter("vcObservaciones", Types.VARCHAR),
-                        new SqlParameter("montoReconocimientoDerecho", Types.DECIMAL),
-                        new SqlParameter("montoReconocimientoEfectivo", Types.DECIMAL),
                         new SqlParameter("conRetencionJudicial", Types.VARCHAR),
-                        new SqlParameter("invalida", Types.VARCHAR),
-                        new SqlParameter("emitida", Types.VARCHAR),
                         new SqlParameter("iIdCuentaBancaria", Types.INTEGER),
                         new SqlParameter("iTelefono", Types.INTEGER),
                         new SqlParameter("iIdRegion", Types.INTEGER),
@@ -123,29 +111,17 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("vcNombresBeneficiario", solicitudPago.getNombresBeneficiario())
                 .addValue("vcApellidoPaternoBeneficiario", solicitudPago.getApellidoPaternoBeneficiario())
                 .addValue("vcApellidoMaternoBeneficiario", solicitudPago.getApellidoMaternoBeneficiario())
-                .addValue("iRutCausante", solicitudPago.getRutCausante())
-                .addValue("vcDvCausante", solicitudPago.getDvCausante())
-                .addValue("vcNombresCausante", solicitudPago.getNombresCausante())
-                .addValue("vcApellidoPaternoCausante", solicitudPago.getApellidoPaternoCausante())
-                .addValue("vcApellidoMaternoCausante", solicitudPago.getApellidoMaternoCausante())
                 .addValue("iRutReteniente", solicitudPago.getRutReteniente())
                 .addValue("vcDvReteniente", solicitudPago.getDvReteniente())
                 .addValue("vcNombresReteniente", solicitudPago.getNombresReteniente())
                 .addValue("vcApellidoPaternoReteniente", solicitudPago.getApellidoPaternoReteniente())
                 .addValue("vcApellidoMaternoReteniente", solicitudPago.getApellidoMaternoReteniente())
-                .addValue("dInicioCompensacion", solicitudPago.getInicioCompensacion())
-                .addValue("dFinCompensacion", solicitudPago.getFinCompensacion())
                 .addValue("vcFilePathPrevired", solicitudPago.getFilePathPrevired())
                 .addValue("vcFilePathEspecial", solicitudPago.getFilePathEspecial())
                 .addValue("iOrigen", solicitudPago.getOrigen())
                 .addValue("iTipoSolicitante", solicitudPago.getTipoSolicitante()>0?solicitudPago.getTipoSolicitante():null)
-                .addValue("iSubTipoSolicitante", solicitudPago.getSubTipoSolicitante()>0?solicitudPago.getSubTipoSolicitante():null)
                 .addValue("vcObservaciones", solicitudPago.getObservaciones())
-                .addValue("montoReconocimientoDerecho", solicitudPago.getMontoReconocimientoDerecho())
-                .addValue("montoReconocimientoEfectivo", solicitudPago.getMontoReconocimientoEfectivo())
                 .addValue("conRetencionJudicial", solicitudPago.getConRetencionJudicial())
-                .addValue("invalida", solicitudPago.getInvalida())
-                .addValue("emitida", solicitudPago.getEmitida())
                 .addValue("iIdCuentaBancaria", solicitudPago.getIdCuentaBancaria())
                 .addValue("iTelefono", solicitudPago.getTelefono())
                 .addValue("iIdRegion", solicitudPago.getIdRegion())
@@ -153,7 +129,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("dFechaFiniquito", solicitudPago.getFechaFiniquito())
                 .addValue("iRutRepresentante", solicitudPago.getRutRepresentante())
                 .addValue("vcDvRepresentante", solicitudPago.getDvRepresentante())
-                .addValue("dFechaSolicitud", LocalDateTime.now())
+                .addValue("dFechaSolicitud", solicitudPago.getFechaSolicitud()!=null?solicitudPago.getFechaSolicitud():LocalDateTime.now())
                 .addValue("folio", solicitudPago.getFolio())
                 .addValue("vcNombreComuna", solicitudPago.getNombreComuna())
                 .addValue("vcNombreRegion", solicitudPago.getNombreRegion())
@@ -256,30 +232,18 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("nombresBeneficiario") != null) solicitudPagoDTO.setNombresBeneficiario((String) row.get("nombresBeneficiario"));
             if (row.get("apellidoPaternoBeneficiario") != null) solicitudPagoDTO.setApellidoPaternoBeneficiario((String) row.get("apellidoPaternoBeneficiario"));
             if (row.get("apellidoMaternoBeneficiario") != null) solicitudPagoDTO.setApellidoMaternoBeneficiario((String) row.get("apellidoMaternoBeneficiario"));
-            if (row.get("rutCausante") != null) solicitudPagoDTO.setRutCausante((Integer) row.get("rutCausante"));
-            if (row.get("dvCausante") != null) solicitudPagoDTO.setDvCausante((String) row.get("dvCausante"));
-            if (row.get("nombresCausante") != null) solicitudPagoDTO.setNombresCausante((String) row.get("nombresCausante"));
-            if (row.get("apellidoPaternoCausante") != null) solicitudPagoDTO.setApellidoPaternoCausante((String) row.get("apellidoPaternoCausante"));
-            if (row.get("apellidoMaternoCausante") != null) solicitudPagoDTO.setApellidoMaternoCausante((String) row.get("apellidoMaternoCausante"));
             if (row.get("rutReteniente") != null) solicitudPagoDTO.setRutReteniente((Integer) row.get("rutReteniente"));
             if (row.get("dvReteniente") != null) solicitudPagoDTO.setDvReteniente((String) row.get("dvReteniente"));
             if (row.get("nombresReteniente") != null) solicitudPagoDTO.setNombresReteniente((String) row.get("nombresReteniente"));
             if (row.get("apellidoPaternoReteniente") != null) solicitudPagoDTO.setApellidoPaternoReteniente((String) row.get("apellidoPaternoReteniente"));
             if (row.get("apellidoMaternoReteniente") != null) solicitudPagoDTO.setApellidoMaternoReteniente((String) row.get("apellidoMaternoReteniente"));
-            if (row.get("inicioCompensacion") != null) solicitudPagoDTO.setInicioCompensacion((Date) row.get("inicioCompensacion"));
-            if (row.get("finCompensacion") != null) solicitudPagoDTO.setFinCompensacion((Date) row.get("finCompensacion"));
             if (row.get("filePathPrevired") != null) solicitudPagoDTO.setFilePathPrevired((String) row.get("filePathPrevired"));
             if (row.get("filePathEspecial") != null) solicitudPagoDTO.setFilePathEspecial((String) row.get("filePathEspecial"));
             if (row.get("origen") != null) solicitudPagoDTO.setOrigen((Integer) row.get("origen"));
             if (row.get("tipoSolicitante") != null) solicitudPagoDTO.setTipoSolicitante((Integer) row.get("tipoSolicitante"));
             if (row.get("nombreTipoSolicitante") != null) solicitudPagoDTO.setNombreTipoSolicitante((String) row.get("nombreTipoSolicitante"));
-            if (row.get("subTipoSolicitante") != null) solicitudPagoDTO.setSubTipoSolicitante((Integer) row.get("subTipoSolicitante"));
             if (row.get("observaciones") != null) solicitudPagoDTO.setObservaciones((String) row.get("observaciones"));
-            if (row.get("montoReconocimientoDerecho") != null) solicitudPagoDTO.setMontoReconocimientoDerecho((BigDecimal) row.get("montoReconocimientoDerecho"));
-            if (row.get("montoReconocimientoEfectivo") != null) solicitudPagoDTO.setMontoReconocimientoEfectivo((BigDecimal) row.get("montoReconocimientoEfectivo"));
             if (row.get("conRetencionJudicial") != null) solicitudPagoDTO.setConRetencionJudicial((String) row.get("conRetencionJudicial"));
-            if (row.get("invalida") != null) solicitudPagoDTO.setInvalida((String) row.get("invalida"));
-            if (row.get("emitida") != null) solicitudPagoDTO.setEmitida((String) row.get("emitida"));
             if (row.get("idCuentaBancaria") != null) solicitudPagoDTO.setIdCuentaBancaria((Integer) row.get("idCuentaBancaria"));
             if (row.get("telefono") != null) solicitudPagoDTO.setTelefono((Integer) row.get("telefono"));
             if (row.get("idRegion") != null) solicitudPagoDTO.setIdRegion((Integer) row.get("idRegion"));
@@ -330,7 +294,6 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("iIdSolicitud", Types.INTEGER),
                         new SqlParameter("iIdProceso", Types.INTEGER),
                         new SqlParameter("iIdUsuario", Types.INTEGER),
-                        new SqlParameter("iIdTipoCausante", Types.INTEGER),
                         new SqlParameter("iIdComuna", Types.INTEGER),
                         new SqlParameter("iIdInstitucion", Types.INTEGER),
                         new SqlParameter("iIdHaber", Types.INTEGER),
@@ -347,26 +310,16 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("vcNombresBeneficiario", Types.VARCHAR),
                         new SqlParameter("vcApellidoPaternoBeneficiario", Types.VARCHAR),
                         new SqlParameter("vcApellidoMaternoBeneficiario", Types.VARCHAR),
-                        new SqlParameter("iRutCausante", Types.INTEGER),
-                        new SqlParameter("vcDvCausante", Types.VARCHAR),
-                        new SqlParameter("vcNombresCausante", Types.VARCHAR),
-                        new SqlParameter("vcApellidoPaternoCausante", Types.VARCHAR),
-                        new SqlParameter("vcApellidoMaternoCausante", Types.VARCHAR),
                         new SqlParameter("iRutReteniente", Types.INTEGER),
                         new SqlParameter("vcDvReteniente", Types.VARCHAR),
                         new SqlParameter("vcNombresReteniente", Types.VARCHAR),
                         new SqlParameter("vcApellidoPaternoReteniente", Types.VARCHAR),
                         new SqlParameter("vcApellidoMaternoReteniente", Types.VARCHAR),
-                        new SqlParameter("dInicioCompensacion", Types.DATE),
-                        new SqlParameter("dFinCompensacion", Types.DATE),
                         new SqlParameter("vcFilePathPrevired", Types.VARCHAR),
                         new SqlParameter("vcFilePathEspecial", Types.VARCHAR),
                         new SqlParameter("iOrigen", Types.INTEGER),
                         new SqlParameter("iTipoSolicitante", Types.INTEGER),
-                        new SqlParameter("iSubTipoSolicitante", Types.INTEGER),
                         new SqlParameter("vcObservaciones", Types.VARCHAR),
-                        new SqlParameter("montoReconocimientoDerecho", Types.DECIMAL),
-                        new SqlParameter("montoReconocimientoEfectivo", Types.DECIMAL),
                         new SqlParameter("conRetencionJudicial", Types.VARCHAR),
                         new SqlParameter("invalida", Types.VARCHAR),
                         new SqlParameter("emitida", Types.VARCHAR),
@@ -404,29 +357,17 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("vcNombresBeneficiario", solicitudPago.getNombresBeneficiario())
                 .addValue("vcApellidoPaternoBeneficiario", solicitudPago.getApellidoPaternoBeneficiario())
                 .addValue("vcApellidoMaternoBeneficiario", solicitudPago.getApellidoMaternoBeneficiario())
-                .addValue("iRutCausante", solicitudPago.getRutCausante())
-                .addValue("vcDvCausante", solicitudPago.getDvCausante())
-                .addValue("vcNombresCausante", solicitudPago.getNombresCausante())
-                .addValue("vcApellidoPaternoCausante", solicitudPago.getApellidoPaternoCausante())
-                .addValue("vcApellidoMaternoCausante", solicitudPago.getApellidoMaternoCausante())
                 .addValue("iRutReteniente", solicitudPago.getRutReteniente())
                 .addValue("vcDvReteniente", solicitudPago.getDvReteniente())
                 .addValue("vcNombresReteniente", solicitudPago.getNombresReteniente())
                 .addValue("vcApellidoPaternoReteniente", solicitudPago.getApellidoPaternoReteniente())
                 .addValue("vcApellidoMaternoReteniente", solicitudPago.getApellidoMaternoReteniente())
-                .addValue("dInicioCompensacion", solicitudPago.getInicioCompensacion())
-                .addValue("dFinCompensacion", solicitudPago.getFinCompensacion())
                 .addValue("vcFilePathPrevired", solicitudPago.getFilePathPrevired())
                 .addValue("vcFilePathEspecial", solicitudPago.getFilePathEspecial())
                 .addValue("iOrigen", solicitudPago.getOrigen()>0?solicitudPago.getOrigen():null)
                 .addValue("iTipoSolicitante", solicitudPago.getTipoSolicitante() > 0 ? solicitudPago.getTipoSolicitante() : null)
-                .addValue("iSubTipoSolicitante", solicitudPago.getSubTipoSolicitante() > 0 ? solicitudPago.getSubTipoSolicitante() : null)
                 .addValue("vcObservaciones", solicitudPago.getObservaciones())
-                .addValue("montoReconocimientoDerecho", solicitudPago.getMontoReconocimientoDerecho())
-                .addValue("montoReconocimientoEfectivo", solicitudPago.getMontoReconocimientoEfectivo())
                 .addValue("conRetencionJudicial", solicitudPago.getConRetencionJudicial())
-                .addValue("invalida", solicitudPago.getInvalida())
-                .addValue("emitida", solicitudPago.getEmitida())
                 .addValue("iIdCuentaBancaria", solicitudPago.getIdCuentaBancaria())
                 .addValue("iTelefono", solicitudPago.getTelefono())
                 .addValue("iIdRegion", solicitudPago.getIdRegion())
@@ -482,29 +423,17 @@ public List<SolicitudDTO> filtrarSolicitudesPago(String texto) {
         if (row.get("nombresBeneficiario") != null) solicitudPagoDTO.setNombresBeneficiario((String) row.get("nombresBeneficiario"));
         if (row.get("apellidoPaternoBeneficiario") != null) solicitudPagoDTO.setApellidoPaternoBeneficiario((String) row.get("apellidoPaternoBeneficiario"));
         if (row.get("apellidoMaternoBeneficiario") != null) solicitudPagoDTO.setApellidoMaternoBeneficiario((String) row.get("apellidoMaternoBeneficiario"));
-        if (row.get("rutCausante") != null) solicitudPagoDTO.setRutCausante((Integer) row.get("rutCausante"));
-        if (row.get("dvCausante") != null) solicitudPagoDTO.setDvCausante((String) row.get("dvCausante"));
-        if (row.get("nombresCausante") != null) solicitudPagoDTO.setNombresCausante((String) row.get("nombresCausante"));
-        if (row.get("apellidoPaternoCausante") != null) solicitudPagoDTO.setApellidoPaternoCausante((String) row.get("apellidoPaternoCausante"));
-        if (row.get("apellidoMaternoCausante") != null) solicitudPagoDTO.setApellidoMaternoCausante((String) row.get("apellidoMaternoCausante"));
         if (row.get("rutReteniente") != null) solicitudPagoDTO.setRutReteniente((Integer) row.get("rutReteniente"));
         if (row.get("dvReteniente") != null) solicitudPagoDTO.setDvReteniente((String) row.get("dvReteniente"));
         if (row.get("nombresReteniente") != null) solicitudPagoDTO.setNombresReteniente((String) row.get("nombresReteniente"));
         if (row.get("apellidoPaternoReteniente") != null) solicitudPagoDTO.setApellidoPaternoReteniente((String) row.get("apellidoPaternoReteniente"));
         if (row.get("apellidoMaternoReteniente") != null) solicitudPagoDTO.setApellidoMaternoReteniente((String) row.get("apellidoMaternoReteniente"));
-        if (row.get("inicioCompensacion") != null) solicitudPagoDTO.setInicioCompensacion((Date) row.get("inicioCompensacion"));
-        if (row.get("finCompensacion") != null) solicitudPagoDTO.setFinCompensacion((Date) row.get("finCompensacion"));
         if (row.get("filePathPrevired") != null) solicitudPagoDTO.setFilePathPrevired((String) row.get("filePathPrevired"));
         if (row.get("filePathEspecial") != null) solicitudPagoDTO.setFilePathEspecial((String) row.get("filePathEspecial"));
         if (row.get("origen") != null) solicitudPagoDTO.setOrigen((Integer) row.get("origen"));
         if (row.get("tipoSolicitante") != null) solicitudPagoDTO.setTipoSolicitante((Integer) row.get("tipoSolicitante"));
-        if (row.get("subTipoSolicitante") != null) solicitudPagoDTO.setSubTipoSolicitante((Integer) row.get("subTipoSolicitante"));
         if (row.get("observaciones") != null) solicitudPagoDTO.setObservaciones((String) row.get("observaciones"));
-        if (row.get("montoReconocimientoDerecho") != null) solicitudPagoDTO.setMontoReconocimientoDerecho((BigDecimal) row.get("montoReconocimientoDerecho"));
-        if (row.get("montoReconocimientoEfectivo") != null) solicitudPagoDTO.setMontoReconocimientoEfectivo((BigDecimal) row.get("montoReconocimientoEfectivo"));
         if (row.get("conRetencionJudicial") != null) solicitudPagoDTO.setConRetencionJudicial((String) row.get("conRetencionJudicial"));
-        if (row.get("invalida") != null) solicitudPagoDTO.setInvalida((String) row.get("invalida"));
-        if (row.get("emitida") != null) solicitudPagoDTO.setEmitida((String) row.get("emitida"));
         if (row.get("idCuentaBancaria") != null) solicitudPagoDTO.setIdCuentaBancaria((Integer) row.get("idCuentaBancaria"));
         if (row.get("telefono") != null) solicitudPagoDTO.setTelefono((Integer) row.get("telefono"));
         if (row.get("idRegion") != null) solicitudPagoDTO.setIdRegion((Integer) row.get("idRegion"));
@@ -556,29 +485,17 @@ public List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSo
             if (row.get("nombresBeneficiario") != null) solicitudPagoDTO.setNombresBeneficiario((String) row.get("nombresBeneficiario"));
             if (row.get("apellidoPaternoBeneficiario") != null) solicitudPagoDTO.setApellidoPaternoBeneficiario((String) row.get("apellidoPaternoBeneficiario"));
             if (row.get("apellidoMaternoBeneficiario") != null) solicitudPagoDTO.setApellidoMaternoBeneficiario((String) row.get("apellidoMaternoBeneficiario"));
-            if (row.get("rutCausante") != null) solicitudPagoDTO.setRutCausante((Integer) row.get("rutCausante"));
-            if (row.get("dvCausante") != null) solicitudPagoDTO.setDvCausante((String) row.get("dvCausante"));
-            if (row.get("nombresCausante") != null) solicitudPagoDTO.setNombresCausante((String) row.get("nombresCausante"));
-            if (row.get("apellidoPaternoCausante") != null) solicitudPagoDTO.setApellidoPaternoCausante((String) row.get("apellidoPaternoCausante"));
-            if (row.get("apellidoMaternoCausante") != null) solicitudPagoDTO.setApellidoMaternoCausante((String) row.get("apellidoMaternoCausante"));
             if (row.get("rutReteniente") != null) solicitudPagoDTO.setRutReteniente((Integer) row.get("rutReteniente"));
             if (row.get("dvReteniente") != null) solicitudPagoDTO.setDvReteniente((String) row.get("dvReteniente"));
             if (row.get("nombresReteniente") != null) solicitudPagoDTO.setNombresReteniente((String) row.get("nombresReteniente"));
             if (row.get("apellidoPaternoReteniente") != null) solicitudPagoDTO.setApellidoPaternoReteniente((String) row.get("apellidoPaternoReteniente"));
             if (row.get("apellidoMaternoReteniente") != null) solicitudPagoDTO.setApellidoMaternoReteniente((String) row.get("apellidoMaternoReteniente"));
-            if (row.get("inicioCompensacion") != null) solicitudPagoDTO.setInicioCompensacion((Date) row.get("inicioCompensacion"));
-            if (row.get("finCompensacion") != null) solicitudPagoDTO.setFinCompensacion((Date) row.get("finCompensacion"));
             if (row.get("filePathPrevired") != null) solicitudPagoDTO.setFilePathPrevired((String) row.get("filePathPrevired"));
             if (row.get("filePathEspecial") != null) solicitudPagoDTO.setFilePathEspecial((String) row.get("filePathEspecial"));
             if (row.get("origen") != null) solicitudPagoDTO.setOrigen((Integer) row.get("origen"));
             if (row.get("tipoSolicitante") != null) solicitudPagoDTO.setTipoSolicitante((Integer) row.get("tipoSolicitante"));
-            if (row.get("subTipoSolicitante") != null) solicitudPagoDTO.setSubTipoSolicitante((Integer) row.get("subTipoSolicitante"));
             if (row.get("observaciones") != null) solicitudPagoDTO.setObservaciones((String) row.get("observaciones"));
-            if (row.get("montoReconocimientoDerecho") != null) solicitudPagoDTO.setMontoReconocimientoDerecho((BigDecimal) row.get("montoReconocimientoDerecho"));
-            if (row.get("montoReconocimientoEfectivo") != null) solicitudPagoDTO.setMontoReconocimientoEfectivo((BigDecimal) row.get("montoReconocimientoEfectivo"));
             if (row.get("conRetencionJudicial") != null) solicitudPagoDTO.setConRetencionJudicial((String) row.get("conRetencionJudicial"));
-            if (row.get("invalida") != null) solicitudPagoDTO.setInvalida((String) row.get("invalida"));
-            if (row.get("emitida") != null) solicitudPagoDTO.setEmitida((String) row.get("emitida"));
             if (row.get("idCuentaBancaria") != null) solicitudPagoDTO.setIdCuentaBancaria((Integer) row.get("idCuentaBancaria"));
             if (row.get("telefono") != null) solicitudPagoDTO.setTelefono((Integer) row.get("telefono"));
             if (row.get("idRegion") != null) solicitudPagoDTO.setIdRegion((Integer) row.get("idRegion"));
@@ -801,29 +718,17 @@ public List<SolicitudDTO> obtenerSolicitudesPorEstado(int idEstado) {
             if (row.get("nombresBeneficiario") != null) solicitudPagoDTO.setNombresBeneficiario((String) row.get("nombresBeneficiario"));
             if (row.get("apellidoPaternoBeneficiario") != null) solicitudPagoDTO.setApellidoPaternoBeneficiario((String) row.get("apellidoPaternoBeneficiario"));
             if (row.get("apellidoMaternoBeneficiario") != null) solicitudPagoDTO.setApellidoMaternoBeneficiario((String) row.get("apellidoMaternoBeneficiario"));
-            if (row.get("rutCausante") != null) solicitudPagoDTO.setRutCausante((Integer) row.get("rutCausante"));
-            if (row.get("dvCausante") != null) solicitudPagoDTO.setDvCausante((String) row.get("dvCausante"));
-            if (row.get("nombresCausante") != null) solicitudPagoDTO.setNombresCausante((String) row.get("nombresCausante"));
-            if (row.get("apellidoPaternoCausante") != null) solicitudPagoDTO.setApellidoPaternoCausante((String) row.get("apellidoPaternoCausante"));
-            if (row.get("apellidoMaternoCausante") != null) solicitudPagoDTO.setApellidoMaternoCausante((String) row.get("apellidoMaternoCausante"));
             if (row.get("rutReteniente") != null) solicitudPagoDTO.setRutReteniente((Integer) row.get("rutReteniente"));
             if (row.get("dvReteniente") != null) solicitudPagoDTO.setDvReteniente((String) row.get("dvReteniente"));
             if (row.get("nombresReteniente") != null) solicitudPagoDTO.setNombresReteniente((String) row.get("nombresReteniente"));
             if (row.get("apellidoPaternoReteniente") != null) solicitudPagoDTO.setApellidoPaternoReteniente((String) row.get("apellidoPaternoReteniente"));
             if (row.get("apellidoMaternoReteniente") != null) solicitudPagoDTO.setApellidoMaternoReteniente((String) row.get("apellidoMaternoReteniente"));
-            if (row.get("inicioCompensacion") != null) solicitudPagoDTO.setInicioCompensacion((Date) row.get("inicioCompensacion"));
-            if (row.get("finCompensacion") != null) solicitudPagoDTO.setFinCompensacion((Date) row.get("finCompensacion"));
             if (row.get("filePathPrevired") != null) solicitudPagoDTO.setFilePathPrevired((String) row.get("filePathPrevired"));
             if (row.get("filePathEspecial") != null) solicitudPagoDTO.setFilePathEspecial((String) row.get("filePathEspecial"));
             if (row.get("origen") != null) solicitudPagoDTO.setOrigen((Integer) row.get("origen"));
             if (row.get("tipoSolicitante") != null) solicitudPagoDTO.setTipoSolicitante((Integer) row.get("tipoSolicitante"));
-            if (row.get("subTipoSolicitante") != null) solicitudPagoDTO.setSubTipoSolicitante((Integer) row.get("subTipoSolicitante"));
             if (row.get("observaciones") != null) solicitudPagoDTO.setObservaciones((String) row.get("observaciones"));
-            if (row.get("montoReconocimientoDerecho") != null) solicitudPagoDTO.setMontoReconocimientoDerecho((BigDecimal) row.get("montoReconocimientoDerecho"));
-            if (row.get("montoReconocimientoEfectivo") != null) solicitudPagoDTO.setMontoReconocimientoEfectivo((BigDecimal) row.get("montoReconocimientoEfectivo"));
             if (row.get("conRetencionJudicial") != null) solicitudPagoDTO.setConRetencionJudicial((String) row.get("conRetencionJudicial"));
-            if (row.get("invalida") != null) solicitudPagoDTO.setInvalida((String) row.get("invalida"));
-            if (row.get("emitida") != null) solicitudPagoDTO.setEmitida((String) row.get("emitida"));
             if (row.get("idCuentaBancaria") != null) solicitudPagoDTO.setIdCuentaBancaria((Integer) row.get("idCuentaBancaria"));
             if (row.get("telefono") != null) solicitudPagoDTO.setTelefono((Integer) row.get("telefono"));
             if (row.get("idRegion") != null) solicitudPagoDTO.setIdRegion((Integer) row.get("idRegion"));
@@ -873,24 +778,12 @@ public List<SolicitudDTO> obtenerSolicitudesAntiguas(int dias) {
         if (row.get("nombresBeneficiario") != null) solicitudPagoDTO.setNombresBeneficiario((String) row.get("nombresBeneficiario"));
         if (row.get("apellidoPaternoBeneficiario") != null) solicitudPagoDTO.setApellidoPaternoBeneficiario((String) row.get("apellidoPaternoBeneficiario"));
         if (row.get("apellidoMaternoBeneficiario") != null) solicitudPagoDTO.setApellidoMaternoBeneficiario((String) row.get("apellidoMaternoBeneficiario"));
-        if (row.get("rutCausante") != null) solicitudPagoDTO.setRutCausante((Integer) row.get("rutCausante"));
-        if (row.get("dvCausante") != null) solicitudPagoDTO.setDvCausante((String) row.get("dvCausante"));
-        if (row.get("nombresCausante") != null) solicitudPagoDTO.setNombresCausante((String) row.get("nombresCausante"));
-        if (row.get("apellidoPaternoCausante") != null) solicitudPagoDTO.setApellidoPaternoCausante((String) row.get("apellidoPaternoCausante"));
-        if (row.get("apellidoMaternoCausante") != null) solicitudPagoDTO.setApellidoMaternoCausante((String) row.get("apellidoMaternoCausante"));
-        if (row.get("inicioCompensacion") != null) solicitudPagoDTO.setInicioCompensacion((Date) row.get("inicioCompensacion"));
-        if (row.get("finCompensacion") != null) solicitudPagoDTO.setFinCompensacion((Date) row.get("finCompensacion"));
         if (row.get("filePathPrevired") != null) solicitudPagoDTO.setFilePathPrevired((String) row.get("filePathPrevired"));
         if (row.get("filePathEspecial") != null) solicitudPagoDTO.setFilePathEspecial((String) row.get("filePathEspecial"));
         if (row.get("origen") != null) solicitudPagoDTO.setOrigen((Integer) row.get("origen"));
         if (row.get("tipoSolicitante") != null) solicitudPagoDTO.setTipoSolicitante((Integer) row.get("tipoSolicitante"));
-        if (row.get("subTipoSolicitante") != null) solicitudPagoDTO.setSubTipoSolicitante((Integer) row.get("subTipoSolicitante"));
         if (row.get("observaciones") != null) solicitudPagoDTO.setObservaciones((String) row.get("observaciones"));
-        if (row.get("montoReconocimientoDerecho") != null) solicitudPagoDTO.setMontoReconocimientoDerecho((BigDecimal) row.get("montoReconocimientoDerecho"));
-        if (row.get("montoReconocimientoEfectivo") != null) solicitudPagoDTO.setMontoReconocimientoEfectivo((BigDecimal) row.get("montoReconocimientoEfectivo"));
         if (row.get("conRetencionJudicial") != null) solicitudPagoDTO.setConRetencionJudicial((String) row.get("conRetencionJudicial"));
-        if (row.get("invalida") != null) solicitudPagoDTO.setInvalida((String) row.get("invalida"));
-        if (row.get("emitida") != null) solicitudPagoDTO.setEmitida((String) row.get("emitida"));
         if (row.get("idCuentaBancaria") != null) solicitudPagoDTO.setIdCuentaBancaria((Integer) row.get("idCuentaBancaria"));
         if (row.get("telefono") != null) solicitudPagoDTO.setTelefono((Integer) row.get("telefono"));
         if (row.get("idRegion") != null) solicitudPagoDTO.setIdRegion((Integer) row.get("idRegion"));
@@ -939,11 +832,6 @@ public List<SolicitudDTO> obtenerSolicitudesPorBeneficiario(Integer rutBeneficia
         if (row.get("nombresBeneficiario") != null) solicitudPagoDTO.setNombresBeneficiario((String) row.get("nombresBeneficiario"));
         if (row.get("apellidoPaternoBeneficiario") != null) solicitudPagoDTO.setApellidoPaternoBeneficiario((String) row.get("apellidoPaternoBeneficiario"));
         if (row.get("apellidoMaternoBeneficiario") != null) solicitudPagoDTO.setApellidoMaternoBeneficiario((String) row.get("apellidoMaternoBeneficiario"));
-        if (row.get("rutCausante") != null) solicitudPagoDTO.setRutCausante((Integer) row.get("rutCausante"));
-        if (row.get("dvCausante") != null) solicitudPagoDTO.setDvCausante((String) row.get("dvCausante"));
-        if (row.get("nombresCausante") != null) solicitudPagoDTO.setNombresCausante((String) row.get("nombresCausante"));
-        if (row.get("apellidoPaternoCausante") != null) solicitudPagoDTO.setApellidoPaternoCausante((String) row.get("apellidoPaternoCausante"));
-        if (row.get("apellidoMaternoCausante") != null) solicitudPagoDTO.setApellidoMaternoCausante((String) row.get("apellidoMaternoCausante"));
         if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
         if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
         if (row.get("cumpleCriterios") != null) solicitudPagoDTO.setCumpleCriterios((String) row.get("cumpleCriterios"));
@@ -986,11 +874,6 @@ public List<SolicitudDTO> obtenerSolicitudesPorEmpleador(Integer rutEmpleador) {
         if (row.get("nombresBeneficiario") != null) solicitudPagoDTO.setNombresBeneficiario((String) row.get("nombresBeneficiario"));
         if (row.get("apellidoPaternoBeneficiario") != null) solicitudPagoDTO.setApellidoPaternoBeneficiario((String) row.get("apellidoPaternoBeneficiario"));
         if (row.get("apellidoMaternoBeneficiario") != null) solicitudPagoDTO.setApellidoMaternoBeneficiario((String) row.get("apellidoMaternoBeneficiario"));
-        if (row.get("rutCausante") != null) solicitudPagoDTO.setRutCausante((Integer) row.get("rutCausante"));
-        if (row.get("dvCausante") != null) solicitudPagoDTO.setDvCausante((String) row.get("dvCausante"));
-        if (row.get("nombresCausante") != null) solicitudPagoDTO.setNombresCausante((String) row.get("nombresCausante"));
-        if (row.get("apellidoPaternoCausante") != null) solicitudPagoDTO.setApellidoPaternoCausante((String) row.get("apellidoPaternoCausante"));
-        if (row.get("apellidoMaternoCausante") != null) solicitudPagoDTO.setApellidoMaternoCausante((String) row.get("apellidoMaternoCausante"));
         if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
         if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
         if (row.get("cumpleCriterios") != null) solicitudPagoDTO.setCumpleCriterios((String) row.get("cumpleCriterios"));
@@ -1034,11 +917,6 @@ public List<SolicitudDTO> obtenerSolicitudesPorOrigen(Integer origen, Integer pr
         if (row.get("nombresBeneficiario") != null) solicitudPagoDTO.setNombresBeneficiario((String) row.get("nombresBeneficiario"));
         if (row.get("apellidoPaternoBeneficiario") != null) solicitudPagoDTO.setApellidoPaternoBeneficiario((String) row.get("apellidoPaternoBeneficiario"));
         if (row.get("apellidoMaternoBeneficiario") != null) solicitudPagoDTO.setApellidoMaternoBeneficiario((String) row.get("apellidoMaternoBeneficiario"));
-        if (row.get("rutCausante") != null) solicitudPagoDTO.setRutCausante((Integer) row.get("rutCausante"));
-        if (row.get("dvCausante") != null) solicitudPagoDTO.setDvCausante((String) row.get("dvCausante"));
-        if (row.get("nombresCausante") != null) solicitudPagoDTO.setNombresCausante((String) row.get("nombresCausante"));
-        if (row.get("apellidoPaternoCausante") != null) solicitudPagoDTO.setApellidoPaternoCausante((String) row.get("apellidoPaternoCausante"));
-        if (row.get("apellidoMaternoCausante") != null) solicitudPagoDTO.setApellidoMaternoCausante((String) row.get("apellidoMaternoCausante"));
         if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
         if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
         if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
