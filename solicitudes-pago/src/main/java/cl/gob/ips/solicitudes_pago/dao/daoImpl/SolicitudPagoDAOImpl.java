@@ -321,8 +321,6 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("iTipoSolicitante", Types.INTEGER),
                         new SqlParameter("vcObservaciones", Types.VARCHAR),
                         new SqlParameter("conRetencionJudicial", Types.VARCHAR),
-                        new SqlParameter("invalida", Types.VARCHAR),
-                        new SqlParameter("emitida", Types.VARCHAR),
                         new SqlParameter("iIdCuentaBancaria", Types.INTEGER),
                         new SqlParameter("iTelefono", Types.INTEGER),
                         new SqlParameter("iIdRegion", Types.INTEGER),
