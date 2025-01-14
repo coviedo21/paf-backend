@@ -101,6 +101,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("dFechaSolicitud", Types.TIMESTAMP),
                         new SqlParameter("folio", Types.BIGINT),
                         new SqlParameter("vcNombreComuna", Types.VARCHAR),
+                        new SqlParameter("vcNombreRegion", Types.VARCHAR),
+                        new SqlParameter("vcCiudad", Types.VARCHAR),
                         new SqlOutParameter("idSolicitud", Types.INTEGER),
                         new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                 );
@@ -157,7 +159,9 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("vcDvRepresentante", solicitudPago.getDvRepresentante())
                 .addValue("dFechaSolicitud", LocalDateTime.now())
                 .addValue("folio", solicitudPago.getFolio())
-                .addValue("vcNombreComuna", solicitudPago.getNombreComuna());
+                .addValue("vcNombreComuna", solicitudPago.getNombreComuna())
+                .addValue("vcNombreRegion", solicitudPago.getNombreRegion())
+                .addValue("vcCiudad", solicitudPago.getCiudadEmpleador());
 
         try {
             Map<String, Object> result = jdbcCall.execute(inParams);
@@ -293,6 +297,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
             if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
             if (row.get("cumpleCriterios") != null) solicitudPagoDTO.setCumpleCriterios((String) row.get("cumpleCriterios"));
+            if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
+            if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
             solicitudesPago.add(solicitudPagoDTO);
 
             // Consulta los causantes de la solicitud actual 
@@ -515,6 +521,8 @@ public List<SolicitudDTO> filtrarSolicitudesPago(String texto) {
         if (row.get("dvRepresentante") != null) solicitudPagoDTO.setDvRepresentante((String) row.get("dvRepresentante"));
         if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
         if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
+        if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
+            if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
         solicitudesPago.add(solicitudPagoDTO);
     }
     }catch(Exception e){
@@ -590,6 +598,8 @@ public List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSo
             if (row.get("folio") != null) solicitudPagoDTO.setFolio((Long) row.get("folio"));
             if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
             if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
+            if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
+            if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
             solicitudesPago.add(solicitudPagoDTO);
         }
 
@@ -834,6 +844,8 @@ public List<SolicitudDTO> obtenerSolicitudesPorEstado(int idEstado) {
             if (row.get("folio") != null) solicitudPagoDTO.setFolio((Long) row.get("folio"));
             if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
             if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
+            if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
+            if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
             solicitudesPago.add(solicitudPagoDTO);
         }
 
@@ -898,6 +910,8 @@ public List<SolicitudDTO> obtenerSolicitudesAntiguas(int dias) {
         if (row.get("dvRepresentante") != null) solicitudPagoDTO.setDvRepresentante((String) row.get("dvRepresentante"));
         if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud((Date) row.get("fechaSolicitud"));
         if (row.get("folio") != null) solicitudPagoDTO.setFolio((Long) row.get("folio"));
+        if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
+        if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
         solicitudesPago.add(solicitudPagoDTO);
     }
 
@@ -944,6 +958,8 @@ public List<SolicitudDTO> obtenerSolicitudesPorBeneficiario(Integer rutBeneficia
         if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
         if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
         if (row.get("cumpleCriterios") != null) solicitudPagoDTO.setCumpleCriterios((String) row.get("cumpleCriterios"));
+        if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
+        if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
         solicitudes.add(solicitudPagoDTO);
     }
     
@@ -989,7 +1005,9 @@ public List<SolicitudDTO> obtenerSolicitudesPorEmpleador(Integer rutEmpleador) {
         if (row.get("apellidoMaternoCausante") != null) solicitudPagoDTO.setApellidoMaternoCausante((String) row.get("apellidoMaternoCausante"));
         if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
         if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
-        if (row.get("cumpleCriterios") != null) solicitudPagoDTO.setCumpleCriterios((String) row.get("cumpleCriterios"));        
+        if (row.get("cumpleCriterios") != null) solicitudPagoDTO.setCumpleCriterios((String) row.get("cumpleCriterios"));
+        if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
+        if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
         solicitudes.add(solicitudPagoDTO);
     }
     
@@ -1036,7 +1054,8 @@ public List<SolicitudDTO> obtenerSolicitudesPorOrigen(Integer origen, Integer pr
         if (row.get("apellidoMaternoCausante") != null) solicitudPagoDTO.setApellidoMaternoCausante((String) row.get("apellidoMaternoCausante"));
         if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
         if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
-        
+        if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
+        if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));        
         solicitudes.add(solicitudPagoDTO);
     }
     

@@ -55,7 +55,7 @@ public class FileServiceImpl implements FileService {
             bw.newLine(); // Saltar a la siguiente línea después de la cabecera
 
             for (ArchivoSolicitudDTO archivo : listaSolicitudes) {
-                String regionKey = archivo.getRegionEmpleador().trim().toUpperCase();
+                String regionKey = archivo.getNombreRegion().trim().toUpperCase();
                 ResultadoRegionDTO region = null;
 
                 if (regionCache.containsKey(regionKey)) {
@@ -64,18 +64,20 @@ public class FileServiceImpl implements FileService {
                 } else {
                     // Validar la región si no está en la caché
                     //String url = String.format("https://pagosafback-dev.azurewebsites.net/pagos-asignacion-familiar-v1/pagos/crear-solicitud");
-                    String url = String.format("http://localhost:8080/mantenedor/validarRegion/"+archivo.getRegionEmpleador());
+                    String url = String.format("http://localhost:8080/mantenedor/validarRegion/"+archivo.getNombreRegion());
                     region = restTemplate.getForObject(url, ResultadoRegionDTO.class);
                     //region = comunaService.validarRegion(archivo.getRegionEmpleador());
                     if (region != null) {
                         regionCache.put(regionKey, region);
                     } else {
                         // Manejo de casos donde no se encontró la región
-                        archivo.setRegionEmpleador("**ERROR**" + archivo.getRegionEmpleador());
+                        archivo.setNombreRegion("**ERROR**" + archivo.getNombreRegion());
                     }
                 }
 
                 if (region != null) {
+                    archivo.setIdRegion(region.getCodigoRegion());
+                    archivo.setNombreRegion(region.getNombreRegion());
                     String comunaKey = region.getCodigoRegion() + "|" + archivo.getComunaEmpleador().trim().toUpperCase();
 
                     ListaComunaDTO comuna = null;
@@ -158,7 +160,7 @@ public class FileServiceImpl implements FileService {
             archivo.getEmailEmpleador() + ";" +
             archivo.getComunaEmpleador() + ";" +
             archivo.getCiudadEmpleador() + ";" +
-            archivo.getRegionEmpleador() + ";" +
+            archivo.getNombreRegion() + ";" +
             archivo.getRutTrabajador() + ";" +
             archivo.getDvTrabajador() + ";" +
             archivo.getApellidoPaternoTrabajador() + ";" +
