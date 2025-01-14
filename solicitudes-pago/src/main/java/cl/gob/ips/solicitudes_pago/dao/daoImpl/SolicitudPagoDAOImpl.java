@@ -11,14 +11,12 @@ import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.PutMapping;
 
 import cl.gob.ips.solicitudes_pago.dao.SolicitudPagoDAO;
 
@@ -51,7 +49,6 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .declareParameters(
                         new SqlParameter("iIdProceso", Types.INTEGER),
                         new SqlParameter("iIdUsuario", Types.INTEGER),
-                        new SqlParameter("iIdTipoCausante", Types.INTEGER),
                         new SqlParameter("iIdComuna", Types.INTEGER),
                         new SqlParameter("iIdInstitucion", Types.INTEGER),
                         new SqlParameter("iIdHaber", Types.INTEGER),
@@ -110,7 +107,6 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
         MapSqlParameterSource inParams = new MapSqlParameterSource()
                 .addValue("iIdProceso", solicitudPago.getIdProceso()>0?solicitudPago.getIdProceso():null)
                 .addValue("iIdUsuario", solicitudPago.getIdUsuario())
-                .addValue("iIdTipoCausante", solicitudPago.getIdTipoCausante()>0?solicitudPago.getIdTipoCausante()>0:null)
                 .addValue("iIdComuna", solicitudPago.getIdComuna())
                 .addValue("iIdInstitucion", solicitudPago.getIdInstitucion())
                 .addValue("iIdHaber", solicitudPago.getIdHaber())
@@ -243,7 +239,6 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("idSolicitud") != null) solicitudPagoDTO.setIdSolicitud((Integer) row.get("idSolicitud"));
             if (row.get("idProceso") != null) solicitudPagoDTO.setIdProceso((Integer) row.get("idProceso"));
             if (row.get("idUsuario") != null) solicitudPagoDTO.setIdUsuario((Integer) row.get("idUsuario"));
-            if (row.get("idTipoCausante") != null) solicitudPagoDTO.setIdTipoCausante((Integer) row.get("idTipoCausante"));
             if (row.get("idComuna") != null) solicitudPagoDTO.setIdComuna((Integer) row.get("idComuna"));
             if (row.get("nombreComuna") != null) solicitudPagoDTO.setNombreComuna((String) row.get("nombreComuna"));
             if (row.get("idInstitucion") != null) solicitudPagoDTO.setIdInstitucion((Integer) row.get("idInstitucion"));
@@ -393,7 +388,6 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("iIdSolicitud", solicitudPago.getIdSolicitud())
                 .addValue("iIdProceso", solicitudPago.getIdProceso() > 0 ? solicitudPago.getIdProceso() : null)
                 .addValue("iIdUsuario", solicitudPago.getIdUsuario() > 0 ? solicitudPago.getIdUsuario(): null)
-                .addValue("iIdTipoCausante", solicitudPago.getIdTipoCausante() > 0 ? solicitudPago.getIdTipoCausante() : null)
                 .addValue("iIdComuna", solicitudPago.getIdComuna()>0?solicitudPago.getIdComuna():null)
                 .addValue("iIdInstitucion", solicitudPago.getIdInstitucion())
                 .addValue("iIdHaber", solicitudPago.getIdHaber())
@@ -472,7 +466,6 @@ public List<SolicitudDTO> filtrarSolicitudesPago(String texto) {
         if (row.get("idSolicitud") != null) solicitudPagoDTO.setIdSolicitud((Integer) row.get("idSolicitud"));
         if (row.get("idProceso") != null) solicitudPagoDTO.setIdProceso((Integer) row.get("idProceso"));
         if (row.get("idUsuario") != null) solicitudPagoDTO.setIdUsuario((Integer) row.get("idUsuario"));
-        if (row.get("idTipoCausante") != null) solicitudPagoDTO.setIdTipoCausante((Integer) row.get("idTipoCausante"));
         if (row.get("idComuna") != null) solicitudPagoDTO.setIdComuna((Integer) row.get("idComuna"));
         if (row.get("idInstitucion") != null) solicitudPagoDTO.setIdInstitucion((Integer) row.get("idInstitucion"));
         if (row.get("idHaber") != null) solicitudPagoDTO.setIdHaber((Integer) row.get("idHaber"));
@@ -547,7 +540,6 @@ public List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSo
             if (row.get("idSolicitud") != null) solicitudPagoDTO.setIdSolicitud((Integer) row.get("idSolicitud"));
             if (row.get("idProceso") != null) solicitudPagoDTO.setIdProceso((Integer) row.get("idProceso"));
             if (row.get("idUsuario") != null) solicitudPagoDTO.setIdUsuario((Integer) row.get("idUsuario"));
-            if (row.get("idTipoCausante") != null) solicitudPagoDTO.setIdTipoCausante((Integer) row.get("idTipoCausante"));
             if (row.get("idComuna") != null) solicitudPagoDTO.setIdComuna((Integer) row.get("idComuna"));
             if (row.get("idInstitucion") != null) solicitudPagoDTO.setIdInstitucion((Integer) row.get("idInstitucion"));
             if (row.get("idHaber") != null) solicitudPagoDTO.setIdHaber((Integer) row.get("idHaber"));
@@ -793,7 +785,6 @@ public List<SolicitudDTO> obtenerSolicitudesPorEstado(int idEstado) {
             if (row.get("idSolicitud") != null) solicitudPagoDTO.setIdSolicitud((Integer) row.get("idSolicitud"));
             if (row.get("idProceso") != null) solicitudPagoDTO.setIdProceso((Integer) row.get("idProceso"));
             if (row.get("idUsuario") != null) solicitudPagoDTO.setIdUsuario((Integer) row.get("idUsuario"));
-            if (row.get("idTipoCausante") != null) solicitudPagoDTO.setIdTipoCausante((Integer) row.get("idTipoCausante"));
             if (row.get("idComuna") != null) solicitudPagoDTO.setIdComuna((Integer) row.get("idComuna"));
             if (row.get("idInstitucion") != null) solicitudPagoDTO.setIdInstitucion((Integer) row.get("idInstitucion"));
             if (row.get("idHaber") != null) solicitudPagoDTO.setIdHaber((Integer) row.get("idHaber"));
@@ -866,7 +857,6 @@ public List<SolicitudDTO> obtenerSolicitudesAntiguas(int dias) {
         if (row.get("idSolicitud") != null) solicitudPagoDTO.setIdSolicitud((Integer) row.get("idSolicitud"));
         if (row.get("idProceso") != null) solicitudPagoDTO.setIdProceso((Integer) row.get("idProceso"));
         if (row.get("idUsuario") != null) solicitudPagoDTO.setIdUsuario((Integer) row.get("idUsuario"));
-        if (row.get("idTipoCausante") != null) solicitudPagoDTO.setIdTipoCausante((Integer) row.get("idTipoCausante"));
         if (row.get("idComuna") != null) solicitudPagoDTO.setIdComuna((Integer) row.get("idComuna"));
         if (row.get("idInstitucion") != null) solicitudPagoDTO.setIdInstitucion((Integer) row.get("idInstitucion"));
         if (row.get("idHaber") != null) solicitudPagoDTO.setIdHaber((Integer) row.get("idHaber"));
@@ -932,7 +922,6 @@ public List<SolicitudDTO> obtenerSolicitudesPorBeneficiario(Integer rutBeneficia
         if (row.get("idSolicitud") != null) solicitudPagoDTO.setIdSolicitud((Integer) row.get("idSolicitud"));
         if (row.get("idProceso") != null) solicitudPagoDTO.setIdProceso((Integer) row.get("idProceso"));
         if (row.get("idUsuario") != null) solicitudPagoDTO.setIdUsuario((Integer) row.get("idUsuario"));
-        if (row.get("idTipoCausante") != null) solicitudPagoDTO.setIdTipoCausante((Integer) row.get("idTipoCausante"));
         if (row.get("idComuna") != null) solicitudPagoDTO.setIdComuna((Integer) row.get("idComuna"));
         if (row.get("nombreComuna") != null) solicitudPagoDTO.setNombreComuna((String) row.get("nombreComuna"));
         if (row.get("idInstitucion") != null) solicitudPagoDTO.setIdInstitucion((Integer) row.get("idInstitucion"));
@@ -980,7 +969,6 @@ public List<SolicitudDTO> obtenerSolicitudesPorEmpleador(Integer rutEmpleador) {
         if (row.get("idSolicitud") != null) solicitudPagoDTO.setIdSolicitud((Integer) row.get("idSolicitud"));
         if (row.get("idProceso") != null) solicitudPagoDTO.setIdProceso((Integer) row.get("idProceso"));
         if (row.get("idUsuario") != null) solicitudPagoDTO.setIdUsuario((Integer) row.get("idUsuario"));
-        if (row.get("idTipoCausante") != null) solicitudPagoDTO.setIdTipoCausante((Integer) row.get("idTipoCausante"));
         if (row.get("idComuna") != null) solicitudPagoDTO.setIdComuna((Integer) row.get("idComuna"));
         if (row.get("nombreComuna") != null) solicitudPagoDTO.setNombreComuna((String) row.get("nombreComuna"));
         if (row.get("idInstitucion") != null) solicitudPagoDTO.setIdInstitucion((Integer) row.get("idInstitucion"));
@@ -1029,7 +1017,6 @@ public List<SolicitudDTO> obtenerSolicitudesPorOrigen(Integer origen, Integer pr
         if (row.get("idSolicitud") != null) solicitudPagoDTO.setIdSolicitud((Integer) row.get("idSolicitud"));
         if (row.get("idProceso") != null) solicitudPagoDTO.setIdProceso((Integer) row.get("idProceso"));
         if (row.get("idUsuario") != null) solicitudPagoDTO.setIdUsuario((Integer) row.get("idUsuario"));
-        if (row.get("idTipoCausante") != null) solicitudPagoDTO.setIdTipoCausante((Integer) row.get("idTipoCausante"));
         if (row.get("idComuna") != null) solicitudPagoDTO.setIdComuna((Integer) row.get("idComuna"));
         if (row.get("nombreComuna") != null) solicitudPagoDTO.setNombreComuna((String) row.get("nombreComuna"));
         if (row.get("idInstitucion") != null) solicitudPagoDTO.setIdInstitucion((Integer) row.get("idInstitucion"));

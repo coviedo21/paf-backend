@@ -86,6 +86,7 @@ public class FileController {
                 carga.setFechaFinCompensacion(fields[22]);
                 carga.setEstadoCarga(fields.length > 23 && !fields[23].trim().isEmpty() ? fields[23].trim() : null);
                 carga.setOrigen(origen);
+                carga.setPeriodo(periodo);
                 
                 listaSolicitudes.add(carga);
                 

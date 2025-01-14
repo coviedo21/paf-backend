@@ -14,7 +14,6 @@ public class SolicitudDTO {
     private int idSolicitud;
     private int idProceso;
     private int idUsuario;
-    private int idTipoCausante;
     private int idComuna;
     private String nombreComuna;
     private Integer idInstitucion;  // Usar Integer para permitir valores nulos

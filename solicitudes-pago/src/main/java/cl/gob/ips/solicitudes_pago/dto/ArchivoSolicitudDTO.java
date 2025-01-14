@@ -36,4 +36,5 @@ public class ArchivoSolicitudDTO {
     private String fechaFinCompensacion;
     private String estadoCarga;
     private String origen;
+    private String periodo;
 }

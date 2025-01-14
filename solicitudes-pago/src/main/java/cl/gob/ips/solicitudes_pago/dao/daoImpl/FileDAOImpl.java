@@ -62,6 +62,7 @@ public class FileDAOImpl implements FileDAO{
                 solicitud.setObservaciones("Solicitud Importada de Archivo");
                 solicitud.setListaCausantes(listaCausantes);
                 solicitud.setCiudadEmpleador(archivo.getCiudadEmpleador());
+                solicitud.setPeriodo(archivo.getPeriodo());
                 solicitudPagoService.insertarSolicitudPago(solicitud);
                 
             } catch (NumberFormatException | ParseException e) {
