@@ -14,6 +14,7 @@ import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
+import cl.gob.ips.solicitudes_pago.dto.RechazoSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
@@ -154,6 +155,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 resolucion.setIAutor(solicitud.getIdUsuario());
                 resolucion.setIIdEstado(2);
                 resolucion.setVcDescripcion("Termina plazo para subsanar, solicitud enviada automáticamente");
+                resolucion.setIMotivoRechazo(null);
                 insertarResolucion(resolucion);
                 try {
                     emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" enviada","Terminó plazo de "+diasAntiguedad+" días para subsanar su solicitud N° "+solicitud.getIdSolicitud()+". Ha sido enviada automáticamente para su resolución.");    
@@ -186,7 +188,23 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         return solicitudPagoDAO.obtenerMotivosRechazo();
     }
 
-    public List<OrigenArchivoDTO> obtenerOrigenesArchivo() {
-        return solicitudPagoDAO.obtenerOrigenesArchivo();
+    public boolean rechazarSolicitud(RechazoSolicitudDTO rechazoSolicitudDTO){
+        SolicitudDTO solicitud = solicitudPagoDAO.consultarSolicitudPago(rechazoSolicitudDTO.getIdSolicitud()).get(0);
+        MotivoRechazoDTO rechazo = solicitudPagoDAO.obtenerMotivoRechazoPorId(rechazoSolicitudDTO.getIdMotivoRechazo());
+        ResolucionDTO resolucion = new ResolucionDTO();
+        resolucion.setIIdSolicitud(rechazoSolicitudDTO.getIdSolicitud());
+        resolucion.setIAutor(1);
+        resolucion.setIIdEstado(4);
+        resolucion.setVcDescripcion("Se rechaza solicitud.");
+        resolucion.setIMotivoRechazo(rechazoSolicitudDTO.getIdMotivoRechazo());
+        insertarResolucion(resolucion);
+        try {
+            emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" rechazada","Su solicitud N° "+solicitud.getIdSolicitud()+" ha sido rechada. Motivo de Rechazo:  "+rechazo.getNombre());    
+            return true;
+        } catch (Exception e) {
+            // Captura cualquier excepción relacionada con el envío del correo y loguea el error
+            System.err.println("Error enviando correo para la solicitud " + solicitud.getIdSolicitud() + ": " + e.getMessage());
+        }
+        return false;
     }
 }

@@ -14,4 +14,5 @@ public class ResolucionDTO {
     private Date dFechaAval;
     private Date dFechaApelacion;
     private String vcVigente;
+    private Integer iMotivoRechazo;
 }

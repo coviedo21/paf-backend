@@ -27,5 +27,5 @@ public interface SolicitudPagoDAO {
     List<SolicitudDTO> obtenerSolicitudesPorEmpleador(Integer rutEmpleador);
     List<SolicitudDTO> obtenerSolicitudesPorOrigen(Integer origen, Integer proceso, Integer estado);
     List<MotivoRechazoDTO> obtenerMotivosRechazo();
-    List<OrigenArchivoDTO> obtenerOrigenesArchivo();
+    MotivoRechazoDTO obtenerMotivoRechazoPorId(int idMotivoRechazo);
 }

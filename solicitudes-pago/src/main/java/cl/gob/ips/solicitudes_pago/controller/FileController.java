@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -43,7 +44,8 @@ public class FileController {
     /*String region [15,"valparíso"?¡];
     comuna[15,176,"vina del mar"]
     comuna[15,"177","valparaíso"]*/
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "Windows-1252"))) {
+
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
 
             //Pasar a UTF-8
             String line;
@@ -105,7 +107,7 @@ public class FileController {
     /*String region [15,"valparíso"?¡];
     comuna[15,176,"vina del mar"]
     comuna[15,"177","valparaíso"]*/
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "Windows-1252"))) {
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
 
             //Pasar a UTF-8
             String line;
