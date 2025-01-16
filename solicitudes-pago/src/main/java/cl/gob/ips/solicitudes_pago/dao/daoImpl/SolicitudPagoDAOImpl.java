@@ -258,6 +258,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("cumpleCriterios") != null) solicitudPagoDTO.setCumpleCriterios((String) row.get("cumpleCriterios"));
             if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
             if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
+            if (row.get("motivoRechazo") != null) solicitudPagoDTO.setMotivoRechazo((String) row.get("motivoRechazo"));
             solicitudesPago.add(solicitudPagoDTO);
 
             // Consulta los causantes de la solicitud actual 

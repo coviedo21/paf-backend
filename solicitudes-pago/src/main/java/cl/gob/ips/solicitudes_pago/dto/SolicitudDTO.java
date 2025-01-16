@@ -58,4 +58,5 @@ public class SolicitudDTO {
     private List<CausanteSolicitudDTO> listaCausantes;
     private String cumpleCriterios;
     String ciudadEmpleador;
+    String motivoRechazo;
 }
