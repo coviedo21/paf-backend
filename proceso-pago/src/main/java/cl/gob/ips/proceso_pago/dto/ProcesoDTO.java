@@ -19,7 +19,6 @@ public class ProcesoDTO {
     private String nombreEstado;
     private Date fechaCreacion;
     private Date fechaEjecucion;
-    private Date fechaInicio;
-    private Date fechaFin;
+    private String periodo;
     private List<Integer> listaTipoSolicitante;
 }
