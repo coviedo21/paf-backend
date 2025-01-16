@@ -199,7 +199,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         resolucion.setIMotivoRechazo(rechazoSolicitudDTO.getIdMotivoRechazo());
         insertarResolucion(resolucion);
         try {
-            emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" rechazada","Su solicitud N° "+solicitud.getIdSolicitud()+" ha sido rechada. Motivo de Rechazo:  "+rechazo.getNombre());    
+            emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" rechazada.","Su solicitud N° "+solicitud.getIdSolicitud()+" ha sido rechazada. Motivo de Rechazo:  "+rechazo.getNombre());    
             return true;
         } catch (Exception e) {
             // Captura cualquier excepción relacionada con el envío del correo y loguea el error
