@@ -88,17 +88,20 @@ public class SolicitudesPagosController {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(new Date());
 
-        int resultado = solicitudPagoService.insertarSolicitudPago(solicitudPago);
-        if (resultado>0) {
-            responseDTO.setCodigoRetorno(0);
+        responseDTO = solicitudPagoService.insertarSolicitudPago(solicitudPago);
+        if ((int) responseDTO.getResultado()>0) {
+            //responseDTO.setCodigoRetorno(0);
             responseDTO.setGlosaRetorno("Solicitud de pago insertada correctamente!");
-            responseDTO.setResultado(resultado);
+            //responseDTO.setResultado(resultado);
 
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
         } else {
             responseDTO.setCodigoRetorno(-1);
-            responseDTO.setGlosaRetorno("No se creó la solicitud de pago.");
+            
+            responseDTO.setGlosaRetorno(responseDTO.getGlosaRetorno());
+        
+            
             responseDTO.setTimestamp(new Date());
 
             return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);

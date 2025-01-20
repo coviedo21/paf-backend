@@ -5,6 +5,7 @@ import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
 //import cl.gob.ips.solicitudes_pago.dto.ProcesoDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
+import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
 
@@ -43,7 +44,45 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
     }
 
     @Override
-    public int insertarSolicitudPago(SolicitudDTO solicitudPago) {
+    public ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago) {
+        ResponseDTO response = new ResponseDTO();
+        // Validación previa: Verificar duplicados
+    SimpleJdbcCall validarDuplicadosCall = new SimpleJdbcCall(jdbcTemplate)
+    .withSchemaName(esquema)
+    .withProcedureName("SP_ValidarDuplicadosSolicitudCausante")
+    .declareParameters(
+            new SqlParameter("iRutBeneficiario", Types.INTEGER),
+            new SqlParameter("vcPeriodo", Types.VARCHAR),
+            new SqlParameter("iRutCausante", Types.INTEGER),
+            new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
+    );
+
+    try {
+    for (CausanteSolicitudDTO causante : solicitudPago.getListaCausantes()) {
+        MapSqlParameterSource inParams = new MapSqlParameterSource()
+                .addValue("iRutBeneficiario", solicitudPago.getRutBeneficiario())
+                .addValue("vcPeriodo", solicitudPago.getPeriodo())
+                .addValue("iRutCausante", causante.getRutCausante());
+
+        Map<String, Object> validationResult = validarDuplicadosCall.execute(inParams);
+        String mensajeRespuesta = (String) validationResult.get("mensajeRespuesta");
+
+        // Si se detecta un duplicado, detener el flujo
+        if ("Ya existe una solicitud con el mismo beneficiario, período y causante.".equals(mensajeRespuesta)) {
+            System.out.println("Validación fallida: " + mensajeRespuesta);
+            response.setCodigoRetorno(3);
+            response.setGlosaRetorno(mensajeRespuesta);
+            response.setResultado(0);
+            return response; // Detener si se encuentra un duplicado
+        }
+    }
+    } catch (Exception e) {
+        response.setCodigoRetorno(1);
+        response.setGlosaRetorno("ERROR");
+        response.setResultado(0);
+        return response; // Detener si se encuentra un duplicado
+    }
+        
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withSchemaName(esquema)
                 .withProcedureName("SP_InsertarSolicitudPago")
                 .declareParameters(
@@ -144,14 +183,25 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 System.out.println("Solicitud insertada correctamente con ID: " + idSolicitud);
                 // Si la solicitud se inserta correctamente, insertamos los causantes
                 insertarCausantesSolicitud(idSolicitud, solicitudPago.getListaCausantes());
-                return idSolicitud;
+                response.setCodigoRetorno(0);
+                response.setGlosaRetorno("Solicitud creada exitósamente. ID: "+idSolicitud);
+                response.setResultado(idSolicitud);
+                return response; // Detener si se encuentra un duplicado
+                //return idSolicitud;
             } else {
-                System.out.println("Error al insertar la solicitud: " + mensajeRespuesta);
-                return 0;
+                response.setCodigoRetorno(1);
+                response.setGlosaRetorno("Error al insertar la solicitud: " + mensajeRespuesta);
+                response.setResultado(0);
+                return response; // Detener si se encuentra un duplicado
+                //System.out.println("Error al insertar la solicitud: " + mensajeRespuesta);
+                //return 0;
             }
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
-            return 0;
+            response.setCodigoRetorno(1);
+                response.setGlosaRetorno("ERROR: " + e.getMessage());
+                response.setResultado(0);
+                return response; // Detener si se encuentra un duplicado
         }
     }
 

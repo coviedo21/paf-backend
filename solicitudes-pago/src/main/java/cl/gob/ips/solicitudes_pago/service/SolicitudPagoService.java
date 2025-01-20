@@ -7,11 +7,12 @@ import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
 import cl.gob.ips.solicitudes_pago.dto.RechazoSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
+import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
 
 public interface SolicitudPagoService {
-    int insertarSolicitudPago(SolicitudDTO solicitudPago);
+    ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago);
     List<SolicitudDTO> consultarSolicitudPago(Integer idSolicitud);
     boolean actualizarSolicitudPago(SolicitudDTO solicitudPago);
     List<SolicitudDTO> filtrarSolicitudesPago(String texto);
