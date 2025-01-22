@@ -1,0 +1,36 @@
+spring.application.name=solicitudes-pago
+spring.datasource.schema = ${paf_sqlserver_schema}
+server.port=8081
+
+
+# Conexion [SQLServer] PagosAF
+spring.datasource.paf.driverClassName=${paf_sqlserver_driverclassname}
+spring.datasource.paf.url=${paf_spring_host_url}
+spring.datasource.paf.username=${paf_sqlserver_username}
+spring.datasource.paf.password=${paf_sqlserver_password}
+spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
+spring.jpa.properties.hibernate.dialect=${paf_sqlserver_dialect}
+
+# Conexion [Oracle] GenesysD
+#spring.datasource.driverClassName=oracle.jdbc.driver.OracleDriver
+#spring.datasource.url=jdbc:oracle:thin:@//10.150.227.15:1521/genesysP
+#spring.datasource.username=ADM_AF
+#spring.datasource.password=adm_af
+
+# Conexion [Oracle] GenesysP
+spring.datasource.driverClassName=${paf_oracle_driverclassname}
+spring.datasource.url=${paf_oracle_url}
+spring.datasource.username=${paf_oracle_username}
+spring.datasource.password=${paf_oracle_password}
+
+solicitud.dias.antiguedad=7
+
+spring.servlet.multipart.enabled=true
+spring.servlet.multipart.file-size-threshold=2KB
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+
+ #spring.datasource.driverClassName=oracle.jdbc.driver.OracleDriver
+ #spring.datasource.url=jdbc:oracle:thin:@//10.150.228.200:1521/genesysP
+ #spring.datasource.username=ADM_AF
+ #spring.datasource.password=1dm$1f2016
