@@ -8,6 +8,7 @@ import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
+import cl.gob.ips.solicitudes_pago.service.EmailService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,6 +34,9 @@ import java.util.stream.Collectors;
 @Repository
 public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
+    @Autowired
+    EmailService emailService;
+
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${spring.datasource.schema}")
@@ -44,7 +48,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
     }
 
     @Override
-    public ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago) {
+    public ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago, boolean esArchivo) {
         ResponseDTO response = new ResponseDTO();
         // Validación previa: Verificar duplicados
     SimpleJdbcCall validarDuplicadosCall = new SimpleJdbcCall(jdbcTemplate)
@@ -54,7 +58,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             new SqlParameter("iRutBeneficiario", Types.INTEGER),
             new SqlParameter("vcPeriodo", Types.VARCHAR),
             new SqlParameter("iRutCausante", Types.INTEGER),
-            new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
+            new SqlOutParameter("mensajeRespuesta", Types.VARCHAR),
+            new SqlOutParameter("idSolicitud", Types.INTEGER)
     );
 
     try {
@@ -65,15 +70,50 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("iRutCausante", causante.getRutCausante());
 
         Map<String, Object> validationResult = validarDuplicadosCall.execute(inParams);
+        int idSolicitud = (int) validationResult.get("idSolicitud");
         String mensajeRespuesta = (String) validationResult.get("mensajeRespuesta");
 
-        // Si se detecta un duplicado, detener el flujo
-        if ("Ya existe una solicitud con el mismo beneficiario, período y causante.".equals(mensajeRespuesta)) {
-            System.out.println("Validación fallida: " + mensajeRespuesta);
-            response.setCodigoRetorno(3);
-            response.setGlosaRetorno(mensajeRespuesta);
-            response.setResultado(0);
-            return response; // Detener si se encuentra un duplicado
+        // Si se detecta un duplicado
+        if(idSolicitud>0){
+            if(esArchivo){
+                SolicitudDTO solicitud = consultarSolicitudPago(idSolicitud).get(0);
+                if(solicitud.getIdEstado()<4){
+                    if(solicitud.getFechaSolicitud().after(solicitudPago.getFechaSolicitud())){
+                        //Fecha menor es del archivo, se rechaza la que ya existe.
+                        ResolucionDTO resolucion = new ResolucionDTO();
+                        resolucion.setIIdSolicitud(idSolicitud);
+                        resolucion.setIAutor(1);
+                        resolucion.setIIdEstado(4);
+                        resolucion.setVcDescripcion("Ya existe solicitud.");
+                        resolucion.setIMotivoRechazo(4);
+                        insertarResolucion(resolucion);
+                        try {
+                            emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+idSolicitud+" rechazada.","Su solicitud N° "+idSolicitud+" ha sido rechazada. Motivo de Rechazo:  Solicitud ya existe");    
+                            response.setCodigoRetorno(3);
+                            response.setGlosaRetorno("Se inserta solicitud y se rechaza la existente");
+                            response.setResultado(0);
+                            //return response; // Detener si se encuentra un duplicado
+                        } catch (Exception e) {
+                            // Captura cualquier excepción relacionada con el envío del correo y loguea el error
+                            System.err.println("Error enviando correo para la solicitud " + solicitud.getIdSolicitud() + ": " + e.getMessage());
+                        }   
+                    }else{
+                        System.out.println("Validación fallida: " + mensajeRespuesta);
+                        response.setCodigoRetorno(3);
+                        response.setGlosaRetorno(mensajeRespuesta);
+                        response.setResultado(0);
+                        return response; // Detener si se encuentra un duplicado        
+                    }
+                }
+            }
+            else{
+                System.out.println("Validación fallida: " + mensajeRespuesta);
+                response.setCodigoRetorno(3);
+                response.setGlosaRetorno(mensajeRespuesta);
+                response.setResultado(0);
+                return response; // Detener si se encuentra un duplicado
+            }
+            
         }
     }
     } catch (Exception e) {
@@ -303,6 +343,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("dvRepresentante") != null) solicitudPagoDTO.setDvRepresentante((String) row.get("dvRepresentante"));
             if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud((Date) row.get("fechaSolicitud"));
             if (row.get("folio") != null) solicitudPagoDTO.setFolio((Long) row.get("folio"));
+            if (row.get("idEstado") != null) solicitudPagoDTO.setIdEstado((Integer) row.get("idEstado"));
             if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
             if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
             if (row.get("cumpleCriterios") != null) solicitudPagoDTO.setCumpleCriterios((String) row.get("cumpleCriterios"));

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import cl.gob.ips.solicitudes_pago.dao.FileDAO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.service.SolicitudPagoService;
 
@@ -19,7 +20,7 @@ public class FileDAOImpl implements FileDAO{
     @Autowired
     SolicitudPagoService solicitudPagoService;
 
-    public void insertarSolicitud(ArchivoSolicitudDTO archivo){
+    public boolean insertarSolicitud(ArchivoSolicitudDTO archivo){
         //List<SolicitudDTO> solicitudes = new ArrayList<>();
 
         //for (ArchivoSolicitudDTO archivo : listaSolicitudes) {
@@ -29,7 +30,7 @@ public class FileDAOImpl implements FileDAO{
 
             try {
                 solicitud.setFolio(Long.parseLong(archivo.getFolio()));
-                solicitud.setFechaSolicitud(new SimpleDateFormat("dd/MM/YYYY HH:mm:ss").parse(archivo.getFechaHora()));
+                solicitud.setFechaSolicitud(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(archivo.getFechaHora()));
                 solicitud.setRutEmpleador(Integer.parseInt(archivo.getRutEmpleador()));
                 solicitud.setDvEmpleador(archivo.getDvEmpleador());
                 solicitud.setRazonSocialEmpleador(archivo.getRazonSocialEmpleador());
@@ -53,8 +54,8 @@ public class FileDAOImpl implements FileDAO{
                 //solicitud.setApellidoPaternoCausante(archivo.getApellidoPaternoCarga());
                 //solicitud.setApellidoMaternoCausante(archivo.getApellidoMaternoCarga());
                 //solicitud.setNombresCausante(archivo.getNombresCarga());
-                causante.setFechaInicioRango(new SimpleDateFormat("dd/MM/YYYY").parse(archivo.getFechaInicioCompensacion()));
-                causante.setFechaFinRango(new SimpleDateFormat("dd/MM/YYYY").parse(archivo.getFechaFinCompensacion()));
+                causante.setFechaInicioRango(new SimpleDateFormat("dd/MM/yyyy").parse(archivo.getFechaInicioCompensacion()));
+                causante.setFechaFinRango(new SimpleDateFormat("dd/MM/yyyy").parse(archivo.getFechaFinCompensacion()));
                 listaCausantes.add(causante);
                 solicitud.setTipoSolicitante(2); //Empleador si es previred
                 solicitud.setOrigen(Integer.parseInt(archivo.getOrigen()));
@@ -63,11 +64,16 @@ public class FileDAOImpl implements FileDAO{
                 solicitud.setListaCausantes(listaCausantes);
                 solicitud.setCiudadEmpleador(archivo.getCiudadEmpleador());
                 solicitud.setPeriodo(archivo.getPeriodo());
-                solicitudPagoService.insertarSolicitudPago(solicitud);
+                ResponseDTO respuesta = solicitudPagoService.insertarSolicitudPago(solicitud,true);
+                if((int) respuesta.getResultado()>0){
+                    return true;
+                }
+                else{return false;}
                 
             } catch (NumberFormatException | ParseException e) {
                 // Manejar la excepción adecuadamente
                 e.printStackTrace();
+                return false;
             }
 
             // Agregar la solicitud a la lista

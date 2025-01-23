@@ -53,6 +53,7 @@ public class SolicitudDTO {
     private String dvRepresentante;
     private Date fechaSolicitud;
     private Long folio;  // Usar Long para permitir valores nulos
+    private Integer idEstado;
     private String estado;
     private String nombreOrigen;
     private List<CausanteSolicitudDTO> listaCausantes;

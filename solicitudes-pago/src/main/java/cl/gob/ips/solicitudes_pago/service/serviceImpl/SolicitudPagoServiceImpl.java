@@ -39,13 +39,13 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
     private int diasAntiguedad;  // Inyecta el valor del archivo de propiedades
     
     @Override
-    public ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago) {
+    public ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago,boolean esArchivo) {
         ResponseDTO response = new ResponseDTO();
         /*List<CuentaCorrienteCausanteDTO> listaCuentasCausante = cuentaCorrienteDAO.obtenerCuentaCorrienteCausantes(solicitudPago.getRutBeneficiario());
         for(CuentaCorrienteCausanteDTO cuentaCausante:listaCuentasCausante){
             System.out.println("Causante: "+cuentaCausante.getRutCausante()+" "+cuentaCausante.getNombre());    
         }*/
-        response = solicitudPagoDAO.insertarSolicitudPago(solicitudPago);
+        response = solicitudPagoDAO.insertarSolicitudPago(solicitudPago,esArchivo);
         if((int) response.getResultado()>0){
             /*Validar Criterios de Solicitud*/
             boolean enviar = criterioSolicitudService.validarCriteriosResolucion((int) response.getResultado());

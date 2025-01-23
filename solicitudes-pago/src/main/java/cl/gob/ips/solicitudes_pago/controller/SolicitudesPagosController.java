@@ -88,7 +88,7 @@ public class SolicitudesPagosController {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(new Date());
 
-        responseDTO = solicitudPagoService.insertarSolicitudPago(solicitudPago);
+        responseDTO = solicitudPagoService.insertarSolicitudPago(solicitudPago,false);
         if ((int) responseDTO.getResultado()>0) {
             //responseDTO.setCodigoRetorno(0);
             responseDTO.setGlosaRetorno("Solicitud de pago insertada correctamente!");

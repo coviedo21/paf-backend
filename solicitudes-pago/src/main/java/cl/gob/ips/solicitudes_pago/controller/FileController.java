@@ -2,6 +2,8 @@ package cl.gob.ips.solicitudes_pago.controller;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -12,6 +14,8 @@ import java.util.UUID;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-
+import cl.gob.ips.solicitudes_pago.dto.ArchivoResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.service.FileService;
 
@@ -38,9 +42,10 @@ public class FileController {
     private FileService fileService;
 
     @PostMapping("/cargar-archivo-previred")
-    public List<ArchivoSolicitudDTO> cargarArchivoPrevired( @RequestParam("file") MultipartFile file,
+    public ArchivoResponseDTO cargarArchivoPrevired( @RequestParam("file") MultipartFile file,
             @RequestParam("origen") String origen, @RequestParam("periodo") String periodo) {
     List<ArchivoSolicitudDTO> listaSolicitudes = new ArrayList<>();
+    ArchivoResponseDTO respuesta = new ArchivoResponseDTO();
     /*String region [15,"valparíso"?¡];
     comuna[15,176,"vina del mar"]
     comuna[15,"177","valparaíso"]*/
@@ -93,11 +98,11 @@ public class FileController {
                 listaSolicitudes.add(carga);
                 
             }
-            fileService.insertarSolicitud(listaSolicitudes);
+            respuesta = fileService.insertarSolicitud(listaSolicitudes);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return listaSolicitudes;
+        return respuesta;
     }
 
     @PostMapping("/cargar-archivo-especiales")
@@ -214,5 +219,40 @@ public class FileController {
         }
     }
 
-
+    @GetMapping("/descargarErrores")
+    public ResponseEntity<Resource> descargarErrores() {
+        String carpetaArchivos = "archivos"; // Carpeta donde se guardarán los archivos
+        String nombreArchivoErrores = "errores.txt"; // Nombre del archivo
+        String rutaArchivo = carpetaArchivos + "/" + nombreArchivoErrores; // Ruta completa del archivo
+    
+        // Crear la carpeta 'archivos' si no existe
+        File carpeta = new File(carpetaArchivos);
+        if (!carpeta.exists()) {
+            carpeta.mkdirs(); // Crear la carpeta y subcarpetas si no existen
+        }
+    
+        File archivoErrores = new File(rutaArchivo);
+    
+        if (!archivoErrores.exists()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(null); // Manejar el caso donde el archivo no existe
+        }
+    
+        try {
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(archivoErrores));
+    
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + nombreArchivoErrores);
+            headers.add(HttpHeaders.CONTENT_TYPE, "text/plain");
+    
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(archivoErrores.length())
+                    .body(resource);
+    
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }

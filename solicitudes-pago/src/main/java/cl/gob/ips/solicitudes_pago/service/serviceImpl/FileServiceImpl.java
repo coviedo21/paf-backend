@@ -19,6 +19,7 @@ import com.azure.storage.file.share.ShareFileClient;
 import com.azure.storage.file.share.ShareFileClientBuilder;
 
 import cl.gob.ips.solicitudes_pago.dao.FileDAO;
+import cl.gob.ips.solicitudes_pago.dto.ArchivoResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.ListaComunaDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResultadoRegionDTO;
@@ -43,10 +44,14 @@ public class FileServiceImpl implements FileService {
     @Value("${app.base.url}")
     private String baseUrl;    
     
-    public void insertarSolicitud(List<ArchivoSolicitudDTO> listaSolicitudes) {
+    public ArchivoResponseDTO insertarSolicitud(List<ArchivoSolicitudDTO> listaSolicitudes) {
         Map<String, ListaComunaDTO> comunaCache = new HashMap<>();
         Map<String, ResultadoRegionDTO> regionCache = new HashMap<>();
-        String nombreArchivoErrores = "errores.txt"; // Nombre del archivo donde se guardarán las líneas con errores
+        String nombreArchivoErrores = "archivos/errores.txt"; // Nombre del archivo donde se guardarán las líneas con errores
+        int contadorRegistros = 0;
+        int contadorExitos = 0;
+        int contadorErrores = 0;
+        ArchivoResponseDTO respuesta = new ArchivoResponseDTO();
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(nombreArchivoErrores))) {
             // Escribir la cabecera del archivo de errores
@@ -59,6 +64,7 @@ public class FileServiceImpl implements FileService {
             bw.newLine(); // Saltar a la siguiente línea después de la cabecera
 
             for (ArchivoSolicitudDTO archivo : listaSolicitudes) {
+                contadorRegistros++;
                 String regionKey = archivo.getNombreRegion().trim().toUpperCase();
                 ResultadoRegionDTO region = null;
 
@@ -146,10 +152,22 @@ public class FileServiceImpl implements FileService {
                 }
 
                 // Finalmente, insertar la solicitud si todo está correcto
-                fileDAO.insertarSolicitud(archivo);
+                boolean insertado = fileDAO.insertarSolicitud(archivo);
+                if(insertado){
+                    contadorExitos++;
+                }
+                else{
+                    bw.write("**ERROR** Solicitud ya existe. Rut Beneficiario: "+archivo.getRutTrabajador()+"-"+archivo.getDvTrabajador()+", Rut Causante: "+archivo.getRutCargaFamiliar()+"-"+archivo.getDvCargaFamiliar()+" Periodo: "+archivo.getPeriodo());
+                }
             }
+            contadorErrores = contadorRegistros-contadorExitos;
+            respuesta.setRegistrosEnArchivo(contadorRegistros);
+            respuesta.setRegistrosImportados(contadorExitos);
+            respuesta.setRegistrosFallidos(contadorErrores);
+            return respuesta;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
     }
 
