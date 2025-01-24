@@ -2,26 +2,16 @@ package cl.gob.ips.solicitudes_pago.controller;
 
 import cl.gob.ips.solicitudes_pago.dto.*;
 import cl.gob.ips.solicitudes_pago.service.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
-import org.apache.commons.net.PrintCommandListener;
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPSClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.MediaType;
 
 @RestController
 @CrossOrigin("*")
@@ -56,9 +44,6 @@ public class SolicitudesPagosController {
  
     @Autowired
     private UtilService utilService;
-
-    @Autowired
-    private FileService fileService;
 
     @Autowired
     private PersonaService personaService;
@@ -88,6 +73,13 @@ public class SolicitudesPagosController {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(new Date());
 
+        if(solicitudPago.getListaCausantes().isEmpty()){
+            responseDTO.setCodigoRetorno(-1);
+            responseDTO.setGlosaRetorno("Debe ingresar al menos un causante");
+            responseDTO.setTimestamp(new Date());
+
+            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+        }
         responseDTO = solicitudPagoService.insertarSolicitudPago(solicitudPago,false);
         if ((int) responseDTO.getResultado()>0) {
             //responseDTO.setCodigoRetorno(0);

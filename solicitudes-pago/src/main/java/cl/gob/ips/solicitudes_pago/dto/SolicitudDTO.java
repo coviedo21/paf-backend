@@ -3,7 +3,6 @@ package cl.gob.ips.solicitudes_pago.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
