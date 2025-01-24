@@ -220,39 +220,45 @@ public class FileController {
     }
 
     @GetMapping("/descargarErrores")
-    public ResponseEntity<Resource> descargarErrores() {
+    public ResponseEntity<Resource> descargarErrores(@RequestParam String periodo) {
         String carpetaArchivos = "archivos"; // Carpeta donde se guardarán los archivos
-        String nombreArchivoErrores = "errores.txt"; // Nombre del archivo
+
+        // Reemplazar '/' por '-' en el período
+        periodo = periodo.replace("/", "-");
+
+        // Concatenar el período al nombre del archivo
+        String nombreArchivoErrores = "errores"+periodo+".txt";
         String rutaArchivo = carpetaArchivos + "/" + nombreArchivoErrores; // Ruta completa del archivo
-    
+
         // Crear la carpeta 'archivos' si no existe
         File carpeta = new File(carpetaArchivos);
         if (!carpeta.exists()) {
             carpeta.mkdirs(); // Crear la carpeta y subcarpetas si no existen
         }
-    
+
         File archivoErrores = new File(rutaArchivo);
-    
+
         if (!archivoErrores.exists()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(null); // Manejar el caso donde el archivo no existe
         }
-    
+
         try {
             InputStreamResource resource = new InputStreamResource(new FileInputStream(archivoErrores));
-    
+
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + nombreArchivoErrores);
             headers.add(HttpHeaders.CONTENT_TYPE, "text/plain");
-    
+
             return ResponseEntity.ok()
                     .headers(headers)
                     .contentLength(archivoErrores.length())
                     .body(resource);
-    
+
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
 }
