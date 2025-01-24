@@ -221,7 +221,7 @@ public class FileController {
 
     @GetMapping("/descargarErrores")
     public ResponseEntity<Resource> descargarErrores(@RequestParam String periodo) {
-        String carpetaArchivos = "/site/wwwroot/webapps/archivos"; // Carpeta donde se guardarán los archivos
+        String carpetaArchivos = ""; // Carpeta donde se guardarán los archivos
         
         // Reemplazar '/' por '-' en el período
         periodo = periodo.replace("/", "-");
