@@ -48,7 +48,7 @@ public class FileServiceImpl implements FileService {
         Map<String, ListaComunaDTO> comunaCache = new HashMap<>();
         Map<String, ResultadoRegionDTO> regionCache = new HashMap<>();
         periodo = periodo.replace("/", "-");
-        String nombreArchivoErrores = "archivos/errores"+periodo+".txt"; // Nombre del archivo donde se guardarán las líneas con errores
+        String nombreArchivoErrores = "/site/wwwroot/webapps/archivos/errores"+periodo+".txt"; // Nombre del archivo donde se guardarán las líneas con errores
         int contadorRegistros = 0;
         int contadorExitos = 0;
         int contadorErrores = 0;
