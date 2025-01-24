@@ -44,10 +44,11 @@ public class FileServiceImpl implements FileService {
     @Value("${app.base.url}")
     private String baseUrl;    
     
-    public ArchivoResponseDTO insertarSolicitud(List<ArchivoSolicitudDTO> listaSolicitudes) {
+    public ArchivoResponseDTO insertarSolicitudes(List<ArchivoSolicitudDTO> listaSolicitudes, String periodo) {
         Map<String, ListaComunaDTO> comunaCache = new HashMap<>();
         Map<String, ResultadoRegionDTO> regionCache = new HashMap<>();
-        String nombreArchivoErrores = "archivos/errores.txt"; // Nombre del archivo donde se guardarán las líneas con errores
+        periodo = periodo.replace("/", "-");
+        String nombreArchivoErrores = "archivos/errores"+periodo+".txt"; // Nombre del archivo donde se guardarán las líneas con errores
         int contadorRegistros = 0;
         int contadorExitos = 0;
         int contadorErrores = 0;
@@ -55,13 +56,13 @@ public class FileServiceImpl implements FileService {
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(nombreArchivoErrores))) {
             // Escribir la cabecera del archivo de errores
-            String cabecera = "Folio;Fecha - hora Declaración de cargas familiares;RUT Empleador;Digito Verificador Empleador;" +
+            /*String cabecera = "Folio;Fecha - hora Declaración de cargas familiares;RUT Empleador;Digito Verificador Empleador;" +
                             "Razón Social Empleador;Dirección Empleador;Email Empleador;Comuna Empleador;Ciudad Empleador;" +
                             "Región Empleador;RUT Trabajador;Dv Trabajador;Apellido Paterno Trabajador;Apellidos Materno Trabajador;" +
                             "Nombres Trabajador;RUT Carga Familiar;Dígito Verificador Carga familiar;Apellido Paterno Carga;" +
                             "Apellidos Materno Carga;Nombres Carga;Tipo Carga;Fecha Inicio Compensación;Fecha Fin Compensación;Estado de la Carga";
-            bw.write(cabecera);
-            bw.newLine(); // Saltar a la siguiente línea después de la cabecera
+            bw.write(cabecera);*/
+            //bw.newLine(); // Saltar a la siguiente línea después de la cabecera
 
             for (ArchivoSolicitudDTO archivo : listaSolicitudes) {
                 contadorRegistros++;

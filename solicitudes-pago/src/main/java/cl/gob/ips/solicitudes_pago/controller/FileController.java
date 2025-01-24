@@ -98,7 +98,7 @@ public class FileController {
                 listaSolicitudes.add(carga);
                 
             }
-            respuesta = fileService.insertarSolicitud(listaSolicitudes);
+            respuesta = fileService.insertarSolicitudes(listaSolicitudes,periodo);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -159,7 +159,7 @@ public class FileController {
                 listaSolicitudes.add(carga);
                 
             }
-            fileService.insertarSolicitud(listaSolicitudes);
+            fileService.insertarSolicitudes(listaSolicitudes,periodo);
         } catch (Exception e) {
             e.printStackTrace();
         }
