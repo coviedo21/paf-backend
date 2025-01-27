@@ -103,12 +103,12 @@ public class FileController {
             respuesta = fileService.insertarSolicitudes(listaSolicitudes,periodo);
             if(respuesta.getRegistrosFallidos()==0){
                 response.setCodigoRetorno(0);
-                response.setGlosaRetorno("Se importaron "+respuesta.getRegistrosImportados()+" solicitudes.");
+                response.setGlosaRetorno("Se leyeron "+respuesta.getRegistrosEnArchivo()+" solicitudes y se importaron "+respuesta.getRegistrosImportados()+" solicitudes.");
                 response.setResultado(respuesta);
             }
             else{
                 response.setCodigoRetorno(-1);
-                response.setGlosaRetorno("Se importaron "+respuesta.getRegistrosImportados()+" solicitudes. Fallaron "+respuesta.getRegistrosFallidos()+" solicitudes. Revisar archivo de errores descargado.");
+                response.setGlosaRetorno("Se leyeron "+respuesta.getRegistrosEnArchivo()+" solicitudes. Se importaron "+respuesta.getRegistrosImportados()+" solicitudes. Fallaron "+respuesta.getRegistrosFallidos()+" solicitudes. Revisar archivo de errores descargado.");
                 response.setResultado(respuesta);
             }
         } catch (Exception e) {
