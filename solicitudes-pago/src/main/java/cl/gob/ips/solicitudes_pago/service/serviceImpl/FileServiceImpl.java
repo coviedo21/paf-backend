@@ -159,6 +159,7 @@ public class FileServiceImpl implements FileService {
                 }
                 else{
                     bw.write("**ERROR** Solicitud ya existe. Rut Beneficiario: "+archivo.getRutTrabajador()+"-"+archivo.getDvTrabajador()+", Rut Causante: "+archivo.getRutCargaFamiliar()+"-"+archivo.getDvCargaFamiliar()+" Periodo: "+archivo.getPeriodo());
+                    bw.newLine();
                 }
             }
             contadorErrores = contadorRegistros-contadorExitos;
