@@ -240,7 +240,7 @@ public class FileController {
 
         // Concatenar el período al nombre del archivo
         String nombreArchivoErrores = "errores"+periodo+".txt";
-        String rutaArchivo = carpetaArchivos + "/" + nombreArchivoErrores; // Ruta completa del archivo
+        String rutaArchivo = nombreArchivoErrores; // Ruta completa del archivo
 
         // Crear la carpeta 'archivos' si no existe
         File carpeta = new File(carpetaArchivos);
