@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import cl.gob.ips.solicitudes_pago.dto.ArchivoResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.service.FileService;
 
 @RestController
@@ -42,10 +43,11 @@ public class FileController {
     private FileService fileService;
 
     @PostMapping("/cargar-archivo-previred")
-    public ArchivoResponseDTO cargarArchivoPrevired( @RequestParam("file") MultipartFile file,
+    public ResponseDTO cargarArchivoPrevired( @RequestParam("file") MultipartFile file,
             @RequestParam("origen") String origen, @RequestParam("periodo") String periodo) {
     List<ArchivoSolicitudDTO> listaSolicitudes = new ArrayList<>();
     ArchivoResponseDTO respuesta = new ArchivoResponseDTO();
+    ResponseDTO response = new ResponseDTO();
     /*String region [15,"valparíso"?¡];
     comuna[15,176,"vina del mar"]
     comuna[15,"177","valparaíso"]*/
@@ -99,10 +101,20 @@ public class FileController {
                 
             }
             respuesta = fileService.insertarSolicitudes(listaSolicitudes,periodo);
+            if(respuesta.getRegistrosFallidos()==0){
+                response.setCodigoRetorno(0);
+                response.setGlosaRetorno("Se importaron "+respuesta.getRegistrosImportados()+" solicitudes.");
+                response.setResultado(respuesta);
+            }
+            else{
+                response.setCodigoRetorno(-1);
+                response.setGlosaRetorno("Se importaron "+respuesta.getRegistrosImportados()+" solicitudes. Fallaron "+respuesta.getRegistrosFallidos()+" solicitudes. Revisar archivo de errores descargado.");
+                response.setResultado(respuesta);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return respuesta;
+        return response;
     }
 
     @PostMapping("/cargar-archivo-especiales")
