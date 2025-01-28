@@ -2,8 +2,11 @@ package cl.gob.ips.solicitudes_pago.controller;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -11,6 +14,8 @@ import java.util.UUID;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,8 +30,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-
+import cl.gob.ips.solicitudes_pago.dto.ArchivoResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.service.FileService;
 
 @RestController
@@ -37,13 +43,16 @@ public class FileController {
     private FileService fileService;
 
     @PostMapping("/cargar-archivo-previred")
-    public List<ArchivoSolicitudDTO> cargarArchivoPrevired( @RequestParam("file") MultipartFile file,
-            @RequestParam("origen") String origen) {
+    public ResponseDTO cargarArchivoPrevired( @RequestParam("file") MultipartFile file,
+            @RequestParam("origen") String origen, @RequestParam("periodo") String periodo) {
     List<ArchivoSolicitudDTO> listaSolicitudes = new ArrayList<>();
+    ArchivoResponseDTO respuesta = new ArchivoResponseDTO();
+    ResponseDTO response = new ResponseDTO();
     /*String region [15,"valparíso"?¡];
     comuna[15,176,"vina del mar"]
     comuna[15,"177","valparaíso"]*/
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "Windows-1252"))) {
+
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
 
             //Pasar a UTF-8
             String line;
@@ -70,7 +79,7 @@ public class FileController {
                 carga.setEmailEmpleador(fields[6]);
                 carga.setComunaEmpleador(fields[7]);
                 carga.setCiudadEmpleador(fields[8]);
-                carga.setRegionEmpleador(fields[9]);
+                carga.setNombreRegion(fields[9]);
                 carga.setRutTrabajador(fields[10]);
                 carga.setDvTrabajador(fields[11]);
                 carga.setApellidoPaternoTrabajador(fields[12]);
@@ -86,25 +95,36 @@ public class FileController {
                 carga.setFechaFinCompensacion(fields[22]);
                 carga.setEstadoCarga(fields.length > 23 && !fields[23].trim().isEmpty() ? fields[23].trim() : null);
                 carga.setOrigen(origen);
+                carga.setPeriodo(periodo);
                 
                 listaSolicitudes.add(carga);
                 
             }
-            fileService.insertarSolicitud(listaSolicitudes);
+            respuesta = fileService.insertarSolicitudes(listaSolicitudes,periodo);
+            if(respuesta.getRegistrosFallidos()==0){
+                response.setCodigoRetorno(0);
+                response.setGlosaRetorno("Se leyeron "+respuesta.getRegistrosEnArchivo()+" solicitudes y se importaron "+respuesta.getRegistrosImportados()+" solicitudes.");
+                response.setResultado(respuesta);
+            }
+            else{
+                response.setCodigoRetorno(-1);
+                response.setGlosaRetorno("Se leyeron "+respuesta.getRegistrosEnArchivo()+" solicitudes. Se importaron "+respuesta.getRegistrosImportados()+" solicitudes. Fallaron "+respuesta.getRegistrosFallidos()+" solicitudes. Revisar archivo de errores descargado.");
+                response.setResultado(respuesta);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return listaSolicitudes;
+        return response;
     }
 
     @PostMapping("/cargar-archivo-especiales")
     public List<ArchivoSolicitudDTO> cargarArchivoEspeciales( @RequestParam("file") MultipartFile file,
-            @RequestParam("origen") String origen) {
+            @RequestParam("origen") String origen, @RequestParam("periodo") String periodo) {
     List<ArchivoSolicitudDTO> listaSolicitudes = new ArrayList<>();
     /*String region [15,"valparíso"?¡];
     comuna[15,176,"vina del mar"]
     comuna[15,"177","valparaíso"]*/
-    try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), "Windows-1252"))) {
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
 
             //Pasar a UTF-8
             String line;
@@ -131,7 +151,7 @@ public class FileController {
                 carga.setEmailEmpleador(fields[6]);
                 carga.setComunaEmpleador(fields[7]);
                 carga.setCiudadEmpleador(fields[8]);
-                carga.setRegionEmpleador(fields[9]);
+                carga.setNombreRegion(fields[9]);
                 carga.setRutTrabajador(fields[10]);
                 carga.setDvTrabajador(fields[11]);
                 carga.setApellidoPaternoTrabajador(fields[12]);
@@ -151,7 +171,7 @@ public class FileController {
                 listaSolicitudes.add(carga);
                 
             }
-            fileService.insertarSolicitud(listaSolicitudes);
+            fileService.insertarSolicitudes(listaSolicitudes,periodo);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -211,5 +231,46 @@ public class FileController {
         }
     }
 
+    @GetMapping("/descargarErrores")
+    public ResponseEntity<Resource> descargarErrores(@RequestParam String periodo) {
+        String carpetaArchivos = ""; // Carpeta donde se guardarán los archivos
+        
+        // Reemplazar '/' por '-' en el período
+        periodo = periodo.replace("/", "-");
+
+        // Concatenar el período al nombre del archivo
+        String nombreArchivoErrores = "errores"+periodo+".txt";
+        String rutaArchivo = nombreArchivoErrores; // Ruta completa del archivo
+
+        // Crear la carpeta 'archivos' si no existe
+        File carpeta = new File(carpetaArchivos);
+        if (!carpeta.exists()) {
+            carpeta.mkdirs(); // Crear la carpeta y subcarpetas si no existen
+        }
+
+        File archivoErrores = new File(rutaArchivo);
+
+        if (!archivoErrores.exists()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(null); // Manejar el caso donde el archivo no existe
+        }
+
+        try {
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(archivoErrores));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + nombreArchivoErrores);
+            headers.add(HttpHeaders.CONTENT_TYPE, "text/plain");
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .contentLength(archivoErrores.length())
+                    .body(resource);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 
 }

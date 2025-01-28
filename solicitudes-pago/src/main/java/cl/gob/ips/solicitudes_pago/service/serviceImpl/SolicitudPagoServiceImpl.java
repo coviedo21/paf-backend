@@ -14,7 +14,9 @@ import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
+import cl.gob.ips.solicitudes_pago.dto.RechazoSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
+import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
 import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
@@ -37,18 +39,19 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
     private int diasAntiguedad;  // Inyecta el valor del archivo de propiedades
     
     @Override
-    public int insertarSolicitudPago(SolicitudDTO solicitudPago) {
+    public ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago,boolean esArchivo) {
+        ResponseDTO response = new ResponseDTO();
         /*List<CuentaCorrienteCausanteDTO> listaCuentasCausante = cuentaCorrienteDAO.obtenerCuentaCorrienteCausantes(solicitudPago.getRutBeneficiario());
         for(CuentaCorrienteCausanteDTO cuentaCausante:listaCuentasCausante){
             System.out.println("Causante: "+cuentaCausante.getRutCausante()+" "+cuentaCausante.getNombre());    
         }*/
-        int idSolicitud = solicitudPagoDAO.insertarSolicitudPago(solicitudPago);
-        if(idSolicitud>0){
+        response = solicitudPagoDAO.insertarSolicitudPago(solicitudPago,esArchivo);
+        if((int) response.getResultado()>0){
             /*Validar Criterios de Solicitud*/
-            boolean enviar = criterioSolicitudService.validarCriteriosResolucion(idSolicitud);
+            boolean enviar = criterioSolicitudService.validarCriteriosResolucion((int) response.getResultado());
             if(enviar){
                 SolicitudDTO actualizarSolicitud = new SolicitudDTO();
-                actualizarSolicitud.setIdSolicitud(idSolicitud);
+                actualizarSolicitud.setIdSolicitud((int) response.getResultado());
                 actualizarSolicitud.setCumpleCriterios("S");
                 actualizarSolicitudPago(actualizarSolicitud);
                 /*
@@ -60,27 +63,27 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 resolucion.setVcDescripcion("Solicitud cumple con todos los criterios de resolución.");
                 solicitudPagoDAO.insertarResolucion(resolucion);*/
                 try {
-                    emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+idSolicitud+" enviada","Su solicitud N° "+idSolicitud+" cumple con todos los criterios de aceptación por lo que ha sido enviada para su resolución.");    
+                    emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" enviada","Su solicitud N° "+(int) response.getResultado()+" cumple con todos los criterios de aceptación por lo que ha sido enviada para su resolución.");    
                 } catch (Exception e) {
                     // Captura cualquier excepción relacionada con el envío del correo y loguea el error
-                    System.err.println("Error enviando correo para la solicitud " + idSolicitud + ": " + e.getMessage());
+                    System.err.println("Error enviando correo para la solicitud " + (int) response.getResultado() + ": " + e.getMessage());
                 }
             }
             else{
                 try {
                     SolicitudDTO actualizarSolicitud = new SolicitudDTO();
-                    actualizarSolicitud.setIdSolicitud(idSolicitud);
+                    actualizarSolicitud.setIdSolicitud((int) response.getResultado());
                     actualizarSolicitud.setCumpleCriterios("N");
                     actualizarSolicitudPago(actualizarSolicitud);
-                    emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+idSolicitud+" recibida con error(es)","Su solicitud N° "+idSolicitud+" NO cumple con todos los criterios de aceptación. A partir de este momento cuenta con "+diasAntiguedad+" días para subsanarla. Deberá adjuntar la documentación necesaria, de lo contrario será enviada automáticamente para su resolución");    
+                    emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" recibida con error(es)","Su solicitud N° "+(int) response.getResultado()+" NO cumple con todos los criterios de aceptación. A partir de este momento cuenta con "+diasAntiguedad+" días para subsanarla. Deberá adjuntar la documentación necesaria, de lo contrario será enviada automáticamente para su resolución");    
                 } catch (Exception e) {
                     // Captura cualquier excepción relacionada con el envío del correo y loguea el error
-                    System.err.println("Error enviando correo para la solicitud " + idSolicitud + ": " + e.getMessage());
+                    System.err.println("Error enviando correo para la solicitud " + (int) response.getResultado() + ": " + e.getMessage());
                 }
             }
-            return idSolicitud;
+            return response;
         }
-        return 0;
+        return response;
     }
 
     @Override
@@ -154,6 +157,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 resolucion.setIAutor(solicitud.getIdUsuario());
                 resolucion.setIIdEstado(2);
                 resolucion.setVcDescripcion("Termina plazo para subsanar, solicitud enviada automáticamente");
+                resolucion.setIMotivoRechazo(null);
                 insertarResolucion(resolucion);
                 try {
                     emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" enviada","Terminó plazo de "+diasAntiguedad+" días para subsanar su solicitud N° "+solicitud.getIdSolicitud()+". Ha sido enviada automáticamente para su resolución.");    
@@ -186,7 +190,23 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         return solicitudPagoDAO.obtenerMotivosRechazo();
     }
 
-    public List<OrigenArchivoDTO> obtenerOrigenesArchivo() {
-        return solicitudPagoDAO.obtenerOrigenesArchivo();
+    public boolean rechazarSolicitud(RechazoSolicitudDTO rechazoSolicitudDTO){
+        SolicitudDTO solicitud = solicitudPagoDAO.consultarSolicitudPago(rechazoSolicitudDTO.getIdSolicitud()).get(0);
+        MotivoRechazoDTO rechazo = solicitudPagoDAO.obtenerMotivoRechazoPorId(rechazoSolicitudDTO.getIdMotivoRechazo());
+        ResolucionDTO resolucion = new ResolucionDTO();
+        resolucion.setIIdSolicitud(rechazoSolicitudDTO.getIdSolicitud());
+        resolucion.setIAutor(1);
+        resolucion.setIIdEstado(4);
+        resolucion.setVcDescripcion("Se rechaza solicitud.");
+        resolucion.setIMotivoRechazo(rechazoSolicitudDTO.getIdMotivoRechazo());
+        insertarResolucion(resolucion);
+        try {
+            emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" rechazada.","Su solicitud N° "+solicitud.getIdSolicitud()+" ha sido rechazada. Motivo de Rechazo:  "+rechazo.getNombre());    
+            return true;
+        } catch (Exception e) {
+            // Captura cualquier excepción relacionada con el envío del correo y loguea el error
+            System.err.println("Error enviando correo para la solicitud " + solicitud.getIdSolicitud() + ": " + e.getMessage());
+        }
+        return false;
     }
 }

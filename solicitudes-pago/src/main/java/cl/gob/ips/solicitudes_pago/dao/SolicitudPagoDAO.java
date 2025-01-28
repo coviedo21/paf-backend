@@ -6,11 +6,12 @@ import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
+import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
 
 public interface SolicitudPagoDAO {
-    int insertarSolicitudPago(SolicitudDTO solicitudPago);
+    ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago,boolean esArchivo);
     List<SolicitudDTO> consultarSolicitudPago(Integer idSolicitud);
     boolean actualizarSolicitudPago(SolicitudDTO solicitudPago);
     List<SolicitudDTO> filtrarSolicitudesPago(String texto);
@@ -27,5 +28,5 @@ public interface SolicitudPagoDAO {
     List<SolicitudDTO> obtenerSolicitudesPorEmpleador(Integer rutEmpleador);
     List<SolicitudDTO> obtenerSolicitudesPorOrigen(Integer origen, Integer proceso, Integer estado);
     List<MotivoRechazoDTO> obtenerMotivosRechazo();
-    List<OrigenArchivoDTO> obtenerOrigenesArchivo();
+    MotivoRechazoDTO obtenerMotivoRechazoPorId(int idMotivoRechazo);
 }

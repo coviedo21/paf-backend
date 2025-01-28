@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.azure.storage.file.share.ShareDirectoryClient;
@@ -18,6 +19,7 @@ import com.azure.storage.file.share.ShareFileClient;
 import com.azure.storage.file.share.ShareFileClientBuilder;
 
 import cl.gob.ips.solicitudes_pago.dao.FileDAO;
+import cl.gob.ips.solicitudes_pago.dto.ArchivoResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.ListaComunaDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResultadoRegionDTO;
@@ -39,23 +41,32 @@ public class FileServiceImpl implements FileService {
     @Autowired
     private CriterioSolicitudService criterioSolicitudService;
 
-    public void insertarSolicitud(List<ArchivoSolicitudDTO> listaSolicitudes) {
+    @Value("${app.base.url}")
+    private String baseUrl;    
+    
+    public ArchivoResponseDTO insertarSolicitudes(List<ArchivoSolicitudDTO> listaSolicitudes, String periodo) {
         Map<String, ListaComunaDTO> comunaCache = new HashMap<>();
         Map<String, ResultadoRegionDTO> regionCache = new HashMap<>();
-        String nombreArchivoErrores = "errores.txt"; // Nombre del archivo donde se guardarán las líneas con errores
+        periodo = periodo.replace("/", "-");
+        String nombreArchivoErrores = "errores"+periodo+".txt"; // Nombre del archivo donde se guardarán las líneas con errores
+        int contadorRegistros = 0;
+        int contadorExitos = 0;
+        int contadorErrores = 0;
+        ArchivoResponseDTO respuesta = new ArchivoResponseDTO();
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(nombreArchivoErrores))) {
             // Escribir la cabecera del archivo de errores
-            String cabecera = "Folio;Fecha - hora Declaración de cargas familiares;RUT Empleador;Digito Verificador Empleador;" +
+            /*String cabecera = "Folio;Fecha - hora Declaración de cargas familiares;RUT Empleador;Digito Verificador Empleador;" +
                             "Razón Social Empleador;Dirección Empleador;Email Empleador;Comuna Empleador;Ciudad Empleador;" +
                             "Región Empleador;RUT Trabajador;Dv Trabajador;Apellido Paterno Trabajador;Apellidos Materno Trabajador;" +
                             "Nombres Trabajador;RUT Carga Familiar;Dígito Verificador Carga familiar;Apellido Paterno Carga;" +
                             "Apellidos Materno Carga;Nombres Carga;Tipo Carga;Fecha Inicio Compensación;Fecha Fin Compensación;Estado de la Carga";
-            bw.write(cabecera);
-            bw.newLine(); // Saltar a la siguiente línea después de la cabecera
+            bw.write(cabecera);*/
+            //bw.newLine(); // Saltar a la siguiente línea después de la cabecera
 
             for (ArchivoSolicitudDTO archivo : listaSolicitudes) {
-                String regionKey = archivo.getRegionEmpleador().trim().toUpperCase();
+                contadorRegistros++;
+                String regionKey = archivo.getNombreRegion().trim().toUpperCase();
                 ResultadoRegionDTO region = null;
 
                 if (regionCache.containsKey(regionKey)) {
@@ -64,18 +75,20 @@ public class FileServiceImpl implements FileService {
                 } else {
                     // Validar la región si no está en la caché
                     //String url = String.format("https://pagosafback-dev.azurewebsites.net/pagos-asignacion-familiar-v1/pagos/crear-solicitud");
-                    String url = String.format("http://localhost:8080/mantenedor/validarRegion/"+archivo.getRegionEmpleador());
+                    String url = String.format(baseUrl+"/validarRegion/"+archivo.getNombreRegion());
                     region = restTemplate.getForObject(url, ResultadoRegionDTO.class);
                     //region = comunaService.validarRegion(archivo.getRegionEmpleador());
                     if (region != null) {
                         regionCache.put(regionKey, region);
                     } else {
                         // Manejo de casos donde no se encontró la región
-                        archivo.setRegionEmpleador("**ERROR**" + archivo.getRegionEmpleador());
+                        archivo.setNombreRegion("**ERROR**" + archivo.getNombreRegion());
                     }
                 }
 
                 if (region != null) {
+                    archivo.setIdRegion(region.getCodigoRegion());
+                    archivo.setNombreRegion(region.getNombreRegion());
                     String comunaKey = region.getCodigoRegion() + "|" + archivo.getComunaEmpleador().trim().toUpperCase();
 
                     ListaComunaDTO comuna = null;
@@ -84,7 +97,7 @@ public class FileServiceImpl implements FileService {
                         comuna = comunaCache.get(comunaKey);
                     } else {
                         // Validar la comuna si no está en la caché
-                        String url = String.format("http://localhost:8080/mantenedor/validarComuna/"+region.getCodigoRegion()+"/"+archivo.getComunaEmpleador());
+                        String url = String.format(baseUrl+"/validarComuna/"+region.getCodigoRegion()+"/"+archivo.getComunaEmpleador());
                         comuna = restTemplate.getForObject(url, ListaComunaDTO.class);
                         //comuna = comunaService.validarComuna(region.getCodigoRegion(), archivo.getComunaEmpleador());
                         if (comuna != null) {
@@ -140,10 +153,23 @@ public class FileServiceImpl implements FileService {
                 }
 
                 // Finalmente, insertar la solicitud si todo está correcto
-                fileDAO.insertarSolicitud(archivo);
+                boolean insertado = fileDAO.insertarSolicitud(archivo);
+                if(insertado){
+                    contadorExitos++;
+                }
+                else{
+                    bw.write("**ERROR** Solicitud ya existe. Rut Beneficiario: "+archivo.getRutTrabajador()+"-"+archivo.getDvTrabajador()+", Rut Causante: "+archivo.getRutCargaFamiliar()+"-"+archivo.getDvCargaFamiliar()+" Periodo: "+archivo.getPeriodo());
+                    bw.newLine();
+                }
             }
+            contadorErrores = contadorRegistros-contadorExitos;
+            respuesta.setRegistrosEnArchivo(contadorRegistros);
+            respuesta.setRegistrosImportados(contadorExitos);
+            respuesta.setRegistrosFallidos(contadorErrores);
+            return respuesta;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
     }
 
@@ -158,7 +184,7 @@ public class FileServiceImpl implements FileService {
             archivo.getEmailEmpleador() + ";" +
             archivo.getComunaEmpleador() + ";" +
             archivo.getCiudadEmpleador() + ";" +
-            archivo.getRegionEmpleador() + ";" +
+            archivo.getNombreRegion() + ";" +
             archivo.getRutTrabajador() + ";" +
             archivo.getDvTrabajador() + ";" +
             archivo.getApellidoPaternoTrabajador() + ";" +

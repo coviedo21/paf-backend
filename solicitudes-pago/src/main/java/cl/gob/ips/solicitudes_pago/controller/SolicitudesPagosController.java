@@ -2,16 +2,27 @@ package cl.gob.ips.solicitudes_pago.controller;
 
 import cl.gob.ips.solicitudes_pago.dto.*;
 import cl.gob.ips.solicitudes_pago.service.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin("*")
@@ -33,9 +44,6 @@ public class SolicitudesPagosController {
  
     @Autowired
     private UtilService utilService;
-
-    @Autowired
-    private FileService fileService;
 
     @Autowired
     private PersonaService personaService;
@@ -65,17 +73,27 @@ public class SolicitudesPagosController {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(new Date());
 
-        int resultado = solicitudPagoService.insertarSolicitudPago(solicitudPago);
-        if (resultado>0) {
-            responseDTO.setCodigoRetorno(0);
+        if(solicitudPago.getListaCausantes().isEmpty()){
+            responseDTO.setCodigoRetorno(-1);
+            responseDTO.setGlosaRetorno("Debe ingresar al menos un causante");
+            responseDTO.setTimestamp(new Date());
+
+            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+        }
+        responseDTO = solicitudPagoService.insertarSolicitudPago(solicitudPago,false);
+        if ((int) responseDTO.getResultado()>0) {
+            //responseDTO.setCodigoRetorno(0);
             responseDTO.setGlosaRetorno("Solicitud de pago insertada correctamente!");
-            responseDTO.setResultado(resultado);
+            //responseDTO.setResultado(resultado);
 
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
         } else {
             responseDTO.setCodigoRetorno(-1);
-            responseDTO.setGlosaRetorno("No se creó la solicitud de pago.");
+            
+            responseDTO.setGlosaRetorno(responseDTO.getGlosaRetorno());
+        
+            
             responseDTO.setTimestamp(new Date());
 
             return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
@@ -287,6 +305,17 @@ public class SolicitudesPagosController {
         }
     }
 
+    
+    @GetMapping("/obtenerDerechoCausantes/{rutBeneficiario}/{periodoDesde}/{periodoHasta}/{tipoBeneficiario}")
+    public ResponseEntity<List<DerechoCausanteDTO>> obtenerDerechoCausantes(@PathVariable("rutBeneficiario") Integer rutBeneficiario,@PathVariable("periodoDesde") Integer periodoDesde,@PathVariable("periodoHasta") Integer periodoHasta,@PathVariable("tipoBeneficiario") Integer tipoBeneficiario) {
+        List<DerechoCausanteDTO> derechoCausantes = causanteService.obtenerDerechoCausantes(rutBeneficiario,periodoDesde,periodoHasta,tipoBeneficiario);
+        if (derechoCausantes != null && !derechoCausantes.isEmpty()) {
+            return ResponseEntity.ok(derechoCausantes);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
     @GetMapping("/obtenerCausantes/{rutBeneficiario}")
     public ResponseEntity<List<CausanteDTO>> obtenerCausantes(@PathVariable("rutBeneficiario") Integer rutBeneficiario) {
         List<CausanteDTO> causantes = causanteService.obtenerDetalleCausante(rutBeneficiario);
@@ -342,17 +371,6 @@ public class SolicitudesPagosController {
         }
     }
 
-    @GetMapping("/obtenerOrigenesArchivo")
-    public ResponseEntity<List<OrigenArchivoDTO>> obtenerOrigenesArchivo() {
-        List<OrigenArchivoDTO> origenesArchivo = solicitudPagoService.obtenerOrigenesArchivo();
-        if (origenesArchivo != null && !origenesArchivo.isEmpty()) {
-            return ResponseEntity.ok(origenesArchivo);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
-    }
-
-
     @GetMapping("/detallePersona/{rut}")
     public ResponseEntity<DetallePersonaDTO> obtenerDetallePersona(@PathVariable("rut") int rut) {
 
@@ -366,6 +384,18 @@ public class SolicitudesPagosController {
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/rechazarSolicitud")
+    public ResponseEntity<String> rechazarSolicitud(@RequestBody RechazoSolicitudDTO rechazoSolicitudDTO) {
+        boolean rechazo = solicitudPagoService.rechazarSolicitud(rechazoSolicitudDTO);
+        if (rechazo) {
+            // Caso exitoso: solicitud rechazada
+            return ResponseEntity.status(HttpStatus.OK).body("Solicitud rechazada exitosamente.");
+        } else {
+            // Caso de error: No se pudo rechazar
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo rechazar la solicitud. Motivo: <explicar_el_motivo>");
         }
     }
 }
