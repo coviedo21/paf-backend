@@ -394,4 +394,14 @@ public class SolicitudesPagosController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo rechazar la solicitud. Motivo: <explicar_el_motivo>");
         }
     }
+
+    @GetMapping("/obtenerDetalleCausantePorId/{idCausanteSolicitud}")
+    public ResponseEntity<List<DetalleCausanteDTO>> obtenerDetalleCausantePorId(@PathVariable("idCausanteSolicitud") Integer idCausanteSolicitud) {
+        List<DetalleCausanteDTO> detalleCausante = causanteService.obtenerDetalleCausantePorId(idCausanteSolicitud);
+        if (detalleCausante != null && !detalleCausante.isEmpty()) {
+            return ResponseEntity.ok(detalleCausante);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
 }
