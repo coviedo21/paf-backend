@@ -2,6 +2,8 @@ package cl.gob.ips.solicitudes_pago.dto;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -17,4 +19,5 @@ public class CausanteSolicitudDTO {
     private Date fechaFinRango;
     private String vcPeriodosAprobados;
     private BigDecimal totalPagar;
+    private List<DetalleCausanteDTO> detalle;
 }

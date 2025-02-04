@@ -1,6 +1,7 @@
 package cl.gob.ips.solicitudes_pago.dao.daoImpl;
 
 import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
 //import cl.gob.ips.solicitudes_pago.dto.ProcesoDTO;
@@ -20,6 +21,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
+import cl.gob.ips.solicitudes_pago.dao.CausanteDAO;
 import cl.gob.ips.solicitudes_pago.dao.SolicitudPagoDAO;
 
 import java.math.BigDecimal;
@@ -36,6 +38,9 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Autowired
     EmailService emailService;
+
+    @Autowired
+    CausanteDAO causanteDAO;
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -266,6 +271,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                             new SqlParameter("dFechaFinRango", Types.DATE),
                             new SqlParameter("vcPeriodosAprobados", Types.VARCHAR),
                             new SqlParameter("mTotalPagar", Types.DECIMAL),
+                            new SqlOutParameter("iIdCausanteSolicitud", Types.INTEGER),
                             new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                     );
     
@@ -284,6 +290,14 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             try {
                 Map<String, Object> resultCausante = jdbcCallCausante.execute(inParamsCausante);
                 System.out.println("Causante insertado: " + resultCausante.get("mensajeRespuesta"));
+                // Obtener el ID del causante insertado
+                Integer idCausanteSolicitud = (Integer) resultCausante.get("iIdCausanteSolicitud");
+
+                for (DetalleCausanteDTO detalle : causante.getDetalle()) {
+                    detalle.setIdCausanteSolicitud(idCausanteSolicitud);
+                    String insertarCausante = causanteDAO.insertarDetalleCausante(detalle);
+                    System.out.println(insertarCausante);
+                }
             } catch (Exception e) {
                 System.out.println("ERROR al insertar causante: " + e.getMessage());
             }
