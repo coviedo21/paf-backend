@@ -161,6 +161,9 @@ public class CausanteDAOImpl implements CausanteDAO{
             for (Map<String, Object> row : results) {
                 DetalleCausanteDTO detalleDTO = new DetalleCausanteDTO();
 
+                if (row.get("iIdDetalleCausante") != null) 
+                    detalleDTO.setIdDetalleCausante((Integer) row.get("iIdDetalleCausante"));
+
                 if (row.get("iIdCausanteSolicitud") != null) 
                     detalleDTO.setIdCausanteSolicitud((Integer) row.get("iIdCausanteSolicitud"));
 

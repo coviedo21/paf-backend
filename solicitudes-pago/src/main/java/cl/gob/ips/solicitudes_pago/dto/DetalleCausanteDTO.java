@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class DetalleCausanteDTO {
 
+    private int idDetalleCausante;
     private int idCausanteSolicitud;
     private int rutCausante;
     private String dvCausante;
