@@ -48,6 +48,9 @@ public class SolicitudesPagosController {
     @Autowired
     private PersonaService personaService;
 
+    @Autowired
+    private LicenciaFiniquitoService licenciaFiniquitoService;
+
     @GetMapping("/obtenerCriterio/{id}")
     public ResponseEntity<List<CriterioSolicitudDTO>> consultarCriterio(@PathVariable("id") Integer id) {
         List<CriterioSolicitudDTO> criterios = criterioSolicitudService.consultarCriteriosSolicitud(id);
@@ -399,8 +402,40 @@ public class SolicitudesPagosController {
         }
     }
 
+    @GetMapping("/licenciaFiniquito/{rut}")
+    public ResponseEntity<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(@PathVariable("rut") int rut) {
+        try {
+            LicenciaFiniquitoDTO licenciaFiniquitoDTO = licenciaFiniquitoService.obtenerLicenciaFiniquito(rut);
+
+            if (licenciaFiniquitoDTO != null) {
+                return ResponseEntity.ok(licenciaFiniquitoDTO);
+            } else {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/licenciaFiniquito")
+    public ResponseEntity<LicenciaFiniquitoDTO> insertarLicenciaFiniquito(@RequestBody LicenciaFiniquitoInputDTO licenciaFiniquito) {
+        try {
+            boolean response = licenciaFiniquitoService.agregarLicenciaFiniquito(licenciaFiniquito);
+
+            if (response) {
+                return ResponseEntity.status(HttpStatus.CREATED).build();
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @GetMapping("/obtenerDetalleCausantePorId/{idCausanteSolicitud}")
-    public ResponseEntity<List<DetalleCausanteDTO>> obtenerDetalleCausantePorId(@PathVariable("idCausanteSolicitud") Integer idCausanteSolicitud) {
+    public ResponseEntity<List<DetalleCausanteDTO>> obtenerDetalleCausantePorIdgit (@PathVariable("idCausanteSolicitud") Integer idCausanteSolicitud) {
         List<DetalleCausanteDTO> detalleCausante = causanteService.obtenerDetalleCausantePorId(idCausanteSolicitud);
         if (detalleCausante != null && !detalleCausante.isEmpty()) {
             return ResponseEntity.ok(detalleCausante);
