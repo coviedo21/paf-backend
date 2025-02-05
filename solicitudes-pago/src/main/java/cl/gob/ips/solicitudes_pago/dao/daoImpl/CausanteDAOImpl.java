@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
@@ -22,14 +23,18 @@ import org.springframework.stereotype.Repository;
 
 import cl.gob.ips.solicitudes_pago.dao.CausanteDAO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteDTO;
+import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
 
 @Repository
 public class CausanteDAOImpl implements CausanteDAO{
     
     private final JdbcTemplate jdbcTemplate;
+    
+    @Value("${spring.datasource.schema}")
+    private String esquema;
 
     @Autowired
-    public CausanteDAOImpl(@Qualifier("genesysPJdbc") JdbcTemplate jdbcTemplate) {
+    public CausanteDAOImpl(@Qualifier("pafJdbc") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -120,4 +125,108 @@ public class CausanteDAOImpl implements CausanteDAO{
         // Devolver la edad calculada
         return edad;
     }
+
+    @Override
+    public String insertarDetalleCausante(DetalleCausanteDTO causanteDTO) {
+
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withSchemaName(esquema)
+                .withProcedureName("SP_InsertarDetalleCausante");
+
+        SqlParameterSource inParams = new MapSqlParameterSource()
+                .addValue("iIdCausanteSolicitud", causanteDTO.getIdCausanteSolicitud())
+                .addValue("iRutCausante", causanteDTO.getRutCausante())
+                .addValue("vcDvCausante", causanteDTO.getDvCausante())
+                .addValue("iPeriodo", causanteDTO.getPeriodo())
+                .addValue("iTipoMovimiento", causanteDTO.getTipoMovimiento())
+                .addValue("dFechaMovimiento", causanteDTO.getFechaMovimiento())
+                .addValue("vcEntradaSalida", causanteDTO.getEntradaSalida())
+                .addValue("nMontoMovimiento", causanteDTO.getMontoMovimiento())
+                .addValue("iTipoCausante", causanteDTO.getTipoCausante())
+                .addValue("iIdBeneficio", causanteDTO.getIdBeneficio())
+                .addValue("nRentaPromedio", causanteDTO.getRentaPromedio())
+                .addValue("vcTramo", causanteDTO.getTramo())
+                .addValue("iDiasReconocimiento", causanteDTO.getDiasReconocimiento())
+                .addValue("iCodigoTramo", causanteDTO.getCodigoTramo())
+                .addValue("dFechaFinVigencia", causanteDTO.getFechaFinVigencia())
+                .addValue("dFechaInicioVigencia", causanteDTO.getFechaInicioVigencia())
+                .addValue("mensajeRespuesta", Types.VARCHAR);
+
+        Map<String, Object> result = jdbcCall.execute(inParams);
+        return (String) result.get("mensajeRespuesta");
+    }
+
+    @Override
+    public List<DetalleCausanteDTO> obtenerDetalleCausantePorId(int iIdCausanteSolicitud) {
+        String sql = "SELECT * FROM paf.fn_ObtenerDetalleCausante(?)";
+
+        try {
+            List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{iIdCausanteSolicitud});
+            List<DetalleCausanteDTO> detallesCausante = new ArrayList<>();
+
+            for (Map<String, Object> row : results) {
+                DetalleCausanteDTO detalleDTO = new DetalleCausanteDTO();
+
+                if (row.get("iIdDetalleCausante") != null) 
+                    detalleDTO.setIdDetalleCausante((Integer) row.get("iIdDetalleCausante"));
+
+                if (row.get("iIdCausanteSolicitud") != null) 
+                    detalleDTO.setIdCausanteSolicitud((Integer) row.get("iIdCausanteSolicitud"));
+
+                if (row.get("iRutCausante") != null) 
+                    detalleDTO.setRutCausante((Integer) row.get("iRutCausante"));
+
+                if (row.get("vcDvCausante") != null) 
+                    detalleDTO.setDvCausante((String) row.get("vcDvCausante"));
+
+                if (row.get("iPeriodo") != null) 
+                    detalleDTO.setPeriodo((Integer) row.get("iPeriodo"));
+
+                if (row.get("iTipoMovimiento") != null) 
+                    detalleDTO.setTipoMovimiento((Integer) row.get("iTipoMovimiento"));
+
+                if (row.get("dFechaMovimiento") != null) 
+                    detalleDTO.setFechaMovimiento((Date) row.get("dFechaMovimiento"));
+
+                if (row.get("vcEntradaSalida") != null) 
+                    detalleDTO.setEntradaSalida((String) row.get("vcEntradaSalida"));
+
+                if (row.get("nMontoMovimiento") != null) 
+                    detalleDTO.setMontoMovimiento((BigDecimal) row.get("nMontoMovimiento"));
+
+                if (row.get("iTipoCausante") != null) 
+                    detalleDTO.setTipoCausante((Integer) row.get("iTipoCausante"));
+
+                if (row.get("iIdBeneficio") != null) 
+                    detalleDTO.setIdBeneficio((Integer) row.get("iIdBeneficio"));
+
+                if (row.get("nRentaPromedio") != null) 
+                    detalleDTO.setRentaPromedio((BigDecimal) row.get("nRentaPromedio"));
+
+                if (row.get("vcTramo") != null) 
+                    detalleDTO.setTramo((String) row.get("vcTramo"));
+
+                if (row.get("iDiasReconocimiento") != null) 
+                    detalleDTO.setDiasReconocimiento((Integer) row.get("iDiasReconocimiento"));
+
+                if (row.get("iCodigoTramo") != null) 
+                    detalleDTO.setCodigoTramo((Integer) row.get("iCodigoTramo"));
+
+                if (row.get("dFechaFinVigencia") != null) 
+                    detalleDTO.setFechaFinVigencia((Date) row.get("dFechaFinVigencia"));
+
+                if (row.get("dFechaInicioVigencia") != null) 
+                    detalleDTO.setFechaInicioVigencia((Date) row.get("dFechaInicioVigencia"));
+
+                detallesCausante.add(detalleDTO);
+            }
+
+            return detallesCausante;
+
+        } catch (Exception e) {
+            System.err.println("Error al ejecutar la consulta: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+
 }

@@ -402,6 +402,16 @@ public class SolicitudesPagosController {
         }
     }
 
+    @GetMapping("/obtenerDetalleCausantePorId/{idCausanteSolicitud}")
+    public ResponseEntity<List<DetalleCausanteDTO>> obtenerDetalleCausantePorId(@PathVariable("idCausanteSolicitud") Integer idCausanteSolicitud) {
+        List<DetalleCausanteDTO> detalleCausante = causanteService.obtenerDetalleCausantePorId(idCausanteSolicitud);
+        if (detalleCausante != null && !detalleCausante.isEmpty()) {
+            return ResponseEntity.ok(detalleCausante);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
     @GetMapping("/licenciaFiniquito/{rut}")
     public ResponseEntity<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(@PathVariable("rut") int rut) {
         try {
@@ -416,5 +426,4 @@ public class SolicitudesPagosController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }
 }

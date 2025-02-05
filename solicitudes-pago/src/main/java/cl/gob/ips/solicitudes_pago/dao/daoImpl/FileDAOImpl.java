@@ -48,6 +48,8 @@ public class FileDAOImpl implements FileDAO{
                 solicitud.setNombresBeneficiario(archivo.getNombresTrabajador());
                 
                 //Causante
+                causante.setRutBeneficiario(Integer.parseInt(archivo.getRutTrabajador()));
+                causante.setVcDvBeneficiario(archivo.getDvTrabajador());
                 causante.setRutCausante(Integer.parseInt(archivo.getRutCargaFamiliar()));
                 causante.setVcDvCausante(archivo.getDvCargaFamiliar());
                 causante.setVcNombreCausante(archivo.getApellidoPaternoCarga()+" "+archivo.getApellidoMaternoCarga()+" "+archivo.getNombresCarga());

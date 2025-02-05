@@ -49,7 +49,7 @@ public class ProcesoDAOImpl implements ProcesoDAO {
                         new SqlParameter("dFechaCreacion", Types.DATE),
                         new SqlParameter("dFechaEjecucion", Types.DATE),
                         new SqlParameter("vcPeriodo", Types.VARCHAR),
-                        
+                        new SqlOutParameter("mensajeRespuesta", Types.VARCHAR),
                         new SqlOutParameter("idProceso", Types.INTEGER));
 
         MapSqlParameterSource inParams = new MapSqlParameterSource()

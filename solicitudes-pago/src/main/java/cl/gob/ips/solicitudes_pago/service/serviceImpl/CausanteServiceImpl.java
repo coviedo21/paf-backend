@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import cl.gob.ips.solicitudes_pago.dao.CausanteDAO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.DerechoCausanteDTO;
+import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
 import cl.gob.ips.solicitudes_pago.service.CausanteService;
 import lombok.RequiredArgsConstructor;
 
@@ -47,5 +48,13 @@ public class CausanteServiceImpl implements CausanteService{
 
     public List<CausanteDTO> obtenerDetalleCausante(int rutBeneficiario){
         return causanteDAO.obtenerDetalleCausante(rutBeneficiario);
+    }
+
+    public String insertarDetalleCausante(DetalleCausanteDTO causanteDTO){
+        return causanteDAO.insertarDetalleCausante(causanteDTO);
+    }
+
+    public List<DetalleCausanteDTO> obtenerDetalleCausantePorId(int iIdCausanteSolicitud){
+        return causanteDAO.obtenerDetalleCausantePorId(iIdCausanteSolicitud);
     }
 }
