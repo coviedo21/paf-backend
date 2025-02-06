@@ -1,23 +1,25 @@
 package cl.gob.ips.solicitudes_pago.dto;
 
-import java.math.BigDecimal;
-
 import lombok.Data;
 
 @Data
 public class DerechoCausanteDTO {
-    //private Integer numeroCuentaCorriente;
-    private Integer rutBeneficiario;
-    //private String dvBeneficiario;
-    private Integer periodo;
-    private Integer tipoMovimiento;
-    private String entradaSalida;
+    private int id;
+    private long rutCausante;
+    private String dvCausante;
+    private long rutBeneficiario;
+    private String dvBeneficiario;
+    private int periodo;
+    private int tipoMovimientoId;
     private String fechaMovimiento;
-    private BigDecimal montoMovimiento;
-    //private Integer rutCausante;
-    //private String dvCausante;
-    private Integer tipoBeneficiario;
-    private BigDecimal rentaPromedio;
-    private Integer codigoTramo;
-    private Integer diasReconocimiento;
+    private String entradaSalida;
+    private int montoMovimiento;
+    private int tipoCausante;
+    private int idBeneficio;
+    private int rentaPromedio;
+    private int codigoTramo;
+    private int diasReconocimiento;
+    private int cantidadPagos;
+    private int montoPagos;
+    private int diferencia;
 }

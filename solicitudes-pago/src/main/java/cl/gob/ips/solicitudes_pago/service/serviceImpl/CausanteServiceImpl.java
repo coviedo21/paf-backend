@@ -9,6 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import cl.gob.ips.solicitudes_pago.dao.CausanteDAO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteDTO;
@@ -26,23 +27,21 @@ public class CausanteServiceImpl implements CausanteService{
     private final RestTemplate restTemplate;
 
     @Override
-    public List<DerechoCausanteDTO> obtenerDerechoCausantes(int rutBeneficiario, int periodoDesde, int periodoHasta, int tipoBeneficiario) {
-        String urlTemplate = "https://ctacorrienteback-dev.azurewebsites.net/derecho-beneficario-service/derecho-beneficiario/listar/{rutBeneficiario}/{periodoDesde}/{periodoHasta}/{tipoBeneficiario}";
+    public List<DerechoCausanteDTO> obtenerDerechoCausantes(String rutCausante, String rutBeneficiario, String periodoDesde, String periodoHasta, String tipoCausante) {
+        String baseUrl = "https://ctacorrienteback-dev.azurewebsites.net/causante-service/causante/derecho/sinPagar/listar";
 
-        // Construcción de la URL con parámetros
-        Map<String, Object> uriVariables = new HashMap<>();
-        uriVariables.put("rutBeneficiario", rutBeneficiario);
-        uriVariables.put("periodoDesde", periodoDesde);
-        uriVariables.put("periodoHasta", periodoHasta);
-        uriVariables.put("tipoBeneficiario", tipoBeneficiario);
+        // Construcción de la URL con parámetros en query string
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                .queryParam("rutCausante", rutCausante)
+                .queryParam("rutBeneficiario", rutBeneficiario)
+                .queryParam("periodoDesde", periodoDesde)
+                .queryParam("periodoHasta", periodoHasta)
+                .queryParam("tipoCausante", tipoCausante);
 
         // Llamada al endpoint usando RestTemplate
-        DerechoCausanteDTO[] responseArray = restTemplate.getForObject(urlTemplate, DerechoCausanteDTO[].class, uriVariables);
+        DerechoCausanteDTO[] responseArray = restTemplate.getForObject(builder.toUriString(), DerechoCausanteDTO[].class);
 
-        if (responseArray != null) {
-            return Arrays.asList(responseArray); // Convertir el array en una lista
-        }
-        return Collections.emptyList(); // Retornar lista vacía si la respuesta es nula
+        return (responseArray != null) ? Arrays.asList(responseArray) : Collections.emptyList();
     }
 
 

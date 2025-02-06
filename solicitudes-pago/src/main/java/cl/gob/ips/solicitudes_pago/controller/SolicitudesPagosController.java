@@ -306,15 +306,26 @@ public class SolicitudesPagosController {
     }
 
     
-    @GetMapping("/obtenerDerechoCausantes/{rutBeneficiario}/{periodoDesde}/{periodoHasta}/{tipoBeneficiario}")
-    public ResponseEntity<List<DerechoCausanteDTO>> obtenerDerechoCausantes(@PathVariable("rutBeneficiario") Integer rutBeneficiario,@PathVariable("periodoDesde") Integer periodoDesde,@PathVariable("periodoHasta") Integer periodoHasta,@PathVariable("tipoBeneficiario") Integer tipoBeneficiario) {
-        List<DerechoCausanteDTO> derechoCausantes = causanteService.obtenerDerechoCausantes(rutBeneficiario,periodoDesde,periodoHasta,tipoBeneficiario);
-        if (derechoCausantes != null && !derechoCausantes.isEmpty()) {
-            return ResponseEntity.ok(derechoCausantes);
-        } else {
-            return ResponseEntity.noContent().build();
+    @GetMapping("/obtenerDerechoCausantes")
+    public ResponseEntity<?> obtenerDerechoCausantes(@RequestBody DerechoCausanteRequestDTO request) {
+        
+        try {
+            List<DerechoCausanteDTO> derechoCausantes = causanteService.obtenerDerechoCausantes(
+                    request.getRutCausante(), request.getRutBeneficiario(), request.getPeriodoDesde(), request.getPeriodoHasta(), request.getTipoCausante());
+
+            if (derechoCausantes != null && !derechoCausantes.isEmpty()) {
+                return ResponseEntity.ok(derechoCausantes);
+            } else {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No se encontraron registros.");
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en los parámetros: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor: " + e.getMessage());
         }
     }
+
+
 
     @GetMapping("/obtenerCausantes/{rutBeneficiario}")
     public ResponseEntity<List<CausanteDTO>> obtenerCausantes(@PathVariable("rutBeneficiario") Integer rutBeneficiario) {
