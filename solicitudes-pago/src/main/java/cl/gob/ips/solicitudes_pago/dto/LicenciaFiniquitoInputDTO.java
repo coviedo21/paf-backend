@@ -10,10 +10,10 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LicenciaFiniquitoInputDTO {
-    private String tipoInformacion;
-    private int nroLicenciaFiniquito;
+    private String tipo;
+    private String nroLicencia;
     private int rutBeneficiario;
-    private String dvBneficiario;
+    private String dvBeneficiario;
     private int rutEmpleado;
     private String dvEmpleado;
     private Date fechaInicio;

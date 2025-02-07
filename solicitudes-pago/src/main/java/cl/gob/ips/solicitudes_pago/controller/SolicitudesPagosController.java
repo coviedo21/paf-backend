@@ -3,9 +3,12 @@ package cl.gob.ips.solicitudes_pago.controller;
 import cl.gob.ips.solicitudes_pago.dto.*;
 import cl.gob.ips.solicitudes_pago.service.*;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
+@Log4j2
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/solicitudPago")
@@ -402,35 +406,37 @@ public class SolicitudesPagosController {
         }
     }
 
-    @GetMapping("/licenciaFiniquito/{rut}")
-    public ResponseEntity<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(@PathVariable("rut") int rut) {
+    @GetMapping("/licenciaFiniquito")
+    public ResponseEntity<List<LicenciaFiniquitoDTO>> obtenerLicenciaFiniquito(@RequestParam("rutBeneficiario") int rutBeneficiario,
+                                                                               @RequestParam("fechaInicio") String fechaInicio,
+                                                                               @RequestParam("fechaFin") String fechaFin) {
         try {
-            LicenciaFiniquitoDTO licenciaFiniquitoDTO = licenciaFiniquitoService.obtenerLicenciaFiniquito(rut);
+            List<LicenciaFiniquitoDTO> licenciaFiniquitoDTOS = licenciaFiniquitoService.obtenerLicenciaFiniquito(rutBeneficiario, fechaInicio, fechaFin);
 
-            if (licenciaFiniquitoDTO != null) {
-                return ResponseEntity.ok(licenciaFiniquitoDTO);
+            if (null != licenciaFiniquitoDTOS) {
+                return ResponseEntity.ok(licenciaFiniquitoDTOS);
             } else {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PostMapping("/licenciaFiniquito")
-    public ResponseEntity<LicenciaFiniquitoDTO> insertarLicenciaFiniquito(@RequestBody LicenciaFiniquitoInputDTO licenciaFiniquito) {
+    public ResponseEntity<String> insertarLicenciaFiniquito(@RequestBody LicenciaFiniquitoInputDTO licenciaFiniquito) {
         try {
-            boolean response = licenciaFiniquitoService.agregarLicenciaFiniquito(licenciaFiniquito);
+            HashMap<String, String> map = licenciaFiniquitoService.agregarLicenciaFiniquito(licenciaFiniquito);
 
-            if (response) {
-                return ResponseEntity.status(HttpStatus.CREATED).build();
+            if (map.get("Estado").equals("OK")) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(map.get("Mensaje"));
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map.get("Mensaje"));
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            log.error("ERROR: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
