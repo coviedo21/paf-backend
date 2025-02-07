@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
@@ -28,6 +29,9 @@ import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
 public class CausanteDAOImpl implements CausanteDAO{
     
     private final JdbcTemplate jdbcTemplate;
+    
+    @Value("${spring.datasource.schema}")
+    private String esquema;
 
     @Autowired
     public CausanteDAOImpl(@Qualifier("pafJdbc") JdbcTemplate jdbcTemplate) {
@@ -124,7 +128,8 @@ public class CausanteDAOImpl implements CausanteDAO{
 
     @Override
     public String insertarDetalleCausante(DetalleCausanteDTO causanteDTO) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
+
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withSchemaName(esquema)
                 .withProcedureName("SP_InsertarDetalleCausante");
 
         SqlParameterSource inParams = new MapSqlParameterSource()

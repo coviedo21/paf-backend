@@ -449,4 +449,19 @@ public class SolicitudesPagosController {
             return ResponseEntity.noContent().build();
         }
     }
+
+    @GetMapping("/licenciaFiniquito/{rut}")
+    public ResponseEntity<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(@PathVariable("rut") int rut) {
+        try {
+            LicenciaFiniquitoDTO licenciaFiniquitoDTO = licenciaFiniquitoService.obtenerLicenciaFiniquito(rut);
+
+            if (licenciaFiniquitoDTO != null) {
+                return ResponseEntity.ok(licenciaFiniquitoDTO);
+            } else {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 }
