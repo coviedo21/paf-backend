@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class DerechoCausanteDTO {
     private int id;
-    private long rutCausante;
+    private int rutCausante;
     private String dvCausante;
-    private long rutBeneficiario;
+    private int rutBeneficiario;
     private String dvBeneficiario;
     private int periodo;
     private int tipoMovimientoId;

@@ -310,7 +310,7 @@ public class SolicitudesPagosController {
     public ResponseEntity<?> obtenerDerechoCausantes(@RequestBody DerechoCausanteRequestDTO request) {
         
         try {
-            List<DerechoCausanteDTO> derechoCausantes = causanteService.obtenerDerechoCausantes(
+            List<CausanteCuentaCorrienteDTO> derechoCausantes = causanteService.obtenerDerechoCausantes(
                     request.getRutCausante(), request.getRutBeneficiario(), request.getPeriodoDesde(), request.getPeriodoHasta(), request.getTipoCausante());
 
             if (derechoCausantes != null && !derechoCausantes.isEmpty()) {
