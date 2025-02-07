@@ -9,8 +9,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LicenciaFiniquitoDTO {
-    private int idLicFin;
+public class LicenciaFiniquitoInputDTO {
     private String tipo;
     private String nroLicencia;
     private int rutBeneficiario;
