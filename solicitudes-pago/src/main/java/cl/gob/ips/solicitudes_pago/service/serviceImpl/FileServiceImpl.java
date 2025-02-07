@@ -1,11 +1,17 @@
 package cl.gob.ips.solicitudes_pago.service.serviceImpl;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import com.azure.storage.file.share.ShareDirectoryClient;
 import com.azure.storage.file.share.ShareFileClient;
 import com.azure.storage.file.share.ShareFileClientBuilder;
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 
 import cl.gob.ips.solicitudes_pago.dao.FileDAO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoResponseDTO;
@@ -54,7 +63,7 @@ public class FileServiceImpl implements FileService {
         int contadorErrores = 0;
         ArchivoResponseDTO respuesta = new ArchivoResponseDTO();
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(nombreArchivoErrores))) {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(nombreArchivoErrores), StandardCharsets.UTF_8))) {
             // Escribir la cabecera del archivo de errores
             /*String cabecera = "Folio;Fecha - hora Declaración de cargas familiares;RUT Empleador;Digito Verificador Empleador;" +
                             "Razón Social Empleador;Dirección Empleador;Email Empleador;Comuna Empleador;Ciudad Empleador;" +
@@ -248,5 +257,34 @@ public class FileServiceImpl implements FileService {
             System.out.println("downloadFile exception: " + e.getMessage());
             return null;
         }
+    }
+
+    public String convertirStringAUTF8(String texto, String encodingOriginal) throws UnsupportedEncodingException {        byte[] bytes = texto.getBytes(encodingOriginal); // Convierte el String a bytes en la codificación original
+        return new String(bytes, StandardCharsets.UTF_8); // Crea un nuevo String en UTF-8
+    }
+
+    public String detectarCodificacion(InputStream inputStream) throws IOException {
+        CharsetDetector detector = new CharsetDetector();
+        detector.setText(inputStream);
+        CharsetMatch match = detector.detect();
+        return match != null ? match.getName() : "UTF-8"; // Si no puede detectar, usa UTF-8 por defecto
+    }
+
+    public InputStream convertirAUTF8(InputStream inputStream, String encoding) throws IOException {
+        if ("UTF-8".equalsIgnoreCase(encoding)) {
+            return inputStream; // Si ya está en UTF-8, no lo convertimos
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, encoding));
+             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                bw.write(line);
+                bw.newLine();
+            }
+        }
+        return new ByteArrayInputStream(outputStream.toByteArray());
     }
 }

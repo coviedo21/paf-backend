@@ -29,19 +29,21 @@ import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
 public class CausanteDAOImpl implements CausanteDAO{
     
     private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate genesysPJdbc;
     
     @Value("${spring.datasource.schema}")
     private String esquema;
 
     @Autowired
-    public CausanteDAOImpl(@Qualifier("pafJdbc") JdbcTemplate jdbcTemplate) {
+    public CausanteDAOImpl(@Qualifier("pafJdbc") JdbcTemplate jdbcTemplate,@Qualifier("genesysPJdbc") JdbcTemplate genesysPJdbc) {
         this.jdbcTemplate = jdbcTemplate;
+        this.genesysPJdbc = genesysPJdbc;
     }
 
     @Override
     public List<CausanteDTO> obtenerDetalleCausante(int rutBeneficiario) {
 
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(genesysPJdbc)
                 .withProcedureName("SP_DETALLECAUSANTES")
                 .declareParameters(
                         new SqlOutParameter("p_cursor", Types.REF_CURSOR),
