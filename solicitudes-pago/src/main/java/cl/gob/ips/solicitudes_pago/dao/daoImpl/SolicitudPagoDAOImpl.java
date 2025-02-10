@@ -55,6 +55,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
     @Override
     public ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago, boolean esArchivo) {
         ResponseDTO response = new ResponseDTO();
+        boolean rechazar = false;
         // Validación previa: Verificar duplicados
     SimpleJdbcCall validarDuplicadosCall = new SimpleJdbcCall(jdbcTemplate)
     .withSchemaName(esquema)
@@ -63,6 +64,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             new SqlParameter("iRutBeneficiario", Types.INTEGER),
             new SqlParameter("vcPeriodo", Types.VARCHAR),
             new SqlParameter("iRutCausante", Types.INTEGER),
+            new SqlParameter("fechaInicioRango", Types.DATE),
+            new SqlParameter("fechaFinRango", Types.DATE),
             new SqlOutParameter("mensajeRespuesta", Types.VARCHAR),
             new SqlOutParameter("idSolicitud", Types.INTEGER)
     );
@@ -72,7 +75,9 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
         MapSqlParameterSource inParams = new MapSqlParameterSource()
                 .addValue("iRutBeneficiario", solicitudPago.getRutBeneficiario())
                 .addValue("vcPeriodo", solicitudPago.getPeriodo())
-                .addValue("iRutCausante", causante.getRutCausante());
+                .addValue("iRutCausante", causante.getRutCausante())
+                .addValue("fechaInicioRango", causante.getFechaInicioRango())
+                .addValue("fechaFinRango", causante.getFechaFinRango());
 
         Map<String, Object> validationResult = validarDuplicadosCall.execute(inParams);
         int idSolicitud = (int) validationResult.get("idSolicitud");
@@ -83,7 +88,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if(esArchivo){
                 SolicitudDTO solicitud = consultarSolicitudPago(idSolicitud).get(0);
                 if(solicitud.getIdEstado()<4){
-                    if(solicitud.getFechaSolicitud().after(solicitudPago.getFechaSolicitud())){
+                    if (!solicitud.getFechaSolicitud().before(solicitudPago.getFechaSolicitud())) {
                         //Fecha menor es del archivo, se rechaza la que ya existe.
                         ResolucionDTO resolucion = new ResolucionDTO();
                         resolucion.setIIdSolicitud(idSolicitud);
@@ -103,11 +108,12 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                             System.err.println("Error enviando correo para la solicitud " + solicitud.getIdSolicitud() + ": " + e.getMessage());
                         }   
                     }else{
-                        System.out.println("Validación fallida: " + mensajeRespuesta);
+                        rechazar = true;
+                        /*System.out.println("Validación fallida: " + mensajeRespuesta);
                         response.setCodigoRetorno(3);
                         response.setGlosaRetorno(mensajeRespuesta);
                         response.setResultado(0);
-                        return response; // Detener si se encuentra un duplicado        
+                        return response; // Detener si se encuentra un duplicado*/
                     }
                 }
             }
@@ -231,6 +237,24 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 response.setCodigoRetorno(0);
                 response.setGlosaRetorno("Solicitud creada exitósamente. ID: "+idSolicitud);
                 response.setResultado(idSolicitud);
+                if(rechazar){
+                    rechazar = false;
+                    ResolucionDTO resolucion = new ResolucionDTO();
+                    resolucion.setIIdSolicitud(idSolicitud);
+                    resolucion.setIAutor(1);
+                    resolucion.setIIdEstado(4);
+                    resolucion.setVcDescripcion("Ya existe solicitud.");
+                    resolucion.setIMotivoRechazo(4);
+                    insertarResolucion(resolucion);
+                    try {
+                        response.setCodigoRetorno(3);
+                        response.setGlosaRetorno("Se inserta solicitud pero se rechaza porque ya existe otra más antigua");
+                        response.setResultado(0);
+                        //return response; // Detener si se encuentra un duplicado
+                    } catch (Exception e) {
+                        // Captura cualquier excepción relacionada con el envío del correo y loguea el error
+                    }
+                }
                 return response; // Detener si se encuentra un duplicado
                 //return idSolicitud;
             } else {
