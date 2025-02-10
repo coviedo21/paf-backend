@@ -2,28 +2,19 @@ package cl.gob.ips.solicitudes_pago.controller;
 
 import cl.gob.ips.solicitudes_pago.dto.*;
 import cl.gob.ips.solicitudes_pago.service.*;
-
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
 
+@Log4j2
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/solicitudPago")
@@ -47,6 +38,9 @@ public class SolicitudesPagosController {
 
     @Autowired
     private PersonaService personaService;
+
+    @Autowired
+    private LicenciaFiniquitoService licenciaFiniquitoService;
 
     @GetMapping("/obtenerCriterio/{id}")
     public ResponseEntity<List<CriterioSolicitudDTO>> consultarCriterio(@PathVariable("id") Integer id) {
@@ -410,8 +404,42 @@ public class SolicitudesPagosController {
         }
     }
 
+    @GetMapping("/licenciaFiniquito")
+    public ResponseEntity<List<LicenciaFiniquitoDTO>> obtenerLicenciaFiniquito(@RequestParam("rutBeneficiario") int rutBeneficiario,
+                                                                               @RequestParam("fechaInicio") String fechaInicio,
+                                                                               @RequestParam("fechaFin") String fechaFin) {
+        try {
+            List<LicenciaFiniquitoDTO> licenciaFiniquitoDTOS = licenciaFiniquitoService.obtenerLicenciaFiniquito(rutBeneficiario, fechaInicio, fechaFin);
+
+            if (null != licenciaFiniquitoDTOS) {
+                return ResponseEntity.ok(licenciaFiniquitoDTOS);
+            } else {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/licenciaFiniquito")
+    public ResponseEntity<String> insertarLicenciaFiniquito(@RequestBody LicenciaFiniquitoInputDTO licenciaFiniquito) {
+        try {
+            HashMap<String, String> map = licenciaFiniquitoService.agregarLicenciaFiniquito(licenciaFiniquito);
+
+            if (map.get("Estado").equals("OK")) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(map.get("Mensaje"));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map.get("Mensaje"));
+            }
+        } catch (Exception e) {
+            log.error("ERROR: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
     @GetMapping("/obtenerDetalleCausantePorId/{idCausanteSolicitud}")
-    public ResponseEntity<List<DetalleCausanteDTO>> obtenerDetalleCausantePorId(@PathVariable("idCausanteSolicitud") Integer idCausanteSolicitud) {
+    public ResponseEntity<List<DetalleCausanteDTO>> obtenerDetalleCausantePorIdgit (@PathVariable("idCausanteSolicitud") Integer idCausanteSolicitud) {
         List<DetalleCausanteDTO> detalleCausante = causanteService.obtenerDetalleCausantePorId(idCausanteSolicitud);
         if (detalleCausante != null && !detalleCausante.isEmpty()) {
             return ResponseEntity.ok(detalleCausante);
