@@ -1,0 +1,118 @@
+package cl.gob.ips.solicitudes_pago.dao.daoImpl;
+
+import cl.gob.ips.solicitudes_pago.dao.LicenciaFiniquitoDAO;
+import cl.gob.ips.solicitudes_pago.dto.LicenciaFiniquitoDTO;
+import cl.gob.ips.solicitudes_pago.dto.LicenciaFiniquitoInputDTO;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.UncategorizedSQLException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SqlOutParameter;
+import org.springframework.jdbc.core.SqlParameter;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
+import org.springframework.stereotype.Repository;
+
+import java.sql.*;
+import java.util.*;
+
+@Log4j2
+@Repository
+public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
+
+    @Value("${spring.datasource.schema}")
+    private String esquema;
+
+    private final JdbcTemplate jdbcTemplate;
+
+    public LicenciaFiniquitoDAOImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    public List<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(int rutBeneficiario, String fechaInicio, String fechaFin) {
+
+        LicenciaFiniquitoDTO licenciaFiniquitoDTO;
+
+        try {
+            String sql = "SELECT * FROM " + esquema + ".fn_ObtenerLicenciaFiniquito(?, ?, ?)";
+            return jdbcTemplate.query(sql, new LicensiaFiniquitoRowMapper(), rutBeneficiario, fechaInicio, fechaFin);
+        } catch (EmptyResultDataAccessException ex) { //TODO: Ver implementacion con Optional u otra opcion mas elegante
+            log.error(ex.getMessage());
+            return null;
+        }
+    }
+
+    @Override
+    public HashMap<String, String> agregarLicenciaFiniquito(LicenciaFiniquitoInputDTO licenciaFiniquito) {
+
+        HashMap<String, String> respuesta = new HashMap<>();
+
+        try {
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
+                    .withSchemaName(esquema)
+                    .withProcedureName("sp_InsertarLicenFiniq")
+                    .declareParameters(
+                            new SqlParameter("iTipo", Types.INTEGER),
+                            new SqlParameter("vNroLicencia", Types.VARCHAR),
+                            new SqlParameter("iRutBeneficiario", Types.INTEGER),
+                            new SqlParameter("vDvBeneficiario", Types.VARCHAR),
+                            new SqlParameter("iRutEmpleado", Types.INTEGER),
+                            new SqlParameter("vDvEmpleado", Types.VARCHAR),
+                            new SqlParameter("dFechaInicio", Types.DATE),
+                            new SqlParameter("dFechaFin", Types.DATE),
+                            new SqlOutParameter("idLicFin", Types.INTEGER)
+                    );
+
+            MapSqlParameterSource inParams = new MapSqlParameterSource()
+                    .addValue("iTipo", licenciaFiniquito.getTipo())
+                    .addValue("vNroLicencia", licenciaFiniquito.getNroLicencia())
+                    .addValue("iRutBeneficiario", licenciaFiniquito.getRutBeneficiario())
+                    .addValue("vDvBeneficiario", licenciaFiniquito.getDvBeneficiario())
+                    .addValue("iRutEmpleado", licenciaFiniquito.getRutEmpleado())
+                    .addValue("vDvEmpleado", licenciaFiniquito.getDvEmpleado())
+                    .addValue("dFechaInicio", licenciaFiniquito.getFechaInicio())
+                    .addValue("dFechaFin", licenciaFiniquito.getFechaFin());
+
+            Map<String, Object> result = jdbcCall.execute(inParams);
+            Integer idLicFin = (Integer) result.get("idLicFin");
+
+            if (idLicFin != null) {
+                respuesta.put("Estado", "OK");
+                respuesta.put("Mensaje", "Se a creado el registro con el id: " + idLicFin);
+                //return respuesta;
+            }
+        } catch (DataIntegrityViolationException ex) {
+            log.error(ex.getMessage());
+            respuesta.put("Estado", "NOK");
+            respuesta.put("Mensaje", "Error al insertar la licencia o finiquito: " + ex.getMessage());
+            //return respuesta;
+        } catch (UncategorizedSQLException ex) {
+            log.error(ex.getMessage());
+            respuesta.put("Estado", "NOK");
+            respuesta.put("Mensaje", "Error al insertar la licencia o finiquito: " + ex.getMessage());
+        }
+        return respuesta;
+    }
+
+    public static class LicensiaFiniquitoRowMapper implements RowMapper<LicenciaFiniquitoDTO> {
+        @Override
+        public LicenciaFiniquitoDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            LicenciaFiniquitoDTO licenciaFiniquitoDTO = new LicenciaFiniquitoDTO();
+
+            licenciaFiniquitoDTO.setIdLicFin(rs.getInt("idLicFin"));
+            licenciaFiniquitoDTO.setTipo(rs.getString("iTipo"));
+            licenciaFiniquitoDTO.setNroLicencia(rs.getString("vNroLicencia"));
+            licenciaFiniquitoDTO.setRutBeneficiario(rs.getInt("iRutBeneficiario"));
+            licenciaFiniquitoDTO.setDvBeneficiario(rs.getString("vDvBeneficiario"));
+            licenciaFiniquitoDTO.setRutEmpleado(rs.getInt("iRutEmpleado"));
+            licenciaFiniquitoDTO.setDvEmpleado(rs.getString("vDvEmpleado"));
+            licenciaFiniquitoDTO.setFechaInicio(rs.getDate("dFechaInicio"));
+            licenciaFiniquitoDTO.setFechaFin(rs.getDate("dFechaFin"));
+
+            return licenciaFiniquitoDTO;
+        }
+    }
+}
