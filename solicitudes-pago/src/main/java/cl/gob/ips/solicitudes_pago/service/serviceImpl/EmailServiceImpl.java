@@ -21,7 +21,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void enviarCorreo(String destinatario, String asunto, String cuerpo) {
-        try {
+        /*try {
             SimpleMailMessage mensaje = new SimpleMailMessage();
             mensaje.setFrom("no-reply@ips.gob.cl");
             mensaje.setTo(destinatario);
@@ -35,6 +35,7 @@ public class EmailServiceImpl implements EmailService {
             // Captura la excepción y continúa la ejecución
             System.err.println("Error al enviar el correo: " + e.getMessage());
             e.printStackTrace(); // Opcional: muestra la traza del error para debugging
-        }
+        }*/
+        System.out.println("Se envía correo.... está comentado");
     }
 }
