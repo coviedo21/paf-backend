@@ -32,13 +32,14 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(int rutBeneficiario, String fechaInicio, String fechaFin) {
+    public List<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(int rutBeneficiario, String nroLicencia, String fechaInicio, String fechaFin) {
 
         LicenciaFiniquitoDTO licenciaFiniquitoDTO;
 
         try {
-            String sql = "SELECT * FROM " + esquema + ".fn_ObtenerLicenciaFiniquito(?, ?, ?)";
-            return jdbcTemplate.query(sql, new LicensiaFiniquitoRowMapper(), rutBeneficiario, fechaInicio, fechaFin);
+            String sql = "SELECT * FROM " + esquema + ".fn_ObtenerLicenciaFiniquito(?, ?, ?, ?)";
+            return jdbcTemplate.query(sql, new LicenciaFiniquitoRowMapper(), rutBeneficiario == 0 ? null : rutBeneficiario, nroLicencia, fechaInicio, fechaFin);
+//            return jdbcTemplate.query(sql, new Object[]{rutBeneficiario, fechaInicio, fechaFin, nroLicencia}, new LicenciaFiniquitoRowMapper());
         } catch (EmptyResultDataAccessException ex) { //TODO: Ver implementacion con Optional u otra opcion mas elegante
             log.error(ex.getMessage());
             return null;
@@ -97,7 +98,7 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
         return respuesta;
     }
 
-    public static class LicensiaFiniquitoRowMapper implements RowMapper<LicenciaFiniquitoDTO> {
+    public static class LicenciaFiniquitoRowMapper implements RowMapper<LicenciaFiniquitoDTO> {
         @Override
         public LicenciaFiniquitoDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
             LicenciaFiniquitoDTO licenciaFiniquitoDTO = new LicenciaFiniquitoDTO();

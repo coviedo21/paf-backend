@@ -4,6 +4,7 @@ import cl.gob.ips.solicitudes_pago.dto.*;
 import cl.gob.ips.solicitudes_pago.service.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -405,11 +406,12 @@ public class SolicitudesPagosController {
     }
 
     @GetMapping("/licenciaFiniquito")
-    public ResponseEntity<List<LicenciaFiniquitoDTO>> obtenerLicenciaFiniquito(@RequestParam("rutBeneficiario") int rutBeneficiario,
-                                                                               @RequestParam("fechaInicio") String fechaInicio,
-                                                                               @RequestParam("fechaFin") String fechaFin) {
+    public ResponseEntity<List<LicenciaFiniquitoDTO>> obtenerLicenciaFiniquito(@Param("rutBeneficiario") Integer rutBeneficiario,
+                                                                               @Param("nroLicencia") String nroLicencia,
+                                                                               @Param("fechaInicio") String fechaInicio,
+                                                                               @Param("fechaFin") String fechaFin) {
         try {
-            List<LicenciaFiniquitoDTO> licenciaFiniquitoDTOS = licenciaFiniquitoService.obtenerLicenciaFiniquito(rutBeneficiario, fechaInicio, fechaFin);
+            List<LicenciaFiniquitoDTO> licenciaFiniquitoDTOS = licenciaFiniquitoService.obtenerLicenciaFiniquito(rutBeneficiario != null ? rutBeneficiario : 0, nroLicencia, fechaInicio, fechaFin);
 
             if (null != licenciaFiniquitoDTOS) {
                 return ResponseEntity.ok(licenciaFiniquitoDTOS);

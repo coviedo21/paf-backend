@@ -17,8 +17,8 @@ public class LicenciaFiniquitoServiceImpl implements LicenciaFiniquitoService {
     private LicenciaFiniquitoDAO licenciaFiniquitoDAO;
 
 
-    public List<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(int rutBeneficiario, String fechaInicio, String fechaFin) {
-        return licenciaFiniquitoDAO.obtenerLicenciaFiniquito(rutBeneficiario, fechaInicio, fechaFin);
+    public List<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(int rutBeneficiario, String nroLicencia, String fechaInicio, String fechaFin) {
+        return licenciaFiniquitoDAO.obtenerLicenciaFiniquito(rutBeneficiario, nroLicencia, fechaInicio, fechaFin);
     }
 
     @Override
