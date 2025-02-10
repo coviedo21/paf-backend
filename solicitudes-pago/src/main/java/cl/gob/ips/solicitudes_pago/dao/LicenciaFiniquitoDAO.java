@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface LicenciaFiniquitoDAO {
-    List<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(int rutBeneficiario, String fechaInicio, String fechaFin);
+    List<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(int rutBeneficiario, String nroLicencia, String fechaInicio, String fechaFin);
     HashMap<String, String> agregarLicenciaFiniquito(LicenciaFiniquitoInputDTO licenciaFiniquito);
 }
