@@ -1,17 +1,17 @@
 package cl.gob.ips.solicitudes_pago.dto;
 
+import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class LicenciaFiniquitoDTO {
     private int idLicFin;
-    private String tipo;
+    private int tipo;
     private String nroLicencia;
     private int rutBeneficiario;
     private String dvBeneficiario;

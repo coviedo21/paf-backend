@@ -3,7 +3,9 @@ package cl.gob.ips.solicitudes_pago.dao.daoImpl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +43,24 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
     public List<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(int rutBeneficiario, String nroLicencia, String fechaInicio, String fechaFin) {
         try {
             String sql = "SELECT * FROM " + esquema + ".fn_ObtenerLicenciaFiniquito(?, ?, ?, ?)";
-            return jdbcTemplate.query(sql, new LicenciaFiniquitoRowMapper(), rutBeneficiario == 0 ? null : rutBeneficiario, nroLicencia, fechaInicio, fechaFin);
+
+            List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{rutBeneficiario == 0 ? null : rutBeneficiario, nroLicencia, fechaInicio, fechaFin});
+
+            List<LicenciaFiniquitoDTO> licenciaFiniquitoDTOS = new ArrayList<>();
+            for (Map<String, Object> row : results) {
+                LicenciaFiniquitoDTO licenciaFiniquitoDTO = new LicenciaFiniquitoDTO();
+                if (row.get("idLicFin") != null) licenciaFiniquitoDTO.setIdLicFin((Integer) row.get("idLicFin"));
+                if (row.get("iTipo") != null) licenciaFiniquitoDTO.setTipo((Integer) row.get("iTipo"));
+                if (row.get("vNroLicencia") != null) licenciaFiniquitoDTO.setNroLicencia((String) row.get("vNroLicencia"));
+                if (row.get("iRutBeneficiario") != null) licenciaFiniquitoDTO.setRutBeneficiario((Integer) row.get("iRutBeneficiario"));
+                if (row.get("vDvBeneficiario") != null) licenciaFiniquitoDTO.setDvBeneficiario((String) row.get("vDvBeneficiario"));
+                if (row.get("iRutEmpleado") != null) licenciaFiniquitoDTO.setRutEmpleado((Integer) row.get("iRutEmpleado"));
+                if (row.get("vDvEmpleado") != null) licenciaFiniquitoDTO.setDvEmpleado((String) row.get("vDvEmpleado"));
+                if (row.get("dFechaInicio") != null) licenciaFiniquitoDTO.setFechaInicio((Date) row.get("dFechaInicio"));
+                if (row.get("dFechaFin") != null) licenciaFiniquitoDTO.setFechaFin((Date) row.get("dFechaFin"));
+                licenciaFiniquitoDTOS.add(licenciaFiniquitoDTO);
+            }
+            return licenciaFiniquitoDTOS;
         } catch (EmptyResultDataAccessException ex) {
             log.error(ex.getMessage());
             return Collections.emptyList();
@@ -106,7 +125,7 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
             LicenciaFiniquitoDTO licenciaFiniquitoDTO = new LicenciaFiniquitoDTO();
 
             licenciaFiniquitoDTO.setIdLicFin(rs.getInt("idLicFin"));
-            licenciaFiniquitoDTO.setTipo(rs.getString("iTipo"));
+            licenciaFiniquitoDTO.setTipo(rs.getInt("iTipo"));
             licenciaFiniquitoDTO.setNroLicencia(rs.getString("vNroLicencia"));
             licenciaFiniquitoDTO.setRutBeneficiario(rs.getInt("iRutBeneficiario"));
             licenciaFiniquitoDTO.setDvBeneficiario(rs.getString("vDvBeneficiario"));
