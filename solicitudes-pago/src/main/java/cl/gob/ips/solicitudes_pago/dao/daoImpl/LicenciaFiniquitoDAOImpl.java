@@ -1,9 +1,13 @@
 package cl.gob.ips.solicitudes_pago.dao.daoImpl;
 
-import cl.gob.ips.solicitudes_pago.dao.LicenciaFiniquitoDAO;
-import cl.gob.ips.solicitudes_pago.dto.LicenciaFiniquitoDTO;
-import cl.gob.ips.solicitudes_pago.dto.LicenciaFiniquitoInputDTO;
-import lombok.extern.log4j.Log4j2;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -16,8 +20,10 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.*;
+import cl.gob.ips.solicitudes_pago.dao.LicenciaFiniquitoDAO;
+import cl.gob.ips.solicitudes_pago.dto.LicenciaFiniquitoDTO;
+import cl.gob.ips.solicitudes_pago.dto.LicenciaFiniquitoInputDTO;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Repository
@@ -33,16 +39,12 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
     }
 
     public List<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(int rutBeneficiario, String nroLicencia, String fechaInicio, String fechaFin) {
-
-        LicenciaFiniquitoDTO licenciaFiniquitoDTO;
-
         try {
             String sql = "SELECT * FROM " + esquema + ".fn_ObtenerLicenciaFiniquito(?, ?, ?, ?)";
             return jdbcTemplate.query(sql, new LicenciaFiniquitoRowMapper(), rutBeneficiario == 0 ? null : rutBeneficiario, nroLicencia, fechaInicio, fechaFin);
-//            return jdbcTemplate.query(sql, new Object[]{rutBeneficiario, fechaInicio, fechaFin, nroLicencia}, new LicenciaFiniquitoRowMapper());
-        } catch (EmptyResultDataAccessException ex) { //TODO: Ver implementacion con Optional u otra opcion mas elegante
+        } catch (EmptyResultDataAccessException ex) {
             log.error(ex.getMessage());
-            return null;
+            return Collections.emptyList();
         }
     }
 
