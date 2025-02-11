@@ -41,7 +41,7 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
     public List<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(int rutBeneficiario, String nroLicencia, String fechaInicio, String fechaFin) {
         try {
             String sql = "SELECT * FROM " + esquema + ".fn_ObtenerLicenciaFiniquito(?, ?, ?, ?)";
-            return jdbcTemplate.query(sql, new LicenciaFiniquitoRowMapper(), rutBeneficiario, nroLicencia, fechaInicio, fechaFin);
+            return jdbcTemplate.query(sql, new LicenciaFiniquitoRowMapper(), rutBeneficiario == 0 ? null : rutBeneficiario, nroLicencia, fechaInicio, fechaFin);
         } catch (EmptyResultDataAccessException ex) {
             log.error(ex.getMessage());
             return Collections.emptyList();
