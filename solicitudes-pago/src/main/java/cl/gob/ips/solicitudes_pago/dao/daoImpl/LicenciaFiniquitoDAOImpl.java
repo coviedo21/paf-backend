@@ -58,6 +58,7 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
                 if (row.get("vDvEmpleado") != null) licenciaFiniquitoDTO.setDvEmpleado((String) row.get("vDvEmpleado"));
                 if (row.get("dFechaInicio") != null) licenciaFiniquitoDTO.setFechaInicio((Date) row.get("dFechaInicio"));
                 if (row.get("dFechaFin") != null) licenciaFiniquitoDTO.setFechaFin((Date) row.get("dFechaFin"));
+                if (row.get("iMonto") != null) licenciaFiniquitoDTO.setMonto((Integer) row.get("iMonto"));
                 licenciaFiniquitoDTOS.add(licenciaFiniquitoDTO);
             }
             return licenciaFiniquitoDTOS;
@@ -85,6 +86,7 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
                             new SqlParameter("vDvEmpleado", Types.VARCHAR),
                             new SqlParameter("dFechaInicio", Types.DATE),
                             new SqlParameter("dFechaFin", Types.DATE),
+                            new SqlParameter("iMonto", Types.INTEGER),
                             new SqlOutParameter("idLicFin", Types.INTEGER)
                     );
 
@@ -96,25 +98,22 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
                     .addValue("iRutEmpleado", licenciaFiniquito.getRutEmpleado())
                     .addValue("vDvEmpleado", licenciaFiniquito.getDvEmpleado())
                     .addValue("dFechaInicio", licenciaFiniquito.getFechaInicio())
-                    .addValue("dFechaFin", licenciaFiniquito.getFechaFin());
+                    .addValue("dFechaFin", licenciaFiniquito.getFechaFin())
+                    .addValue("iMonto", licenciaFiniquito.getMonto());
 
             Map<String, Object> result = jdbcCall.execute(inParams);
-            Integer idLicFin = (Integer) result.get("idLicFin");
 
-            if (idLicFin != null) {
-                respuesta.put("Estado", "OK");
-                respuesta.put("Mensaje", "Se a creado el registro con el id: " + idLicFin);
-                //return respuesta;
-            }
+            respuesta.put("Estado", "OK");
+            respuesta.put("Mensaje", "Se a creado el registro con el id: " + result.get("idLicFin"));
+
         } catch (DataIntegrityViolationException ex) {
             log.error(ex.getMessage());
             respuesta.put("Estado", "NOK");
-            respuesta.put("Mensaje", "Error al insertar la licencia o finiquito: " + ex.getMessage());
-            //return respuesta;
+            respuesta.put("Mensaje", "Error al insertar la licencia o finiquito: " + ex.getLocalizedMessage());
         } catch (UncategorizedSQLException ex) {
             log.error(ex.getMessage());
             respuesta.put("Estado", "NOK");
-            respuesta.put("Mensaje", "Error al insertar la licencia o finiquito: " + ex.getMessage());
+            respuesta.put("Mensaje", "Error al insertar la licencia o finiquito: " + ex.getSQLException());
         }
         return respuesta;
     }

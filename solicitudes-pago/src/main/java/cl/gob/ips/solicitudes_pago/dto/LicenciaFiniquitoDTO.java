@@ -19,4 +19,5 @@ public class LicenciaFiniquitoDTO {
     private String dvEmpleado;
     private Date fechaInicio;
     private Date fechaFin;
+    private int monto;
 }
