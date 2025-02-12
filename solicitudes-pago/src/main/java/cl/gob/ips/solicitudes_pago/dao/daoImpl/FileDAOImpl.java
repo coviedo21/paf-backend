@@ -66,6 +66,7 @@ public class FileDAOImpl implements FileDAO{
                 solicitud.setListaCausantes(listaCausantes);
                 solicitud.setCiudadEmpleador(archivo.getCiudadEmpleador());
                 solicitud.setPeriodo(archivo.getPeriodo());
+                solicitud.setIdFormaPago(4);
                 ResponseDTO respuesta = solicitudPagoService.insertarSolicitudPago(solicitud,true);
                 if((int) respuesta.getResultado()>0){
                     return true;

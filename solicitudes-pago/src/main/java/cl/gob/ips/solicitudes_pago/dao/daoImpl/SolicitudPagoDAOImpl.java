@@ -249,7 +249,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                     try {
                         response.setCodigoRetorno(3);
                         response.setGlosaRetorno("Se inserta solicitud pero se rechaza porque ya existe otra más antigua");
-                        response.setResultado(0);
+                        response.setResultado(idSolicitud);
                         //return response; // Detener si se encuentra un duplicado
                     } catch (Exception e) {
                         // Captura cualquier excepción relacionada con el envío del correo y loguea el error
