@@ -50,6 +50,7 @@ import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.service.FileService;
 
 @RestController
+@CrossOrigin("*")
 @RequestMapping("/archivos")
 public class FileController {
 
