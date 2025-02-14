@@ -335,7 +335,7 @@ public class SolicitudesPagosController {
     }
 
     
-    @GetMapping("/obtenerDerechoCausantes")
+    @PostMapping("/obtenerDerechoCausantes")
     public ResponseEntity<?> obtenerDerechoCausantes(@RequestBody DerechoCausanteRequestDTO request) {
         
         try {
