@@ -32,7 +32,7 @@ public class CausanteServiceImpl implements CausanteService{
 
     @Override
     public List<CausanteCuentaCorrienteDTO> obtenerDerechoCausantes(String rutCausante, String rutBeneficiario, String periodoDesde, String periodoHasta, String tipoCausante) {
-        String baseUrl = "https://ctacorrienteback-dev.azurewebsites.net/causante-service/causante/derecho/sinPagar/listar";
+        String baseUrl = "https://ctacorrienteback-dev.azurewebsites.net/causante-service/v1/ctacte/causante/derecho/sinPagar/listar";
 
         // Construcción de la URL con parámetros en query string
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)
