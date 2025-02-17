@@ -374,7 +374,7 @@ public class FileController {
     @PostMapping("/subirEvidenciaSolicitud")
     public ResponseEntity<String> subirEvidenciaSolicitud(@RequestParam("file") MultipartFile file, int idCriterioSolicitud) {
         try {
-            String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
+            String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
             String fileShareName = "pagosafqa";
             String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
 
@@ -405,7 +405,7 @@ public class FileController {
     @PostMapping("/subirEvidenciaCausante")
     public ResponseEntity<String> subirEvidenciaCausante(@RequestParam("file") MultipartFile file, int idCriterioCausante) {
         try {
-            String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
+            String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
             String fileShareName = "pagosafqa";
             String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
 
@@ -435,7 +435,7 @@ public class FileController {
 
     @GetMapping("/descargarEvidenciaSolicitud/{idCriterioSoliciud}")
     public ResponseEntity<byte[]> descargarEvidenciaSolicitud(@PathVariable int idCriterioSoliciud) {
-        String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
+        String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
             String fileShareName = "pagosafqa";
             
         try {
@@ -462,7 +462,7 @@ public class FileController {
 
     @GetMapping("/descargarEvidenciaCausante/{idCriterioCausante}")
     public ResponseEntity<byte[]> descargarEvidenciaCausante(@PathVariable int idCriterioCausante) {
-        String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
+        String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
             String fileShareName = "pagosafqa";
             
         try {
