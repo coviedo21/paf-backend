@@ -119,7 +119,7 @@ public class SolicitudesPagosController {
         // Recorrer la lista y validar la fecha de inicio de rango de cada causante
         for (CausanteSolicitudDTO causante : solicitudPago.getListaCausantes()) {
             
-            if (causante.getFechaFinRango() == null) {
+            if (causante.getFechaInicioRango() == null) {
                 responseDTO.setCodigoRetorno(-1);
                 responseDTO.setGlosaRetorno("Error: Uno o más causantes tienen una fecha de inicio de rango nula.");
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);

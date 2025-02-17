@@ -381,7 +381,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("fechaFiniquito") != null) solicitudPagoDTO.setFechaFiniquito((Date) row.get("fechaFiniquito"));
             if (row.get("rutRepresentante") != null) solicitudPagoDTO.setRutRepresentante((Integer) row.get("rutRepresentante"));
             if (row.get("dvRepresentante") != null) solicitudPagoDTO.setDvRepresentante((String) row.get("dvRepresentante"));
-            if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud((Date) row.get("fechaSolicitud"));
+            if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
             if (row.get("folio") != null) solicitudPagoDTO.setFolio((Long) row.get("folio"));
             if (row.get("idEstado") != null) solicitudPagoDTO.setIdEstado((Integer) row.get("idEstado"));
             if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
@@ -635,7 +635,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 if (row.get("fechaFiniquito") != null) solicitudPagoDTO.setFechaFiniquito((Date) row.get("fechaFiniquito"));
                 if (row.get("rutRepresentante") != null) solicitudPagoDTO.setRutRepresentante((Integer) row.get("rutRepresentante"));
                 if (row.get("dvRepresentante") != null) solicitudPagoDTO.setDvRepresentante((String) row.get("dvRepresentante"));
-                if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud((Date) row.get("fechaSolicitud"));
+                if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
                 if (row.get("folio") != null) solicitudPagoDTO.setFolio((Long) row.get("folio"));
                 if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
                 if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
@@ -872,7 +872,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 if (row.get("fechaFiniquito") != null) solicitudPagoDTO.setFechaFiniquito((Date) row.get("fechaFiniquito"));
                 if (row.get("rutRepresentante") != null) solicitudPagoDTO.setRutRepresentante((Integer) row.get("rutRepresentante"));
                 if (row.get("dvRepresentante") != null) solicitudPagoDTO.setDvRepresentante((String) row.get("dvRepresentante"));
-                if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud((Date) row.get("fechaSolicitud"));
+                if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
                 if (row.get("folio") != null) solicitudPagoDTO.setFolio((Long) row.get("folio"));
                 if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
                 if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
@@ -927,7 +927,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("fechaFiniquito") != null) solicitudPagoDTO.setFechaFiniquito((Date) row.get("fechaFiniquito"));
             if (row.get("rutRepresentante") != null) solicitudPagoDTO.setRutRepresentante((Integer) row.get("rutRepresentante"));
             if (row.get("dvRepresentante") != null) solicitudPagoDTO.setDvRepresentante((String) row.get("dvRepresentante"));
-            if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud((Date) row.get("fechaSolicitud"));
+            if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
             if (row.get("folio") != null) solicitudPagoDTO.setFolio((Long) row.get("folio"));
             if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
             if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
@@ -973,7 +973,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("cumpleCriterios") != null) solicitudPagoDTO.setCumpleCriterios((String) row.get("cumpleCriterios"));
             if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
             if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
-            if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud((Date) row.get("fechaSolicitud"));
+            if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
             solicitudes.add(solicitudPagoDTO);
         }
         
@@ -1016,7 +1016,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("cumpleCriterios") != null) solicitudPagoDTO.setCumpleCriterios((String) row.get("cumpleCriterios"));
             if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
             if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
-            if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud((Date) row.get("fechaSolicitud"));
+            if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
             solicitudes.add(solicitudPagoDTO);
         }
         
@@ -1059,7 +1059,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
             if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
             if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));        
-            if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud((Date) row.get("fechaSolicitud"));
+            if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
             solicitudes.add(solicitudPagoDTO);
         }
         
