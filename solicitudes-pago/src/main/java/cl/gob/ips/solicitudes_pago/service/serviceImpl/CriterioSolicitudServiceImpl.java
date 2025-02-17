@@ -47,27 +47,17 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     public boolean validarCriteriosResolucion(Integer idSolicitud){
         listaCriterios.clear();
         listaCriteriosCausante.clear();
-        List<SolicitudDTO> listaSolicitud = solicitudPagoDAO.consultarSolicitudPago(idSolicitud);
-        SolicitudDTO solicitud = listaSolicitud.get(0);
+        //List<SolicitudDTO> listaSolicitud = solicitudPagoDAO.consultarSolicitudPago(idSolicitud);
+        //SolicitudDTO solicitud = listaSolicitud.get(0);
         List<CausanteSolicitudDTO> listaCausantes = solicitudPagoDAO.obtenerCausantesPorSolicitud(idSolicitud);
         boolean solicitudAprobada = true;
+        
         // 1) Validación de Rol Único Tributario Beneficiario
-        if(validarRolUnicoTributario(solicitud.getRutBeneficiario().toString()+solicitud.getDvBeneficiario())){
-                agregarCriterioResolucion(idSolicitud,1,true,null,null,null);
-        }
-        else{
-            solicitudAprobada = false;
-            agregarCriterioResolucion(idSolicitud, 1, false, null,null,null);
-        }
-
+        agregarCriterioResolucion(idSolicitud,1,true,null,null,null);
+        
         // 2) Validación de Comuna de Dirección de Empleador
-        if (validarComunaDireccionEmpleador(solicitud.getIdComuna())) {
-            agregarCriterioResolucion(idSolicitud, 2, true, null,null,null);
-        } else {
-            solicitudAprobada = false;
-            agregarCriterioResolucion(idSolicitud, 2, false, null,null,null);
-        }
-
+        agregarCriterioResolucion(idSolicitud, 2, true, null,null,null);
+        
         // 6) Relación Laboral Vigente Durante el Período de Compensación
         if (relacionLaboralVigenteDurantePeriodoCompensacion()) {
             agregarCriterioResolucion(idSolicitud, 6, true, null,null,null);
@@ -99,14 +89,8 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 
         for(CausanteSolicitudDTO causante: listaCausantes){
         // 1) Validación de Rol Único Tributario Causante
-            if(validarRolUnicoTributario(String.valueOf(causante.getRutCausante())+causante.getVcDvCausante())){
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(),1,true,null,null,null);
-            }
-            else{
-                solicitudAprobada = false;
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 1, false, null,null,null);
-            }
-
+            agregarCriterioCausante(causante.getIIdCausanteSolicitud(),1,true,null,null,null);
+           
             // 3) Validación de Período de Compensación
             if (validarPeriodoCompensacion()) {
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 3, true, null,null,null);
@@ -116,20 +100,10 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
             }    
             
             // 4) Validación de Duplicidad de Solicitud
-            if (validarDuplicidadSolicitud()) {
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 4, true, null,null,null);
-            } else {
-                solicitudAprobada = false;
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 4, false, null,null,null);
-            }
-
+            
             // 5) Validación de Fechas Válidas
-            if (validarFechasValidas()) {
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 5, true, null,null,null);
-            } else {
-                solicitudAprobada = false;
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 5, false, null,null,null);
-            }     
+                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 5, true, null,null,null); 
 
             // 8) Verificación de Vigencia del Causante
             if (verificarVigenciaCausante()) {
@@ -300,5 +274,8 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     public CriterioSolicitudDTO obtenerCriteriosPorIdCriterio(Integer idCriterioSolicitud){
         return criterioSolicitudDAO.obtenerCriteriosPorIdCriterio(idCriterioSolicitud);
     }
-    
+ 
+    public CriterioSolicitudCausanteDTO obtenerCriterioCausantePorIdCriterio(Integer idCriterioCausante){
+        return criterioSolicitudDAO.obtenerCriterioCausantePorIdCriterio(idCriterioCausante);
+    }
 }

@@ -2,6 +2,8 @@ package cl.gob.ips.solicitudes_pago.dao.daoImpl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,8 +58,10 @@ public class FileDAOImpl implements FileDAO{
                 //solicitud.setApellidoPaternoCausante(archivo.getApellidoPaternoCarga());
                 //solicitud.setApellidoMaternoCausante(archivo.getApellidoMaternoCarga());
                 //solicitud.setNombresCausante(archivo.getNombresCarga());
-                causante.setFechaInicioRango(new SimpleDateFormat("dd/MM/yyyy").parse(archivo.getFechaInicioCompensacion()));
-                causante.setFechaFinRango(new SimpleDateFormat("dd/MM/yyyy").parse(archivo.getFechaFinCompensacion()));
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                causante.setFechaInicioRango(LocalDate.parse(archivo.getFechaInicioCompensacion(), formatter));
+                //causante.setFechaInicioRango(new SimpleDateFormat("dd/MM/yyyy").parse(archivo.getFechaInicioCompensacion()));
+                causante.setFechaFinRango(LocalDate.parse(archivo.getFechaFinCompensacion(), formatter));
                 listaCausantes.add(causante);
                 solicitud.setTipoSolicitante(2); //Empleador si es previred
                 solicitud.setOrigen(Integer.parseInt(archivo.getOrigen()));

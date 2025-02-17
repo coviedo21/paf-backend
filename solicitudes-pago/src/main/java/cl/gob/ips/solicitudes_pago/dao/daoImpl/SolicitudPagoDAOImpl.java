@@ -25,10 +25,12 @@ import cl.gob.ips.solicitudes_pago.dao.CausanteDAO;
 import cl.gob.ips.solicitudes_pago.dao.SolicitudPagoDAO;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -747,8 +749,9 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             causanteSolicitudDTO.setRutCausante((Integer) row.get("iRutCausante"));
             causanteSolicitudDTO.setVcDvCausante((String) row.get("vcDvCausante"));
             causanteSolicitudDTO.setVcNombreCausante((String) row.get("vcNombreCausante"));
-            causanteSolicitudDTO.setFechaInicioRango((Date) row.get("dFechaInicioRango"));
-            causanteSolicitudDTO.setFechaFinRango((Date) row.get("dFechaFinRango"));
+            causanteSolicitudDTO.setFechaInicioRango(((Date) row.get("dFechaInicioRango")).toLocalDate());
+            causanteSolicitudDTO.setFechaInicioRango(((Date) row.get("dFechaInicioRango")).toLocalDate());
+
             causanteSolicitudDTO.setVcPeriodosAprobados((String) row.get("vcPeriodosAprobados"));
             causanteSolicitudDTO.setTotalPagar((BigDecimal) row.get("mTotalPagar"));
 

@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,9 +46,15 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.azure.storage.file.share.ShareFileClient;
+import com.azure.storage.file.share.ShareFileClientBuilder;
+
 import cl.gob.ips.solicitudes_pago.dto.ArchivoResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
+import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
+import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
 import cl.gob.ips.solicitudes_pago.service.FileService;
 
 @RestController
@@ -56,6 +64,10 @@ public class FileController {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private CriterioSolicitudService criterioSolicitudService;
+
     private final Map<String, String> estadoTareas = new ConcurrentHashMap<>();
     private final Map<String, String> mensajesTareas = new ConcurrentHashMap<>(); // Guarda la glosa de respuesta
 
@@ -356,6 +368,122 @@ public class FileController {
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @PostMapping("/subirEvidenciaSolicitud")
+    public ResponseEntity<String> subirEvidenciaSolicitud(@RequestParam("file") MultipartFile file, int idCriterioSolicitud) {
+        try {
+            String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
+            String fileShareName = "pagosafqa";
+            String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+
+            // Guardar temporalmente el archivo
+            Path tempFile = Files.createTempFile("upload-", nombreRemoto);
+            Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+
+            // Crear cliente para subir archivo a Azure
+            ShareFileClient fileClient = new ShareFileClientBuilder()
+                    .connectionString(connectionString)
+                    .shareName(fileShareName)
+                    .resourcePath(nombreRemoto)
+                    .buildFileClient();
+
+            fileClient.create(file.getSize());
+            fileClient.uploadFromFile(tempFile.toString());
+
+
+            CriterioSolicitudDTO criterio = criterioSolicitudService.obtenerCriteriosPorIdCriterio(idCriterioSolicitud);
+            criterio.setArchivo(nombreRemoto);
+            criterioSolicitudService.actualizarCriterioSolicitud(criterio);
+            return ResponseEntity.ok("✅ Archivo subido correctamente: " + nombreRemoto);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("❌ Error subiendo el archivo: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/subirEvidenciaCausante")
+    public ResponseEntity<String> subirEvidenciaCausante(@RequestParam("file") MultipartFile file, int idCriterioCausante) {
+        try {
+            String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
+            String fileShareName = "pagosafqa";
+            String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+
+            // Guardar temporalmente el archivo
+            Path tempFile = Files.createTempFile("upload-", nombreRemoto);
+            Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+
+            // Crear cliente para subir archivo a Azure
+            ShareFileClient fileClient = new ShareFileClientBuilder()
+                    .connectionString(connectionString)
+                    .shareName(fileShareName)
+                    .resourcePath(nombreRemoto)
+                    .buildFileClient();
+
+            fileClient.create(file.getSize());
+            fileClient.uploadFromFile(tempFile.toString());
+
+            CriterioSolicitudCausanteDTO criterio = criterioSolicitudService.obtenerCriterioCausantePorIdCriterio(idCriterioCausante);
+            criterio.setIdCriterioSolicitudCausante(idCriterioCausante);
+            criterio.setArchivo(nombreRemoto);
+            criterioSolicitudService.actualizarCriterioCausante(criterio);
+            return ResponseEntity.ok("✅ Archivo subido correctamente: " + nombreRemoto);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("❌ Error subiendo el archivo: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/descargarEvidenciaSolicitud/{idCriterioSoliciud}")
+    public ResponseEntity<byte[]> descargarEvidenciaSolicitud(@PathVariable int idCriterioSoliciud) {
+        String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
+            String fileShareName = "pagosafqa";
+            
+        try {
+            String rutaArchivo = criterioSolicitudService.obtenerCriteriosPorIdCriterio(idCriterioSoliciud).getArchivo();
+            ShareFileClient fileClient = new ShareFileClientBuilder()
+                    .connectionString(connectionString)
+                    .shareName(fileShareName)
+                    .resourcePath(rutaArchivo)
+                    .buildFileClient();
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            fileClient.download(outputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDisposition(ContentDisposition.attachment().filename(rutaArchivo).build());
+
+            return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("Error al descargar archivo: " + e.getMessage()).getBytes());
+        }
+    }
+
+    @GetMapping("/descargarEvidenciaCausante/{idCriterioCausante}")
+    public ResponseEntity<byte[]> descargarEvidenciaCausante(@PathVariable int idCriterioCausante) {
+        String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
+            String fileShareName = "pagosafqa";
+            
+        try {
+            String rutaArchivo = criterioSolicitudService.obtenerCriterioCausantePorIdCriterio(idCriterioCausante).getArchivo();
+            ShareFileClient fileClient = new ShareFileClientBuilder()
+                    .connectionString(connectionString)
+                    .shareName(fileShareName)
+                    .resourcePath(rutaArchivo)
+                    .buildFileClient();
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            fileClient.download(outputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDisposition(ContentDisposition.attachment().filename(rutaArchivo).build());
+
+            return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("Error al descargar archivo: " + e.getMessage()).getBytes());
         }
     }
 

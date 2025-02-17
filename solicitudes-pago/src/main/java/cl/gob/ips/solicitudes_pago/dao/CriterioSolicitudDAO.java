@@ -13,4 +13,5 @@ public interface CriterioSolicitudDAO {
     boolean actualizarCriterioCausante(CriterioSolicitudCausanteDTO criterioCausante);
     List<CriterioSolicitudCausanteDTO> consultarCriterioCausante(Integer idCausanteSolicitud);
     CriterioSolicitudDTO obtenerCriteriosPorIdCriterio(Integer idCriterioSolicitud);
+    CriterioSolicitudCausanteDTO obtenerCriterioCausantePorIdCriterio(Integer idCriterioCausante);
 }

@@ -178,6 +178,7 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
         try {
             Map<String, Object> result = jdbcCall.execute(inParams);
             String mensajeRespuesta = (String) result.get("mensajeRespuesta");
+            System.out.println(mensajeRespuesta);
             return true;
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
@@ -238,6 +239,28 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
             return criterioDTO;
         } catch (Exception e) {
             System.err.println("ERROR al obtener el criterio: " + e.getMessage());
+            return null; // Devuelve null si no se encuentra el registro o ocurre un error
+        }
+    }
+
+    @Override
+    public CriterioSolicitudCausanteDTO obtenerCriterioCausantePorIdCriterio(Integer idCriterioCausante) {
+        String sql = "SELECT * FROM paf.fn_ObtenerCriteriosCausantePorIdCriterio(?)";
+
+        try {
+            Map<String, Object> result = jdbcTemplate.queryForMap(sql, idCriterioCausante);
+
+            CriterioSolicitudCausanteDTO criterioCausante = new CriterioSolicitudCausanteDTO();
+            if (result.get("IdCriterioCausante") != null) criterioCausante.setIdCriterioSolicitudCausante((Integer) result.get("IdCriterioCausante"));
+            if (result.get("IdCausanteSolicitud") != null) criterioCausante.setIdCausanteSolicitud((Integer) result.get("IdCausanteSolicitud"));
+            if (result.get("IdCriterio") != null) criterioCausante.setIdCriterio((Integer) result.get("IdCriterio"));
+            if (result.get("Cumple") != null) criterioCausante.setCumple((String) result.get("Cumple"));
+            if (result.get("Archivo") != null) criterioCausante.setArchivo((String) result.get("Archivo"));
+            if (result.get("nombreCriterio") != null) criterioCausante.setNombreCriterio((String) result.get("nombreCriterio"));
+
+            return criterioCausante;
+        } catch (Exception e) {
+            System.err.println("ERROR al obtener el criterio causante: " + e.getMessage());
             return null; // Devuelve null si no se encuentra el registro o ocurre un error
         }
     }

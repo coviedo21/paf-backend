@@ -41,20 +41,23 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
     @Override
     public ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago,boolean esArchivo) {
         ResponseDTO response = new ResponseDTO();
-        /*List<CuentaCorrienteCausanteDTO> listaCuentasCausante = cuentaCorrienteDAO.obtenerCuentaCorrienteCausantes(solicitudPago.getRutBeneficiario());
-        for(CuentaCorrienteCausanteDTO cuentaCausante:listaCuentasCausante){
-            System.out.println("Causante: "+cuentaCausante.getRutCausante()+" "+cuentaCausante.getNombre());    
-        }*/
         response = solicitudPagoDAO.insertarSolicitudPago(solicitudPago,esArchivo);
         if((int) response.getResultado()>0){
             /*Validar Criterios de Solicitud*/
-            /*boolean enviar = criterioSolicitudService.validarCriteriosResolucion((int) response.getResultado());
+            boolean enviar = criterioSolicitudService.validarCriteriosResolucion((int) response.getResultado());
             if(enviar){
                 SolicitudDTO actualizarSolicitud = new SolicitudDTO();
                 actualizarSolicitud.setIdSolicitud((int) response.getResultado());
                 actualizarSolicitud.setCumpleCriterios("S");
                 actualizarSolicitudPago(actualizarSolicitud);
                 
+                ResolucionDTO resolucion = new ResolucionDTO();
+                resolucion.setIIdSolicitud((int) response.getResultado());
+                resolucion.setIAutor(solicitudPago.getIdUsuario());
+                resolucion.setIIdEstado(2);
+                resolucion.setVcDescripcion("Solicitud cumple criterios y es enviada automáticamente.");
+                resolucion.setIMotivoRechazo(null);
+                insertarResolucion(resolucion);
                 try {
                     emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" enviada","Su solicitud N° "+(int) response.getResultado()+" cumple con todos los criterios de aceptación por lo que ha sido enviada para su resolución.");    
                 } catch (Exception e) {
@@ -73,7 +76,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                     // Captura cualquier excepción relacionada con el envío del correo y loguea el error
                     System.err.println("Error enviando correo para la solicitud " + (int) response.getResultado() + ": " + e.getMessage());
                 }
-            }*/
+            }
             return response;
         }
         return response;

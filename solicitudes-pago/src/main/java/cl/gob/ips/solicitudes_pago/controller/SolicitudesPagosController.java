@@ -1,5 +1,8 @@
 package cl.gob.ips.solicitudes_pago.controller;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -109,6 +112,27 @@ public class SolicitudesPagosController {
 
             return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
         }
+            
+        // Obtener la fecha actual como LocalDate en UTC
+        LocalDate fechaComparacion = LocalDate.now(ZoneId.of("UTC"));
+
+        // Recorrer la lista y validar la fecha de inicio de rango de cada causante
+        for (CausanteSolicitudDTO causante : solicitudPago.getListaCausantes()) {
+            
+            if (causante.getFechaFinRango() == null) {
+                responseDTO.setCodigoRetorno(-1);
+                responseDTO.setGlosaRetorno("Error: Uno o más causantes tienen una fecha de inicio de rango nula.");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+
+            // Validar si la fecha es mayor a 5 años
+            if (!utilService.esFechaValida(causante.getFechaInicioRango(), fechaComparacion)) {
+                responseDTO.setCodigoRetorno(-1);
+                responseDTO.setGlosaRetorno("Error: Uno o más causantes tienen una fecha de inicio de rango inválida o mayor a 5 años.");
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            }
+        }
+        
         responseDTO = solicitudPagoService.insertarSolicitudPago(solicitudPago,false);
         if ((int) responseDTO.getResultado()>0) {
             //responseDTO.setCodigoRetorno(0);

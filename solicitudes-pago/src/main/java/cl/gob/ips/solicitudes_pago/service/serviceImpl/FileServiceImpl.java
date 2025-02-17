@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,7 @@ import cl.gob.ips.solicitudes_pago.dto.ListaComunaDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResultadoRegionDTO;
 import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
 import cl.gob.ips.solicitudes_pago.service.FileService;
+import cl.gob.ips.solicitudes_pago.service.UtilService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -49,6 +52,9 @@ public class FileServiceImpl implements FileService {
 
     @Autowired
     private CriterioSolicitudService criterioSolicitudService;
+
+    @Autowired
+    private UtilService utilService;
 
     @Value("${app.base.url}")
     private String baseUrl;    
@@ -159,6 +165,16 @@ public class FileServiceImpl implements FileService {
                     bw.write(formatearLineaError(archivo));
                     bw.newLine();
                     continue; // Saltar al siguiente archivo
+                }
+
+                //Validar rango fecha
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                if(utilService.esFechaValida(LocalDate.parse(archivo.getFechaInicioCompensacion(), formatter), LocalDate.parse(archivo.getFechaHora(), formatter))){
+                    archivo.setRutCargaFamiliar("**ERROR**" + archivo.getFechaInicioCompensacion());
+                    //archivo.setDvEmpleador("**ERROR**" + archivo.getDvEmpleador());
+                    bw.write(formatearLineaError(archivo));
+                    bw.newLine();
+                    continue; // Saltar al siguiente archivo                      
                 }
 
                 // Finalmente, insertar la solicitud si todo está correcto

@@ -1,6 +1,7 @@
 package cl.gob.ips.solicitudes_pago.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -15,8 +16,8 @@ public class CausanteSolicitudDTO {
     private int rutCausante;
     private String vcDvCausante;
     private String vcNombreCausante;
-    private Date fechaInicioRango;
-    private Date fechaFinRango;
+    private LocalDate fechaInicioRango;
+    private LocalDate fechaFinRango;
     private String vcPeriodosAprobados;
     private BigDecimal totalPagar;
     private List<DetalleCausanteDTO> detalle;

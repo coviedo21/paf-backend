@@ -12,5 +12,6 @@ public interface CriterioSolicitudService {
     boolean actualizarCriterioSolicitud(CriterioSolicitudDTO criterioSolicitudDTO);
     boolean actualizarCriterioCausante(CriterioSolicitudCausanteDTO criterioCausante);
     List<CriterioSolicitudCausanteDTO> consultarCriteriosCausante(Integer idCausanteSolicitud);
-    public CriterioSolicitudDTO obtenerCriteriosPorIdCriterio(Integer idCriterioSolicitud);
+    CriterioSolicitudDTO obtenerCriteriosPorIdCriterio(Integer idCriterioSolicitud);
+    CriterioSolicitudCausanteDTO obtenerCriterioCausantePorIdCriterio(Integer idCriterioCausante);
 }
