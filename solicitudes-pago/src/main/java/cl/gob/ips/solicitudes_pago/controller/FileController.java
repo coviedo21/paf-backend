@@ -194,85 +194,105 @@ public class FileController {
     @PostMapping("/cargar-archivo-especiales")
     public ResponseDTO cargarArchivoEspeciales( @RequestParam("file") MultipartFile file,
             @RequestParam("origen") String origen, @RequestParam("periodo") String periodo) {
-                List<ArchivoSolicitudDTO> listaSolicitudes = new ArrayList<>();
-                ArchivoResponseDTO respuesta = new ArchivoResponseDTO();
                 ResponseDTO response = new ResponseDTO();
-                /*String region [15,"valparíso"?¡];
-                comuna[15,176,"vina del mar"]
-                comuna[15,"177","valparaíso"]*/
-                try{
-                String encoding = fileService.detectarCodificacion(file.getInputStream());
-                System.out.println("📌 Codificación detectada: " + encoding);
-                
-                InputStream inputStream = encoding.equalsIgnoreCase("UTF-8") 
-                        ? file.getInputStream()  // Si ya está en UTF-8, lo usamos tal cual
-                        : fileService.convertirAUTF8(file.getInputStream(), encoding); // Si no, lo convertimos
-            
-                try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            
-                        //Pasar a UTF-8
+        String taskId = UUID.randomUUID().toString();
+        estadoTareas.put(taskId, "procesando");
+
+        try {
+            Path tempFile = Files.createTempFile("previred_", ".csv");
+            file.transferTo(tempFile.toFile());
+
+            CompletableFuture.runAsync(() -> {
+                List<ArchivoSolicitudDTO> listaSolicitudes = new ArrayList<>();
+                ArchivoResponseDTO respuesta = new ArchivoResponseDTO(); // ✅ Definida correctamente
+
+                try (InputStream originalInputStream = new FileInputStream(tempFile.toString());
+                     BufferedInputStream bufferedInputStream = new BufferedInputStream(originalInputStream)) {
+
+                    String encoding = fileService.detectarCodificacion(bufferedInputStream);
+                    System.out.println("📌 Codificación detectada: " + encoding);
+
+                    bufferedInputStream.reset();
+
+                    InputStream inputStream = encoding.equalsIgnoreCase("UTF-8")
+                            ? bufferedInputStream
+                            : fileService.convertirAUTF8(bufferedInputStream, encoding);
+
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                         String line;
                         boolean isFirstLine = true;
-            
+
                         while ((line = br.readLine()) != null) {
                             if (isFirstLine) {
                                 isFirstLine = false;
                                 continue;
                             }
-            
-                             // Ignorar líneas en blanco
-                            if (line.trim().isEmpty()) {
-                                continue;
-                            }
+                            if (line.trim().isEmpty()) continue;
+
                             String[] fields = line.split(";");
                             ArchivoSolicitudDTO carga = new ArchivoSolicitudDTO();
-                            carga.setFolio(fields[0]);
-                            carga.setFechaHora(fields[1]);
-                            carga.setRutEmpleador(fields[2]);
-                            carga.setDvEmpleador(fields[3]);
-                            carga.setRazonSocialEmpleador(fields[4]);
-                            carga.setDireccionEmpleador(fields[5]);
-                            carga.setEmailEmpleador(fields[6]);
-                            carga.setComunaEmpleador(fields[7]);
-                            carga.setCiudadEmpleador(fields[8]);
-                            carga.setNombreRegion(fields[9]);
-                            carga.setRutTrabajador(fields[10]);
-                            carga.setDvTrabajador(fields[11]);
-                            carga.setApellidoPaternoTrabajador(fields[12]);
-                            carga.setApellidoMaternoTrabajador(fields[13]);
-                            carga.setNombresTrabajador(fields[14]);
-                            carga.setRutCargaFamiliar(fields[15]);
-                            carga.setDvCargaFamiliar(fields[16]);
-                            carga.setApellidoPaternoCarga(fields[17]);
-                            carga.setApellidoMaternoCarga(fields[18]);
-                            carga.setNombresCarga(fields[19]);
-                            carga.setTipoCarga(fields[20]);
-                            carga.setFechaInicioCompensacion(fields[21]);
-                            carga.setFechaFinCompensacion(fields[22]);
-                            carga.setEstadoCarga(fields.length > 23 && !fields[23].trim().isEmpty() ? fields[23].trim() : null);
-                            carga.setOrigen(origen);
-                            carga.setPeriodo(periodo);
-                            
-                            listaSolicitudes.add(carga);
-                            
+
+                            try {
+                                carga.setFolio(fields[0]);
+                                carga.setFechaHora(fields[1]);
+                                carga.setRutEmpleador(fields[2]);
+                                carga.setDvEmpleador(fields[3]);
+                                carga.setRazonSocialEmpleador(fields[4]);
+                                carga.setDireccionEmpleador(fields[5]);
+                                carga.setEmailEmpleador(fields[6]);
+                                carga.setComunaEmpleador(fields[7]);
+                                carga.setCiudadEmpleador(fields[8]);
+                                carga.setNombreRegion(fields[9]);
+                                carga.setRutTrabajador(fields[10]);
+                                carga.setDvTrabajador(fields[11]);
+                                carga.setApellidoPaternoTrabajador(fields[12]);
+                                carga.setApellidoMaternoTrabajador(fields[13]);
+                                carga.setNombresTrabajador(fields[14]);
+                                carga.setRutCargaFamiliar(fields[15]);
+                                carga.setDvCargaFamiliar(fields[16]);
+                                carga.setApellidoPaternoCarga(fields[17]);
+                                carga.setApellidoMaternoCarga(fields[18]);
+                                carga.setNombresCarga(fields[19]);
+                                carga.setTipoCarga(fields[20]);
+                                carga.setFechaInicioCompensacion(fields[21]);
+                                carga.setFechaFinCompensacion(fields[22]);
+                                carga.setEstadoCarga(fields.length > 23 && !fields[23].trim().isEmpty() ? fields[23].trim() : null);
+                                carga.setOrigen(origen);
+                                carga.setPeriodo(periodo);
+
+                                listaSolicitudes.add(carga);
+                            } catch (Exception e) {
+                                // Ignoramos la línea errónea
+                            }
                         }
-                        respuesta = fileService.insertarSolicitudes(listaSolicitudes,periodo);
-                        if(respuesta.getRegistrosFallidos()==0){
-                            response.setCodigoRetorno(0);
-                            response.setGlosaRetorno("Se leyeron "+respuesta.getRegistrosEnArchivo()+" solicitudes y se importaron "+respuesta.getRegistrosImportados()+" solicitudes.");
-                            response.setResultado(respuesta);
+
+                        // ✅ Insertamos en la base de datos y guardamos la glosa
+                        respuesta = fileService.insertarSolicitudes(listaSolicitudes, periodo);
+                        if (respuesta.getRegistrosFallidos() == 0) {
+                            mensajesTareas.put(taskId, "Se leyeron " + respuesta.getRegistrosEnArchivo() + " solicitudes y se importaron " + respuesta.getRegistrosImportados() + " solicitudes.");
+                        } else {
+                            mensajesTareas.put(taskId, "Se leyeron " + respuesta.getRegistrosEnArchivo() + " solicitudes. Se importaron " + respuesta.getRegistrosImportados() + " solicitudes. Fallaron " + respuesta.getRegistrosFallidos() + " solicitudes. Revisar archivo de errores descargado.");
                         }
-                        else{
-                            response.setCodigoRetorno(-1);
-                            response.setGlosaRetorno("Se leyeron "+respuesta.getRegistrosEnArchivo()+" solicitudes. Se importaron "+respuesta.getRegistrosImportados()+" solicitudes. Fallaron "+respuesta.getRegistrosFallidos()+" solicitudes. Revisar archivo de errores descargado.");
-                            response.setResultado(respuesta);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        
+                        estadoTareas.put(taskId, "completado");
+
                     }
-                }catch(Exception e){
-            
+                } catch (Exception e) {
+                    estadoTareas.put(taskId, "error");
+                    mensajesTareas.put(taskId, "Error durante el procesamiento.");
                 }
+            });
+
+            response.setCodigoRetorno(0);
+            response.setGlosaRetorno("El archivo se está procesando en segundo plano.");
+            response.setResultado(Map.of("taskId", taskId));
+
+        } catch (Exception e) {
+            estadoTareas.put(taskId, "error");
+            response.setCodigoRetorno(-1);
+            response.setGlosaRetorno("Error al leer el archivo: " + e.getMessage());
+        }
+
         return response;
     }
 
@@ -436,6 +456,7 @@ public class FileController {
     @GetMapping("/descargarEvidenciaSolicitud/{idCriterioSoliciud}")
     public ResponseEntity<byte[]> descargarEvidenciaSolicitud(@PathVariable int idCriterioSoliciud) {
         String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
+        System.out.println("Conexión a Azure: " + connectionString);
             String fileShareName = "pagosafqa";
             
         try {

@@ -151,12 +151,12 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 ResolucionDTO resolucion = new ResolucionDTO();
                 resolucion.setIIdSolicitud(solicitud.getIdSolicitud());
                 resolucion.setIAutor(solicitud.getIdUsuario());
-                resolucion.setIIdEstado(2);
-                resolucion.setVcDescripcion("Termina plazo para subsanar, solicitud enviada automáticamente");
+                resolucion.setIIdEstado(7);
+                resolucion.setVcDescripcion("Termina plazo para subsanar, solicitud no es enviada y debe ser revisada");
                 resolucion.setIMotivoRechazo(null);
                 insertarResolucion(resolucion);
                 try {
-                    emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" enviada","Terminó plazo de "+diasAntiguedad+" días para subsanar su solicitud N° "+solicitud.getIdSolicitud()+". Ha sido enviada automáticamente para su resolución.");    
+                    emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" enviada","Terminó plazo de "+diasAntiguedad+" días para subsanar su solicitud N° "+solicitud.getIdSolicitud()+". Será revisada.");    
                 } catch (Exception e) {
                     // Captura cualquier excepción relacionada con el envío del correo y loguea el error
                     System.err.println("Error enviando correo para la solicitud " + solicitud.getIdSolicitud() + ": " + e.getMessage());

@@ -1,6 +1,8 @@
 package cl.gob.ips.solicitudes_pago.service.serviceImpl;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -66,10 +68,22 @@ public class CausanteServiceImpl implements CausanteService{
             dto.setDvRutCausante(primerRegistro.getDvCausante());
             dto.setNombreCausante("Nombre Desconocido"); // Si tienes nombres en otro lado, agrégalo aquí
 
-            // Construir rango de fechas (desde el menor hasta el mayor periodo)
-            List<Integer> periodos = listaDerechos.stream().map(DerechoCausanteDTO::getPeriodo).sorted().collect(Collectors.toList());
-            dto.setRangoFechas(periodos.get(0) + " - " + periodos.get(periodos.size() - 1));
+            // Obtener el menor y mayor periodo
+            List<Integer> periodos = listaDerechos.stream()
+                    .map(DerechoCausanteDTO::getPeriodo)
+                    .sorted()
+                    .collect(Collectors.toList());
+            
+            int periodoInicio = periodos.get(0);
+            int periodoFin = periodos.get(periodos.size() - 1);
 
+            // Convertir a formato de fecha
+            LocalDate fechaInicio = obtenerPrimerDiaMes(periodoInicio);
+            LocalDate fechaFin = obtenerUltimoDiaMes(periodoFin);
+
+            dto.setFechaInicioPeriodo(fechaInicio);
+            dto.setFechaFinPeriodo(fechaFin);
+            
             // Calcular monto total a pagar sumando `montoMovimiento`
             int montoTotal = listaDerechos.stream().mapToInt(DerechoCausanteDTO::getMontoMovimiento).sum();
             dto.setMontoPagar(BigDecimal.valueOf(montoTotal));
@@ -104,5 +118,20 @@ public class CausanteServiceImpl implements CausanteService{
 
     public List<DetalleCausanteDTO> obtenerDetalleCausantePorId(int iIdCausanteSolicitud){
         return causanteDAO.obtenerDetalleCausantePorId(iIdCausanteSolicitud);
+    }
+
+    private LocalDate obtenerPrimerDiaMes(int periodo) {
+        int year = periodo / 100;
+        int month = periodo % 100;
+        return LocalDate.of(year, month, 1);
+    }
+
+    /**
+     * Convierte un periodo YYYYMM en el último día del mes en formato LocalDate.
+     */
+    private LocalDate obtenerUltimoDiaMes(int periodo) {
+        int year = periodo / 100;
+        int month = periodo % 100;
+        return YearMonth.of(year, month).atEndOfMonth();
     }
 }
