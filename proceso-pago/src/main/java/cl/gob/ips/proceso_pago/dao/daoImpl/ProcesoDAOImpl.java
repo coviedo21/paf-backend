@@ -146,6 +146,7 @@ public List<DatosProcesoPorTipoDTO> obtenerDatosProcesoPorTipo(int idProceso) {
     for (Map<String, Object> row : results) {
         DatosProcesoPorTipoDTO dto = new DatosProcesoPorTipoDTO();
         if (row.get("Tipo") != null) dto.setTipo((Integer) row.get("Tipo"));
+        if (row.get("nombreTipo") != null) dto.setNombreTipoSolicitante((String) row.get("nombreTipo"));
         if (row.get("Cantidad") != null) dto.setCantidad((Integer) row.get("Cantidad"));
         if (row.get("Porcentaje") != null) dto.setPorcentaje((BigDecimal) row.get("Porcentaje"));
         if (row.get("PagosTotales") != null) dto.setPagosTotales((Integer) row.get("PagosTotales"));
