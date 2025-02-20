@@ -38,7 +38,8 @@ public class FileDAOImpl implements FileDAO{
             SolicitudDTO solicitud = new SolicitudDTO();
             List<CausanteSolicitudDTO> listaCausantes = new ArrayList<>();
             CausanteSolicitudDTO causante = new CausanteSolicitudDTO();
-
+            String periodosAprobados = "";
+            BigDecimal totalPagar = new BigDecimal(0);
             try {
                 solicitud.setFolio(Long.parseLong(archivo.getFolio()));
                 solicitud.setFechaSolicitud(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(archivo.getFechaHora()));
@@ -71,7 +72,7 @@ public class FileDAOImpl implements FileDAO{
                 causante.setFechaInicioRango(LocalDate.parse(archivo.getFechaInicioCompensacion(), formatter));
                 //causante.setFechaInicioRango(new SimpleDateFormat("dd/MM/yyyy").parse(archivo.getFechaInicioCompensacion()));
                 causante.setFechaFinRango(LocalDate.parse(archivo.getFechaFinCompensacion(), formatter));
-                listaCausantes.add(causante);
+                //listaCausantes.add(causante);
                 //causante.setDetalle
                 //Buscar en cuenta corriente
                 CausanteCuentaCorrienteDTO derechoCausante;
@@ -79,6 +80,8 @@ public class FileDAOImpl implements FileDAO{
                 List<DetalleCausanteDTO> listaDetalle  = new ArrayList<>();
                 List<String> periodosCausante = obtenerPeriodos(causante.getFechaInicioRango(),causante.getFechaFinRango());
                 boolean tieneDerecho = false;
+                String primerPeriodo = null;
+                String ultimoPeriodo = null;
                 for(String periodo: periodosCausante){
 
                     detalle = causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), periodo, periodo, null);
@@ -87,6 +90,11 @@ public class FileDAOImpl implements FileDAO{
                    !detalle.isEmpty()) 
                    ? detalle.get(0) 
                    : null;
+
+                    if (primerPeriodo == null) { 
+                        primerPeriodo = periodo; // Guarda el primer periodo
+                    }
+                    ultimoPeriodo = periodo; // Siempre actualiza al último periodo
                     if(derechoCausante!=null){
                         tieneDerecho = true;
                         DetalleCausanteDTO derecho = new DetalleCausanteDTO();
@@ -107,6 +115,8 @@ public class FileDAOImpl implements FileDAO{
                         derecho.setCodigoTramo(derechoCausante.getDetalle().get(0).getCodigoTramo());
                         derecho.setDiasReconocimiento(derechoCausante.getDetalle().get(0).getDiasReconocimiento());
                         derecho.setEstado(1);
+                        //periodosAprobados = periodosAprobados + derecho.getPeriodo()+","; 
+                        totalPagar = totalPagar.add(derecho.getMontoMovimiento());
                         listaDetalle.add(derecho);
                     }
                     else{
@@ -131,6 +141,9 @@ public class FileDAOImpl implements FileDAO{
                 }
                 
                 causante.setDetalle(listaDetalle);
+                causante.setVcPeriodosAprobados(primerPeriodo+" a "+ultimoPeriodo);
+                causante.setTotalPagar(totalPagar);
+                listaCausantes.add(causante);
                 solicitud.setTipoSolicitante(2); //Empleador si es previred
                 solicitud.setOrigen(Integer.parseInt(archivo.getOrigen()));
                 solicitud.setIdUsuario(1);

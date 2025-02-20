@@ -750,7 +750,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             causanteSolicitudDTO.setVcDvCausante((String) row.get("vcDvCausante"));
             causanteSolicitudDTO.setVcNombreCausante((String) row.get("vcNombreCausante"));
             causanteSolicitudDTO.setFechaInicioRango(((Date) row.get("dFechaInicioRango")).toLocalDate());
-            causanteSolicitudDTO.setFechaInicioRango(((Date) row.get("dFechaInicioRango")).toLocalDate());
+            causanteSolicitudDTO.setFechaFinRango(((Date) row.get("dFechaFinRango")).toLocalDate());
 
             causanteSolicitudDTO.setVcPeriodosAprobados((String) row.get("vcPeriodosAprobados"));
             causanteSolicitudDTO.setTotalPagar((BigDecimal) row.get("mTotalPagar"));
