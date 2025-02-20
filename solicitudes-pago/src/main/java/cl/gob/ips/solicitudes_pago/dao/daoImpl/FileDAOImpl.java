@@ -31,7 +31,7 @@ public class FileDAOImpl implements FileDAO{
     @Autowired
     CausanteService causanteService;
 
-    public boolean insertarSolicitud(ArchivoSolicitudDTO archivo){
+    public String insertarSolicitud(ArchivoSolicitudDTO archivo){
         //List<SolicitudDTO> solicitudes = new ArrayList<>();
 
         //for (ArchivoSolicitudDTO archivo : listaSolicitudes) {
@@ -75,15 +75,20 @@ public class FileDAOImpl implements FileDAO{
                 //causante.setDetalle
                 //Buscar en cuenta corriente
                 CausanteCuentaCorrienteDTO derechoCausante;
-                List<DerechoCausanteDTO> detalle = new ArrayList<>();
+                List<CausanteCuentaCorrienteDTO> detalle = new ArrayList<>();
                 List<DetalleCausanteDTO> listaDetalle  = new ArrayList<>();
                 List<String> periodosCausante = obtenerPeriodos(causante.getFechaInicioRango(),causante.getFechaFinRango());
+                boolean tieneDerecho = false;
                 for(String periodo: periodosCausante){
-                    derechoCausante = (causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), periodo, null, null) != null && 
-                   !causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), periodo, null, null).isEmpty()) 
-                   ? causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), periodo, null, null).get(0) 
+
+                    detalle = causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), periodo, periodo, null);
+
+                    derechoCausante = (detalle != null && 
+                   !detalle.isEmpty()) 
+                   ? detalle.get(0) 
                    : null;
                     if(derechoCausante!=null){
+                        tieneDerecho = true;
                         DetalleCausanteDTO derecho = new DetalleCausanteDTO();
                         derecho.setRutCausante(derechoCausante.getDetalle().get(0).getRutCausante());
                         derecho.setDvCausante(derechoCausante.getDetalle().get(0).getDvCausante());
@@ -101,7 +106,7 @@ public class FileDAOImpl implements FileDAO{
                         derecho.setRentaPromedio(new BigDecimal(derechoCausante.getDetalle().get(0).getRentaPromedio()));
                         derecho.setCodigoTramo(derechoCausante.getDetalle().get(0).getCodigoTramo());
                         derecho.setDiasReconocimiento(derechoCausante.getDetalle().get(0).getDiasReconocimiento());
-                        derecho.setIEstado(1);
+                        derecho.setEstado(1);
                         listaDetalle.add(derecho);
                     }
                     else{
@@ -120,7 +125,7 @@ public class FileDAOImpl implements FileDAO{
                         derecho.setRentaPromedio(BigDecimal.ZERO);
                         derecho.setCodigoTramo(0);
                         derecho.setDiasReconocimiento(0);
-                        derecho.setIEstado(2);
+                        derecho.setEstado(2);
                         listaDetalle.add(derecho);    
                     }
                 }
@@ -134,16 +139,20 @@ public class FileDAOImpl implements FileDAO{
                 solicitud.setCiudadEmpleador(archivo.getCiudadEmpleador());
                 solicitud.setPeriodo(archivo.getPeriodo());
                 solicitud.setIdFormaPago(4);
-                ResponseDTO respuesta = solicitudPagoService.insertarSolicitudPago(solicitud,true);
-                if((int) respuesta.getResultado()>0){
-                    return true;
+                if(tieneDerecho){
+                    ResponseDTO respuesta = solicitudPagoService.insertarSolicitudPago(solicitud,true);
+                    if((int) respuesta.getResultado()>0){
+                        return "";
+                    }
+                    else{return "**ERROR** Solicitud ya existe. Folio: "+archivo.getFolio()+" Rut Beneficiario: "+archivo.getRutTrabajador()+"-"+archivo.getDvTrabajador()+", Rut Causante: "+archivo.getRutCargaFamiliar()+"-"+archivo.getDvCargaFamiliar()+" Periodo: "+archivo.getPeriodo()+" Fecha Inicio Compensación: "+archivo.getFechaInicioCompensacion()+" Fecha Fin Compensación: "+archivo.getFechaFinCompensacion();}
                 }
-                else{return false;}
-                
+                else{
+                    return "**ERROR** Causante no cuenta con periodos con derecho a pago.";
+                }
             } catch (NumberFormatException | ParseException e) {
                 // Manejar la excepción adecuadamente
                 e.printStackTrace();
-                return false;
+                return e.getMessage();
             }
 
             // Agregar la solicitud a la lista

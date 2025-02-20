@@ -174,7 +174,7 @@ public class FileServiceImpl implements FileService {
                 LocalDate fechaInicioCompensacion = LocalDate.parse(archivo.getFechaInicioCompensacion(), dateFormatter);
                 LocalDateTime fechaHora = LocalDateTime.parse(archivo.getFechaHora(), dateTimeFormatter);
                 if(!utilService.esFechaValida(fechaInicioCompensacion, fechaHora.toLocalDate())) {
-                    archivo.setRutCargaFamiliar("**ERROR**" + archivo.getFechaInicioCompensacion());
+                    archivo.setFechaInicioCompensacion("**ERROR**" + archivo.getFechaInicioCompensacion());
                     //archivo.setDvEmpleador("**ERROR**" + archivo.getDvEmpleador());
                     bw.write(formatearLineaError(archivo));
                     bw.newLine();
@@ -182,12 +182,13 @@ public class FileServiceImpl implements FileService {
                 }
 
                 // Finalmente, insertar la solicitud si todo está correcto
-                boolean insertado = fileDAO.insertarSolicitud(archivo);
-                if(insertado){
+                String insertado = fileDAO.insertarSolicitud(archivo);
+                if(insertado.equals("")){
                     contadorExitos++;
                 }
                 else{
-                    bw.write("**ERROR** Solicitud ya existe. Folio: "+archivo.getFolio()+" Rut Beneficiario: "+archivo.getRutTrabajador()+"-"+archivo.getDvTrabajador()+", Rut Causante: "+archivo.getRutCargaFamiliar()+"-"+archivo.getDvCargaFamiliar()+" Periodo: "+archivo.getPeriodo()+" Fecha Inicio Compensación: "+archivo.getFechaInicioCompensacion()+" Fecha Fin Compensación: "+archivo.getFechaFinCompensacion());
+                    //bw.write("**ERROR** Solicitud ya existe. Folio: "+archivo.getFolio()+" Rut Beneficiario: "+archivo.getRutTrabajador()+"-"+archivo.getDvTrabajador()+", Rut Causante: "+archivo.getRutCargaFamiliar()+"-"+archivo.getDvCargaFamiliar()+" Periodo: "+archivo.getPeriodo()+" Fecha Inicio Compensación: "+archivo.getFechaInicioCompensacion()+" Fecha Fin Compensación: "+archivo.getFechaFinCompensacion());
+                    bw.write(insertado);
                     bw.newLine();
                 }
             }
