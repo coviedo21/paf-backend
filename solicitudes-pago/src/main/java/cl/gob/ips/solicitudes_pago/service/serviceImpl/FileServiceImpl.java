@@ -13,6 +13,7 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -168,8 +169,11 @@ public class FileServiceImpl implements FileService {
                 }
 
                 //Validar rango fecha
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                if(utilService.esFechaValida(LocalDate.parse(archivo.getFechaInicioCompensacion(), formatter), LocalDate.parse(archivo.getFechaHora(), formatter))){
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+                LocalDate fechaInicioCompensacion = LocalDate.parse(archivo.getFechaInicioCompensacion(), dateFormatter);
+                LocalDateTime fechaHora = LocalDateTime.parse(archivo.getFechaHora(), dateTimeFormatter);
+                if(!utilService.esFechaValida(fechaInicioCompensacion, fechaHora.toLocalDate())) {
                     archivo.setRutCargaFamiliar("**ERROR**" + archivo.getFechaInicioCompensacion());
                     //archivo.setDvEmpleador("**ERROR**" + archivo.getDvEmpleador());
                     bw.write(formatearLineaError(archivo));

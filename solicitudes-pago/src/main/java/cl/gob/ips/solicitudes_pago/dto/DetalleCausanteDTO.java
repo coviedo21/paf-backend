@@ -12,6 +12,8 @@ public class DetalleCausanteDTO {
     private int idCausanteSolicitud;
     private int rutCausante;
     private String dvCausante;
+    private int rutBeneficiario;
+    private String dvBeneficiario;
     private int periodo;
     private int tipoMovimiento;
     private Date fechaMovimiento;
@@ -25,5 +27,6 @@ public class DetalleCausanteDTO {
     private int codigoTramo;
     private Date fechaFinVigencia;
     private Date fechaInicioVigencia;
+    private int iEstado;
 
 }

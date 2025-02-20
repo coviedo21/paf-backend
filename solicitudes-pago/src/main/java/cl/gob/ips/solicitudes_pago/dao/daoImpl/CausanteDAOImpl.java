@@ -136,6 +136,8 @@ public class CausanteDAOImpl implements CausanteDAO{
 
         SqlParameterSource inParams = new MapSqlParameterSource()
                 .addValue("iIdCausanteSolicitud", causanteDTO.getIdCausanteSolicitud())
+                .addValue("iRutBeneficiario", causanteDTO.getRutBeneficiario())
+                .addValue("vcDvBeneficiario", causanteDTO.getDvBeneficiario())
                 .addValue("iRutCausante", causanteDTO.getRutCausante())
                 .addValue("vcDvCausante", causanteDTO.getDvCausante())
                 .addValue("iPeriodo", causanteDTO.getPeriodo())
@@ -146,11 +148,11 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("iTipoCausante", causanteDTO.getTipoCausante())
                 .addValue("iIdBeneficio", causanteDTO.getIdBeneficio())
                 .addValue("nRentaPromedio", causanteDTO.getRentaPromedio())
-                .addValue("vcTramo", causanteDTO.getTramo())
                 .addValue("iDiasReconocimiento", causanteDTO.getDiasReconocimiento())
                 .addValue("iCodigoTramo", causanteDTO.getCodigoTramo())
                 .addValue("dFechaFinVigencia", causanteDTO.getFechaFinVigencia())
                 .addValue("dFechaInicioVigencia", causanteDTO.getFechaInicioVigencia())
+                .addValue("iEstado", causanteDTO.getIEstado())
                 .addValue("mensajeRespuesta", Types.VARCHAR);
 
         Map<String, Object> result = jdbcCall.execute(inParams);

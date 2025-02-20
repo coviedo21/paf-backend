@@ -26,15 +26,15 @@ public class UtilServiceImpl implements UtilService{
         return utilDAO.obtenerOrigenes(tipo);    
     }
 
-    public boolean esFechaValida(LocalDate fechaInicio, LocalDate fechaComparacion) {
-        if (fechaInicio == null || fechaComparacion == null) {
+    public boolean esFechaValida(LocalDate fechaInicioCompensacion, LocalDate fechaSolicitud) {
+        if (fechaInicioCompensacion == null || fechaSolicitud == null) {
             return false;
         }
     
         // Restar 5 años a la fecha de comparación
-        LocalDate fechaLimite = fechaComparacion.minusYears(5);
+        LocalDate fechaLimite = fechaSolicitud.minusYears(5);
     
-        return fechaInicio.isAfter(fechaLimite); // Retorna true si fechaInicio es anterior a fechaComparacion - 5 años
+        return fechaInicioCompensacion.isAfter(fechaLimite); // Retorna true si fechaInicio es anterior a fechaComparacion - 5 años
     }
     
 

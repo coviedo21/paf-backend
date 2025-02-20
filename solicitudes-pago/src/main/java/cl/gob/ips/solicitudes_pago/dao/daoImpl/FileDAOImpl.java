@@ -1,10 +1,12 @@
 package cl.gob.ips.solicitudes_pago.dao.daoImpl;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,15 +14,22 @@ import org.springframework.stereotype.Repository;
 
 import cl.gob.ips.solicitudes_pago.dao.FileDAO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.CausanteCuentaCorrienteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.DerechoCausanteDTO;
+import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
+import cl.gob.ips.solicitudes_pago.service.CausanteService;
 import cl.gob.ips.solicitudes_pago.service.SolicitudPagoService;
 
 @Repository
 public class FileDAOImpl implements FileDAO{
     @Autowired
     SolicitudPagoService solicitudPagoService;
+
+    @Autowired
+    CausanteService causanteService;
 
     public boolean insertarSolicitud(ArchivoSolicitudDTO archivo){
         //List<SolicitudDTO> solicitudes = new ArrayList<>();
@@ -63,6 +72,60 @@ public class FileDAOImpl implements FileDAO{
                 //causante.setFechaInicioRango(new SimpleDateFormat("dd/MM/yyyy").parse(archivo.getFechaInicioCompensacion()));
                 causante.setFechaFinRango(LocalDate.parse(archivo.getFechaFinCompensacion(), formatter));
                 listaCausantes.add(causante);
+                //causante.setDetalle
+                //Buscar en cuenta corriente
+                CausanteCuentaCorrienteDTO derechoCausante;
+                List<DerechoCausanteDTO> detalle = new ArrayList<>();
+                List<DetalleCausanteDTO> listaDetalle  = new ArrayList<>();
+                List<String> periodosCausante = obtenerPeriodos(causante.getFechaInicioRango(),causante.getFechaFinRango());
+                for(String periodo: periodosCausante){
+                    derechoCausante = (causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), periodo, null, null) != null && 
+                   !causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), periodo, null, null).isEmpty()) 
+                   ? causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), periodo, null, null).get(0) 
+                   : null;
+                    if(derechoCausante!=null){
+                        DetalleCausanteDTO derecho = new DetalleCausanteDTO();
+                        derecho.setRutCausante(derechoCausante.getDetalle().get(0).getRutCausante());
+                        derecho.setDvCausante(derechoCausante.getDetalle().get(0).getDvCausante());
+                        derecho.setRutBeneficiario(derechoCausante.getDetalle().get(0).getRutBeneficiario());
+                        derecho.setDvBeneficiario(derechoCausante.getDetalle().get(0).getDvBeneficiario());
+                        derecho.setPeriodo(derechoCausante.getDetalle().get(0).getPeriodo());
+                        derecho.setTipoMovimiento(derechoCausante.getDetalle().get(0).getTipoMovimientoId());
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                        Date fechaMovimiento = dateFormat.parse(derechoCausante.getDetalle().get(0).getFechaMovimiento());
+                        derecho.setFechaMovimiento(fechaMovimiento);
+                        derecho.setEntradaSalida(derechoCausante.getDetalle().get(0).getEntradaSalida());
+                        derecho.setMontoMovimiento(new BigDecimal(derechoCausante.getDetalle().get(0).getMontoMovimiento()));
+                        derecho.setTipoCausante(derechoCausante.getDetalle().get(0).getTipoCausante());
+                        derecho.setIdBeneficio(derechoCausante.getDetalle().get(0).getIdBeneficio());
+                        derecho.setRentaPromedio(new BigDecimal(derechoCausante.getDetalle().get(0).getRentaPromedio()));
+                        derecho.setCodigoTramo(derechoCausante.getDetalle().get(0).getCodigoTramo());
+                        derecho.setDiasReconocimiento(derechoCausante.getDetalle().get(0).getDiasReconocimiento());
+                        derecho.setIEstado(1);
+                        listaDetalle.add(derecho);
+                    }
+                    else{
+                        DetalleCausanteDTO derecho = new DetalleCausanteDTO();
+                        derecho.setRutCausante(causante.getRutCausante());
+                        derecho.setDvCausante(causante.getVcDvCausante());
+                        derecho.setRutBeneficiario(causante.getRutBeneficiario());
+                        derecho.setDvBeneficiario(causante.getVcDvBeneficiario());
+                        derecho.setPeriodo(0);
+                        derecho.setTipoMovimiento(0);
+                        derecho.setFechaMovimiento(null);
+                        derecho.setEntradaSalida(null);
+                        derecho.setMontoMovimiento(BigDecimal.ZERO);
+                        derecho.setTipoCausante(0);
+                        derecho.setIdBeneficio(0);
+                        derecho.setRentaPromedio(BigDecimal.ZERO);
+                        derecho.setCodigoTramo(0);
+                        derecho.setDiasReconocimiento(0);
+                        derecho.setIEstado(2);
+                        listaDetalle.add(derecho);    
+                    }
+                }
+                
+                causante.setDetalle(listaDetalle);
                 solicitud.setTipoSolicitante(2); //Empleador si es previred
                 solicitud.setOrigen(Integer.parseInt(archivo.getOrigen()));
                 solicitud.setIdUsuario(1);
@@ -86,6 +149,18 @@ public class FileDAOImpl implements FileDAO{
             // Agregar la solicitud a la lista
 //            solicitudes.add(solicitud);
   //      }
+    }
+
+    public List<String> obtenerPeriodos(LocalDate fechaInicio, LocalDate fechaFin) {
+        List<String> periodos = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+
+        while (!fechaInicio.isAfter(fechaFin)) {
+            periodos.add(fechaInicio.format(formatter));
+            fechaInicio = fechaInicio.plusMonths(1); // Avanza un mes
+        }
+
+        return periodos;
     }
 
 }
