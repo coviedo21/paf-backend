@@ -22,7 +22,6 @@ public class DetalleCausanteDTO {
     private int tipoCausante;
     private int idBeneficio;
     private BigDecimal rentaPromedio;
-    private String tramo;
     private int diasReconocimiento;
     private int codigoTramo;
     private Date fechaFinVigencia;

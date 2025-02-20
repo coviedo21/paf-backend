@@ -206,9 +206,6 @@ public class CausanteDAOImpl implements CausanteDAO{
                 if (row.get("nRentaPromedio") != null) 
                     detalleDTO.setRentaPromedio((BigDecimal) row.get("nRentaPromedio"));
 
-                if (row.get("vcTramo") != null) 
-                    detalleDTO.setTramo((String) row.get("vcTramo"));
-
                 if (row.get("iDiasReconocimiento") != null) 
                     detalleDTO.setDiasReconocimiento((Integer) row.get("iDiasReconocimiento"));
 
