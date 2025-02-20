@@ -27,6 +27,6 @@ public class DetalleCausanteDTO {
     private int codigoTramo;
     private Date fechaFinVigencia;
     private Date fechaInicioVigencia;
-    private int iEstado;
+    private int estado;
 
 }

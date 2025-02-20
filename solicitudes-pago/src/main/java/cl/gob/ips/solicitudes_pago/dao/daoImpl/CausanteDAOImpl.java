@@ -152,7 +152,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("iCodigoTramo", causanteDTO.getCodigoTramo())
                 .addValue("dFechaFinVigencia", causanteDTO.getFechaFinVigencia())
                 .addValue("dFechaInicioVigencia", causanteDTO.getFechaInicioVigencia())
-                .addValue("iEstado", causanteDTO.getIEstado())
+                .addValue("iEstado", causanteDTO.getEstado())
                 .addValue("mensajeRespuesta", Types.VARCHAR);
 
         Map<String, Object> result = jdbcCall.execute(inParams);

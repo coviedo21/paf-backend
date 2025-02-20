@@ -58,28 +58,12 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
         // 2) Validación de Comuna de Dirección de Empleador
         agregarCriterioResolucion(idSolicitud, 2, true, null,null,null);
         
-        // 6) Relación Laboral Vigente Durante el Período de Compensación
-        if (relacionLaboralVigenteDurantePeriodoCompensacion()) {
-            agregarCriterioResolucion(idSolicitud, 6, true, null,null,null);
-        } else {
-            solicitudAprobada = false;
-            agregarCriterioResolucion(idSolicitud, 6, false, null,null,null);
-        }
-
         // 7) Verificación de Relación Laboral Vigente
         if (verificarRelacionLaboralVigente()) {
             agregarCriterioResolucion(idSolicitud, 7, true, null,null,null);
         } else {
             solicitudAprobada = false;
             agregarCriterioResolucion(idSolicitud, 7, false, null,null,null);
-        }
-
-        // 9) Verificación de Pago en Cuenta Corriente
-        if (verificarPagoCuentaCorriente()) {
-            agregarCriterioResolucion(idSolicitud, 9, true, null,null,null);
-        } else {
-            solicitudAprobada = false;
-            agregarCriterioResolucion(idSolicitud, 9, false, null,null,null);
         }
 
         for(CriterioSolicitudDTO criterio: listaCriterios){
@@ -92,13 +76,8 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
             agregarCriterioCausante(causante.getIIdCausanteSolicitud(),1,true,null,null,null);
            
             // 3) Validación de Período de Compensación
-            if (validarPeriodoCompensacion()) {
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 3, true, null,null,null);
-            } else {
-                solicitudAprobada = false;
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 3, false, null,null,null);
-            }    
-            
+              
             // 4) Validación de Duplicidad de Solicitud
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 4, true, null,null,null);
             
@@ -106,13 +85,8 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 5, true, null,null,null); 
 
             // 8) Verificación de Vigencia del Causante
-            if (verificarVigenciaCausante()) {
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 8, true, null,null,null);
-            } else {
-                solicitudAprobada = false;
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 8, false, null,null,null);
-            }
-
+            
             // 10) Verificación de Retenciones Judiciales
             if (verificarRetencionesJudiciales(String.valueOf(causante.getRutCausante()))) {
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 10, true, null,null,null);
