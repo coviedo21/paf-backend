@@ -64,6 +64,7 @@
 			<groupId>com.oracle.database.jdbc</groupId>
 			<artifactId>ojdbc8</artifactId>			<!-- ojdbc6 para versiones anteriores de Oracle -->
 			<version>19.8.0.0</version>			<!-- La versión puede variar según tu configuración -->
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>

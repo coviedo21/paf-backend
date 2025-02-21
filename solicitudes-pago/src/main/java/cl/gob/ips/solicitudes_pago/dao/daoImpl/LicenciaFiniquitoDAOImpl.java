@@ -103,6 +103,8 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
 
             Map<String, Object> result = jdbcCall.execute(inParams);
 
+            log.info(result.get("idLicFin"));
+
             respuesta.put("Estado", "OK");
             respuesta.put("Mensaje", "Se a creado el registro con el id: " + result.get("idLicFin"));
 

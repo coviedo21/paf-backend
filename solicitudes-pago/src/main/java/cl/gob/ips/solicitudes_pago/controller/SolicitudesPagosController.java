@@ -1,56 +1,22 @@
 package cl.gob.ips.solicitudes_pago.controller;
 
-import java.text.SimpleDateFormat;
+import cl.gob.ips.solicitudes_pago.dao.PersonaDAO;
+import cl.gob.ips.solicitudes_pago.dto.*;
+import cl.gob.ips.solicitudes_pago.service.*;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import cl.gob.ips.solicitudes_pago.dto.AuditoriaSolicitudDTO;
-import cl.gob.ips.solicitudes_pago.dto.CausanteCuentaCorrienteDTO;
-import cl.gob.ips.solicitudes_pago.dto.CausanteDTO;
-import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
-import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
-import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
-import cl.gob.ips.solicitudes_pago.dto.DerechoCausanteRequestDTO;
-import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
-import cl.gob.ips.solicitudes_pago.dto.DetallePersonaDTO;
-import cl.gob.ips.solicitudes_pago.dto.LicenciaFiniquitoDTO;
-import cl.gob.ips.solicitudes_pago.dto.LicenciaFiniquitoInputDTO;
-import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
-import cl.gob.ips.solicitudes_pago.dto.OrigenDTO;
-import cl.gob.ips.solicitudes_pago.dto.RechazoSolicitudDTO;
-import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
-import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
-import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
-import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
-import cl.gob.ips.solicitudes_pago.service.AuditoriaService;
-import cl.gob.ips.solicitudes_pago.service.CausanteService;
-import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
-import cl.gob.ips.solicitudes_pago.service.LicenciaFiniquitoService;
-import cl.gob.ips.solicitudes_pago.service.PersonaService;
-import cl.gob.ips.solicitudes_pago.service.SolicitudPagoService;
-import cl.gob.ips.solicitudes_pago.service.UtilService;
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RestController
@@ -79,6 +45,9 @@ public class SolicitudesPagosController {
 
     @Autowired
     private LicenciaFiniquitoService licenciaFiniquitoService;
+
+    @Autowired
+    private PersonaDAO personaDAO;
 
     @GetMapping("/obtenerCriterio/{id}")
     public ResponseEntity<List<CriterioSolicitudDTO>> consultarCriterio(@PathVariable("id") Integer id) {
@@ -505,6 +474,23 @@ public class SolicitudesPagosController {
             return ResponseEntity.ok(detalleCausante);
         } else {
             return ResponseEntity.noContent().build();
+        }
+    }
+
+    @GetMapping("/persona/{rut}")
+    public ResponseEntity<List<PersonaDTO>> obtenerPersona(@PathVariable int rut) {
+        try {
+            List<PersonaDTO>  personaDTOS = personaService.obtenerDetallePersona(rut);
+
+            if (personaDTOS.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(personaDTOS);
+//                return ResponseEntity.noContent().build();
+            } else {
+                return ResponseEntity.ok(personaDTOS);
+            }
+        } catch (Exception e) {
+            log.error("ERROR: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
