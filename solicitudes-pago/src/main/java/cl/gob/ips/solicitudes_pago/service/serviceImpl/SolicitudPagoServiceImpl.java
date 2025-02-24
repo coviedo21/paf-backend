@@ -107,7 +107,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         return solicitudPagoDAO.filtrarSolicitudesPago(texto);    
     }
 
-    public List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSolicitante, int idEstado) {
+    public List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSolicitante, Integer idEstado) {
         return solicitudPagoDAO.obtenerSolicitudesPorProceso(idProceso, tipoSolicitante, idEstado);
     }
 

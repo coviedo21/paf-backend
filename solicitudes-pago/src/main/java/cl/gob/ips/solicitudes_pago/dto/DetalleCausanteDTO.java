@@ -27,5 +27,6 @@ public class DetalleCausanteDTO {
     private Date fechaFinVigencia;
     private Date fechaInicioVigencia;
     private int estado;
+    private String nombreEstado;
 
 }

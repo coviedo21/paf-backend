@@ -218,6 +218,9 @@ public class CausanteDAOImpl implements CausanteDAO{
                 if (row.get("dFechaInicioVigencia") != null) 
                     detalleDTO.setFechaInicioVigencia((Date) row.get("dFechaInicioVigencia"));
 
+                if (row.get("vcNombreEstado") != null) 
+                    detalleDTO.setNombreEstado((String) row.get("vcNombreEstado"));
+
                 detallesCausante.add(detalleDTO);
             }
 
