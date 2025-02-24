@@ -457,20 +457,30 @@ public class SolicitudesPagosController {
     }
 
     @PostMapping("/licenciaFiniquito")
-    public ResponseEntity<String> insertarLicenciaFiniquito(@RequestBody LicenciaFiniquitoInputDTO licenciaFiniquito) {
+    public ResponseEntity<ResponseDTO> insertarLicenciaFiniquito(@RequestBody LicenciaFiniquitoInputDTO licenciaFiniquito) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setTimestamp(new Date());
         try {
             HashMap<String, String> map = licenciaFiniquitoService.agregarLicenciaFiniquito(licenciaFiniquito);
 
             if (map.get("Estado").equals("OK")) {
-                return ResponseEntity.status(HttpStatus.CREATED).body(map.get("Mensaje"));
+                responseDTO.setCodigoRetorno(0);
+                responseDTO.setGlosaRetorno(map.get("Mensaje"));
+                return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(map.get("Mensaje"));
+                responseDTO.setCodigoRetorno(-1);
+                responseDTO.setGlosaRetorno(map.get("Mensaje"));
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
             log.error("ERROR: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            responseDTO.setCodigoRetorno(-1);
+            responseDTO.setGlosaRetorno(e.getMessage());
+            responseDTO.setTimestamp(new Date());
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @GetMapping("/obtenerDetalleCausantePorId/{idCausanteSolicitud}")
     public ResponseEntity<List<DetalleCausanteDTO>> obtenerDetalleCausantePorIdgit (@PathVariable("idCausanteSolicitud") Integer idCausanteSolicitud) {

@@ -106,16 +106,16 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
             log.info(result.get("idLicFin"));
 
             respuesta.put("Estado", "OK");
-            respuesta.put("Mensaje", "Se a creado el registro con el id: " + result.get("idLicFin"));
+            respuesta.put("Mensaje", "Se a creado el registro correctamente");
 
         } catch (DataIntegrityViolationException ex) {
             log.error(ex.getMessage());
             respuesta.put("Estado", "NOK");
-            respuesta.put("Mensaje", "Error al insertar la licencia o finiquito: " + ex.getLocalizedMessage());
+            respuesta.put("Mensaje", ex.getLocalizedMessage());
         } catch (UncategorizedSQLException ex) {
             log.error(ex.getMessage());
             respuesta.put("Estado", "NOK");
-            respuesta.put("Mensaje", "Error al insertar la licencia o finiquito: " + ex.getSQLException());
+            respuesta.put("Mensaje", ex.getCause().getMessage());
         }
         return respuesta;
     }
