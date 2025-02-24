@@ -185,8 +185,13 @@ public class SolicitudesPagosController {
     }
     
     @GetMapping("/obtenerSolicitudesPorProceso/{idProceso}/{idTipoSolicitante}")
-    public ResponseEntity<List<SolicitudDTO>> obtenerSolicitudesPorProceso(@PathVariable("idProceso") int idProceso,@PathVariable("idTipoSolicitante") int idTipoSolicitante) {
-        List<SolicitudDTO> solicitudes = solicitudPagoService.obtenerSolicitudesPorProceso(idProceso, idTipoSolicitante);
+    public ResponseEntity<List<SolicitudDTO>> obtenerSolicitudesPorProceso(
+            @PathVariable("idProceso") int idProceso,
+            @PathVariable("idTipoSolicitante") int idTipoSolicitante,
+            @RequestParam(value = "idEstado", required = false) Integer idEstado) {
+    
+        List<SolicitudDTO> solicitudes = solicitudPagoService.obtenerSolicitudesPorProceso(idProceso, idTipoSolicitante, idEstado);
+    
         if (solicitudes != null && !solicitudes.isEmpty()) {
             return ResponseEntity.ok(solicitudes);
         } else {

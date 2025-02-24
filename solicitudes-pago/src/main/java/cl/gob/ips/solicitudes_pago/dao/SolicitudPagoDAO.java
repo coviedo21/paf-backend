@@ -15,7 +15,7 @@ public interface SolicitudPagoDAO {
     List<SolicitudDTO> consultarSolicitudPago(Integer idSolicitud);
     boolean actualizarSolicitudPago(SolicitudDTO solicitudPago);
     List<SolicitudDTO> filtrarSolicitudesPago(String texto);
-    List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSolicitante);
+    List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSolicitante, int idEstado);
     boolean actualizarIdProceso(int iIdSolicitud, int nuevoIdProceso);
     int insertarResolucion(ResolucionDTO resolucionDTO);
     List<TipoSolicitanteDTO> obtenerTiposSolicitante();

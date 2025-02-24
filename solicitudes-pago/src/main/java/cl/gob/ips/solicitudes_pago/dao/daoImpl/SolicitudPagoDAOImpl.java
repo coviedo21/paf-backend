@@ -588,10 +588,10 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
     }
 
     @Override
-    public List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSolicitante) {
-        String sql = "SELECT * FROM paf.fn_ObtenerSolicitudesPorProceso(?, ?)";
+    public List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSolicitante, int idEstado) {
+        String sql = "SELECT * FROM paf.fn_ObtenerSolicitudesPorProceso(?, ?, ?)";
 
-        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, idProceso, tipoSolicitante);
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, idProceso, tipoSolicitante, idEstado);
 
         List<SolicitudDTO> solicitudes = new ArrayList<>();
 
