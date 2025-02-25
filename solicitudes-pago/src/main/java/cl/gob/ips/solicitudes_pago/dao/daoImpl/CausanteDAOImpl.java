@@ -153,6 +153,8 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("dFechaFinVigencia", causanteDTO.getFechaFinVigencia())
                 .addValue("dFechaInicioVigencia", causanteDTO.getFechaInicioVigencia())
                 .addValue("iEstado", causanteDTO.getEstado())
+                .addValue("iRutEmpleador", causanteDTO.getRutEmpleador())
+                .addValue("vcDvEmpleador", causanteDTO.getDvEmpleador())
                 .addValue("mensajeRespuesta", Types.VARCHAR);
 
         Map<String, Object> result = jdbcCall.execute(inParams);
@@ -220,6 +222,12 @@ public class CausanteDAOImpl implements CausanteDAO{
 
                 if (row.get("vcNombreEstado") != null) 
                     detalleDTO.setNombreEstado((String) row.get("vcNombreEstado"));
+
+                if (row.get("iRutEmpleador") != null) 
+                    detalleDTO.setRutEmpleador((Integer) row.get("iRutEmpleador"));    
+
+                if (row.get("vcDvEmpleador") != null) 
+                    detalleDTO.setDvEmpleador((String) row.get("dvRutEmpleador"));
 
                 detallesCausante.add(detalleDTO);
             }
