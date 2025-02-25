@@ -12,6 +12,7 @@ import cl.gob.ips.solicitudes_pago.dao.SolicitudPagoDAO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.EstadosSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
 import cl.gob.ips.solicitudes_pago.dto.RechazoSolicitudDTO;
@@ -123,6 +124,10 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         return solicitudPagoDAO.obtenerTiposSolicitante();
     }
 
+    public List<EstadosSolicitudDTO> obtenerEstadosSolicitud(){
+        return solicitudPagoDAO.obtenerEstadosSolicitud();
+    }
+
     public List<CausanteSolicitudDTO> obtenerCausantesPorSolicitud(int idSolicitud){
         return solicitudPagoDAO.obtenerCausantesPorSolicitud(idSolicitud);
     }
@@ -185,6 +190,8 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
     public List<MotivoRechazoDTO> obtenerMotivosRechazo(){
         return solicitudPagoDAO.obtenerMotivosRechazo();
     }
+
+    
 
     public boolean rechazarSolicitud(RechazoSolicitudDTO rechazoSolicitudDTO){
         SolicitudDTO solicitud = solicitudPagoDAO.consultarSolicitudPago(rechazoSolicitudDTO.getIdSolicitud()).get(0);

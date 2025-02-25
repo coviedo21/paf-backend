@@ -2,6 +2,7 @@ package cl.gob.ips.solicitudes_pago.dao.daoImpl;
 
 import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
+import cl.gob.ips.solicitudes_pago.dto.EstadosSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
 //import cl.gob.ips.solicitudes_pago.dto.ProcesoDTO;
@@ -729,6 +730,24 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
         }
 
         return tiposSolicitante;
+    }
+
+    @Override
+    public List<EstadosSolicitudDTO> obtenerEstadosSolicitud() {
+        String sql = "SELECT * FROM paf.vw_EstadoResolucion";
+
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
+
+        List<EstadosSolicitudDTO> estadosSolicitud = new ArrayList<>();
+
+        for (Map<String, Object> row : results) {
+            EstadosSolicitudDTO estadosSolicitudDTO = new EstadosSolicitudDTO();
+            if (row.get("iIdEstadoResolucion") != null) estadosSolicitudDTO.setIdEstadoResolucion((Integer) row.get("iIdEstadoResolucion"));
+            if (row.get("nombre") != null) estadosSolicitudDTO.setNombre((String) row.get("nombre"));
+            estadosSolicitud.add(estadosSolicitudDTO);
+        }
+
+        return estadosSolicitud;
     }
 
     @Override

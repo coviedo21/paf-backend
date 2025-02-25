@@ -3,6 +3,7 @@ package cl.gob.ips.solicitudes_pago.dao;
 import java.util.List;
 
 import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.EstadosSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
@@ -29,4 +30,5 @@ public interface SolicitudPagoDAO {
     List<SolicitudDTO> obtenerSolicitudesPorOrigen(Integer origen, Integer proceso, Integer estado);
     List<MotivoRechazoDTO> obtenerMotivosRechazo();
     MotivoRechazoDTO obtenerMotivoRechazoPorId(int idMotivoRechazo);
+    List<EstadosSolicitudDTO> obtenerEstadosSolicitud();
 }

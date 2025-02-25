@@ -533,4 +533,14 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("/obtenerEstadosSolicitud")
+    public ResponseEntity<List<EstadosSolicitudDTO>> obtenerEstadosSolicitud() {
+        List<EstadosSolicitudDTO> estadosSolicitud = solicitudPagoService.obtenerEstadosSolicitud();
+        if (estadosSolicitud != null && !estadosSolicitud.isEmpty()) {
+            return ResponseEntity.ok(estadosSolicitud);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
 }
