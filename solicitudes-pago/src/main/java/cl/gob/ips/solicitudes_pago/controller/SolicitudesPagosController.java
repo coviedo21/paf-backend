@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -333,13 +335,36 @@ public class SolicitudesPagosController {
     }
 
     
-    @PostMapping("/obtenerDerechoCausantes")
-    public ResponseEntity<?> obtenerDerechoCausantes(@RequestBody DerechoCausanteRequestDTO request) {
+@PostMapping("/obtenerDerechoCausantes")
+public ResponseEntity<?> obtenerDerechoCausantes(@RequestBody DerechoCausanteRequestDTO request) {
         
-        try {
-            List<CausanteCuentaCorrienteDTO> derechoCausantes = causanteService.obtenerDerechoCausantes(
-                    request.getRutCausante(), request.getRutBeneficiario(), request.getPeriodoDesde(), request.getPeriodoHasta(), request.getTipoCausante());
+// Obtener la fecha actual
+LocalDate fechaActual = LocalDate.now();
 
+// Formateador para obtener el período en formato "yyyyMM"
+DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+
+// Calcular el período final (año y mes de la fecha actual)
+String periodoFinal = fechaActual.format(formatter);
+
+// Calcular el período de inicio (restando 5 años)
+String periodoInicio = fechaActual.minusYears(5).format(formatter);
+
+// Imprimir resultados
+System.out.println("Período Final: " + periodoFinal); // Ejemplo: "202402"
+System.out.println("Período Inicio: " + periodoInicio); // Ejemplo: "201902"
+
+List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
+        try {
+            if(request.getPeriodoDesde()!=null && request.getPeriodoHasta()!=null){
+                derechoCausantes = causanteService.obtenerDerechoCausantes(
+                    request.getRutCausante(), request.getRutBeneficiario(), request.getPeriodoDesde(), request.getPeriodoHasta(), request.getTipoCausante());    
+            }
+            else{
+                derechoCausantes = causanteService.obtenerDerechoCausantes(
+                    request.getRutCausante(), request.getRutBeneficiario(), periodoInicio, periodoFinal, request.getTipoCausante());
+            }    
+            
             if (derechoCausantes != null && !derechoCausantes.isEmpty()) {
                 return ResponseEntity.ok(derechoCausantes);
             } else {

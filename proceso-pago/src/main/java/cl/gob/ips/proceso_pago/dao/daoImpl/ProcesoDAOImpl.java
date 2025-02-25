@@ -38,41 +38,85 @@ public class ProcesoDAOImpl implements ProcesoDAO {
 
     @Override
     public int insertarProceso(ProcesoDTO insertarProcesoDTO) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withSchemaName(esquema)
-                .withProcedureName("SP_InsertarProceso")
-                .declareParameters(
-                        new SqlParameter("iIdUsuario", Types.INTEGER),
-                        new SqlParameter("iPagosTotales", Types.INTEGER),
-                        new SqlParameter("iAprobados", Types.INTEGER),
-                        new SqlParameter("iRechazados", Types.INTEGER),
-                        new SqlParameter("iIdEstado", Types.INTEGER),
-                        new SqlParameter("dFechaCreacion", Types.DATE),
-                        new SqlParameter("dFechaEjecucion", Types.DATE),
-                        new SqlParameter("vcPeriodo", Types.VARCHAR),
-                        new SqlOutParameter("mensajeRespuesta", Types.VARCHAR),
-                        new SqlOutParameter("idProceso", Types.INTEGER));
+        int idProcesoFinal = 0;
+        boolean crearProceso = false;
 
-        MapSqlParameterSource inParams = new MapSqlParameterSource()
-                .addValue("iIdUsuario", insertarProcesoDTO.getIdUsuario())
-                .addValue("iPagosTotales", insertarProcesoDTO.getPagosTotales())
-                .addValue("iAprobados", insertarProcesoDTO.getAprobados())
-                .addValue("iRechazados", insertarProcesoDTO.getRechazados())
-                .addValue("iIdEstadoProceso", insertarProcesoDTO.getIdEstado())
-                .addValue("dFechaCreacion", insertarProcesoDTO.getFechaCreacion())
-                .addValue("dFechaEjecucion", insertarProcesoDTO.getFechaEjecucion())
-                .addValue("vcPeriodo", insertarProcesoDTO.getPeriodo());
-
-        try {
-            Map<String, Object> result = jdbcCall.execute(inParams);
-            String mensajeRespuesta = (String) result.get("mensajeRespuesta");
-        System.out.println("Mensaje de Respuesta: " + mensajeRespuesta);
-        //Una vez insertado el proceso se insertan las relaciones Proceso/Tipo Solicitante
-        insertarProcesoTipoSolicitante((Integer) result.get("idProceso"),insertarProcesoDTO.getListaTipoSolicitante());
-            return (Integer) result.get("idProceso");
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-            return 0;
+        // 1) Recorrer lista de tipo de solicitante
+        for (Integer idTipoSolicitante : insertarProcesoDTO.getListaTipoSolicitante()) {
+            if (existeSolicitudPendiente(idTipoSolicitante)) {
+                crearProceso = true;
+                break; // 3) Salimos del bucle al encontrar la primera coincidencia
+            }
         }
+
+        // 4) Si la bandera está activa, creamos el proceso
+        if (crearProceso) {
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
+                    .withSchemaName(esquema)
+                    .withProcedureName("SP_InsertarProceso")
+                    .declareParameters(
+                            new SqlParameter("iIdUsuario", Types.INTEGER),
+                            new SqlParameter("iPagosTotales", Types.INTEGER),
+                            new SqlParameter("iAprobados", Types.INTEGER),
+                            new SqlParameter("iRechazados", Types.INTEGER),
+                            new SqlParameter("iIdEstadoProceso", Types.INTEGER),
+                            new SqlParameter("dFechaCreacion", Types.DATE),
+                            new SqlParameter("dFechaEjecucion", Types.DATE),
+                            new SqlParameter("vcPeriodo", Types.VARCHAR),
+                            new SqlOutParameter("mensajeRespuesta", Types.VARCHAR),
+                            new SqlOutParameter("idProceso", Types.INTEGER));
+
+            MapSqlParameterSource inParams = new MapSqlParameterSource()
+                    .addValue("iIdUsuario", insertarProcesoDTO.getIdUsuario())
+                    .addValue("iPagosTotales", insertarProcesoDTO.getPagosTotales())
+                    .addValue("iAprobados", insertarProcesoDTO.getAprobados())
+                    .addValue("iRechazados", insertarProcesoDTO.getRechazados())
+                    .addValue("iIdEstadoProceso", insertarProcesoDTO.getIdEstado())
+                    .addValue("dFechaCreacion", insertarProcesoDTO.getFechaCreacion())
+                    .addValue("dFechaEjecucion", insertarProcesoDTO.getFechaEjecucion())
+                    .addValue("vcPeriodo", insertarProcesoDTO.getPeriodo());
+
+            try {
+                Map<String, Object> result = jdbcCall.execute(inParams);
+                String mensajeRespuesta = (String) result.get("mensajeRespuesta");
+                System.out.println("Mensaje de Respuesta: " + mensajeRespuesta);
+
+                Integer idProceso = (Integer) result.get("idProceso");
+
+                // Si se generó un proceso, guardamos el ID
+                if (idProceso != null && idProceso > 0) {
+                    idProcesoFinal = idProceso;
+                    // Insertar las relaciones Proceso/Tipo Solicitante
+                    insertarProcesoTipoSolicitante(idProceso, insertarProcesoDTO.getListaTipoSolicitante());
+                }
+            } catch (Exception e) {
+                System.out.println("ERROR al insertar proceso: " + e.getMessage());
+            }
+        } else {
+            return -1;
+            //System.out.println("No se insertó el proceso porque no hay solicitudes pendientes.");
+        }
+
+        return idProcesoFinal;
+    }
+
+    public boolean existeSolicitudPendiente(Integer idTipoSolicitante) {
+        String sql = "SELECT paf.fn_ExisteSolicitudPendiente(?) AS existeSolicitud";
+    
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{idTipoSolicitante});
+    
+        if (!results.isEmpty()) {
+            Map<String, Object> row = results.get(0);
+            Object value = row.get("existeSolicitud");
+    
+            if (value instanceof Boolean) {
+                return (Boolean) value; // Devuelve directamente el booleano si ya está en este formato
+            } else if (value instanceof Number) {
+                return ((Number) value).intValue() == 1; // Convierte números (ej. Integer, Long, Short) a booleano
+            }
+        }
+    
+        return false;
     }
 
 @Override
