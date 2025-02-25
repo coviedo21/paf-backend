@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
 import cl.gob.ips.solicitudes_pago.dao.LicenciaFiniquitoDAO;
+import cl.gob.ips.solicitudes_pago.dto.DetalleLicenciaFiniquitoDTO;
 import cl.gob.ips.solicitudes_pago.dto.LicenciaFiniquitoDTO;
 import cl.gob.ips.solicitudes_pago.dto.LicenciaFiniquitoInputDTO;
 import lombok.extern.log4j.Log4j2;
@@ -62,6 +63,29 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
                 licenciaFiniquitoDTOS.add(licenciaFiniquitoDTO);
             }
             return licenciaFiniquitoDTOS;
+        } catch (EmptyResultDataAccessException ex) {
+            log.error(ex.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public List<DetalleLicenciaFiniquitoDTO> obtenerDetalleLicenciaFiniquito(int idLicFin) {
+        try {
+            String sql = "SELECT * FROM " + esquema + ".fn_ObtenerDetalleLicenciaFiniquito(?)";
+
+            List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{idLicFin});
+
+            List<DetalleLicenciaFiniquitoDTO> detalleLicenciaFiniquitoDTOS = new ArrayList<>();
+            for (Map<String, Object> row : results) {
+                DetalleLicenciaFiniquitoDTO detalleLicenciaFiniquitoDTO = new DetalleLicenciaFiniquitoDTO();
+                if (row.get("iIdDetalleLicenFiniq") != null) detalleLicenciaFiniquitoDTO.setIIdDetalleLicenFiniq((Integer) row.get("idLicFin"));
+                if (row.get("idLicFin") != null) detalleLicenciaFiniquitoDTO.setIdLicFin((Integer) row.get("idLicFin"));
+                if (row.get("dPeriodo") != null) detalleLicenciaFiniquitoDTO.setDPeriodo((Date) row.get("dPeriodo"));
+                if (row.get("iMonto") != null) detalleLicenciaFiniquitoDTO.setIMonto((Integer) row.get("iMonto"));
+                detalleLicenciaFiniquitoDTOS.add(detalleLicenciaFiniquitoDTO);
+            }
+            return detalleLicenciaFiniquitoDTOS;
         } catch (EmptyResultDataAccessException ex) {
             log.error(ex.getMessage());
             return Collections.emptyList();
