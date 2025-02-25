@@ -46,7 +46,15 @@ public class ProcesoPagoController {
 
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
-        } else {
+        } 
+        
+        if(resultado==-1){
+            responseDTO.setCodigoRetorno(-1);
+            responseDTO.setGlosaRetorno("No se creó proceso de pago ya que no existen solicitudes pendientes por asignar.");
+            Date currentDate = new Date();
+            responseDTO.setTimestamp(currentDate);
+            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+        }else {
             responseDTO.setCodigoRetorno(-1);
             responseDTO.setGlosaRetorno("No se creó el proceso.");
             Date currentDate = new Date();

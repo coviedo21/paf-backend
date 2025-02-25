@@ -90,7 +90,6 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
         if(idSolicitud>0){
             if(esArchivo){
                 SolicitudDTO solicitud = consultarSolicitudPago(idSolicitud).get(0);
-                if(solicitud.getIdEstado()<4){
                     if (!solicitud.getFechaSolicitud().before(solicitudPago.getFechaSolicitud())) {
                         //Fecha menor es del archivo, se rechaza la que ya existe.
                         ResolucionDTO resolucion = new ResolucionDTO();
@@ -118,7 +117,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         response.setResultado(0);
                         return response; // Detener si se encuentra un duplicado*/
                     }
-                }
+            
             }
             else{
                 System.out.println("Validación fallida: " + mensajeRespuesta);

@@ -1,6 +1,7 @@
 package cl.gob.ips.solicitudes_pago.service.serviceImpl;
 
 import cl.gob.ips.solicitudes_pago.dao.LicenciaFiniquitoDAO;
+import cl.gob.ips.solicitudes_pago.dto.DetalleLicenciaFiniquitoDTO;
 import cl.gob.ips.solicitudes_pago.dto.LicenciaFiniquitoDTO;
 import cl.gob.ips.solicitudes_pago.dto.LicenciaFiniquitoInputDTO;
 import cl.gob.ips.solicitudes_pago.service.LicenciaFiniquitoService;
@@ -19,6 +20,11 @@ public class LicenciaFiniquitoServiceImpl implements LicenciaFiniquitoService {
 
     public List<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(int rutBeneficiario, String nroLicencia, String fechaInicio, String fechaFin) {
         return licenciaFiniquitoDAO.obtenerLicenciaFiniquito(rutBeneficiario, nroLicencia, fechaInicio, fechaFin);
+    }
+
+    @Override
+    public List<DetalleLicenciaFiniquitoDTO> obtenerDetalleLicenciaFiniquito(int idLicFin) {
+        return licenciaFiniquitoDAO.obtenerDetalleLicenciaFiniquito(idLicFin);
     }
 
     @Override
