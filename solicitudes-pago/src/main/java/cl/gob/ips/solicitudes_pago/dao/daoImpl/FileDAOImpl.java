@@ -142,7 +142,7 @@ public class FileDAOImpl implements FileDAO{
                 
                 causante.setDetalle(listaDetalle);
                 causante.setVcPeriodosAprobados(primerPeriodo+" a "+ultimoPeriodo);
-                causante.setTotalPagar(totalPagar);
+                causante.setTotalReconocimiento(totalPagar);
                 listaCausantes.add(causante);
                 solicitud.setTipoSolicitante(2); //Empleador si es previred
                 solicitud.setOrigen(Integer.parseInt(archivo.getOrigen()));

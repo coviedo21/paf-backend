@@ -296,7 +296,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                             new SqlParameter("dFechaInicioRango", Types.DATE),
                             new SqlParameter("dFechaFinRango", Types.DATE),
                             new SqlParameter("vcPeriodosAprobados", Types.VARCHAR),
-                            new SqlParameter("mTotalPagar", Types.DECIMAL),
+                            new SqlParameter("mTotalReconocimiento", Types.DECIMAL),
                             new SqlOutParameter("iIdCausanteSolicitud", Types.INTEGER),
                             new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                     );
@@ -311,7 +311,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                     .addValue("dFechaInicioRango", causante.getFechaInicioRango())
                     .addValue("dFechaFinRango", causante.getFechaFinRango())
                     .addValue("vcPeriodosAprobados", causante.getVcPeriodosAprobados())
-                    .addValue("mTotalPagar", causante.getTotalPagar());
+                    .addValue("mTotalReconocimiento", causante.getTotalReconocimiento());
     
             try {
                 Map<String, Object> resultCausante = jdbcCallCausante.execute(inParamsCausante);
@@ -771,7 +771,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             causanteSolicitudDTO.setFechaFinRango(((Date) row.get("dFechaFinRango")).toLocalDate());
 
             causanteSolicitudDTO.setVcPeriodosAprobados((String) row.get("vcPeriodosAprobados"));
-            causanteSolicitudDTO.setTotalPagar((BigDecimal) row.get("mTotalPagar"));
+            causanteSolicitudDTO.setTotalReconocimiento((BigDecimal) row.get("mTotalReconocimiento"));
 
             causantesSolicitud.add(causanteSolicitudDTO);
         }
@@ -815,7 +815,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("dFechaInicioRango", Types.DATE),
                         new SqlParameter("dFechaFinRango", Types.DATE),
                         new SqlParameter("vcPeriodosAprobados", Types.VARCHAR),
-                        new SqlParameter("mTotalPagar", Types.DECIMAL),
+                        new SqlParameter("mTotalReconocimiento", Types.DECIMAL),
                         new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                 );
 
@@ -829,7 +829,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("dFechaInicioRango", causanteSolicitud.getFechaInicioRango())
                 .addValue("dFechaFinRango", causanteSolicitud.getFechaFinRango())
                 .addValue("vcPeriodosAprobados", causanteSolicitud.getVcPeriodosAprobados())
-                .addValue("mTotalPagar", causanteSolicitud.getTotalPagar());
+                .addValue("mTotalReconocimiento", causanteSolicitud.getTotalReconocimiento());
 
         try {
             Map<String, Object> result = jdbcCall.execute(inParams);
