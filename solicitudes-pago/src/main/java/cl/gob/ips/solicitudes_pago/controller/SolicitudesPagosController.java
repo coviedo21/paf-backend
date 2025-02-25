@@ -456,6 +456,22 @@ public class SolicitudesPagosController {
         }
     }
 
+    @GetMapping("/DetallelicenciaFiniquito")
+    public ResponseEntity<List<DetalleLicenciaFiniquitoDTO>> obtenerDetalleLicenciaFiniquito(@Param("idLicFin") Integer idLicFin) {
+        try {
+            List<DetalleLicenciaFiniquitoDTO> detalleLicenciaFiniquitoDTOs = licenciaFiniquitoService.obtenerDetalleLicenciaFiniquito(idLicFin);
+
+            if (null != detalleLicenciaFiniquitoDTOs) {
+                return ResponseEntity.ok(detalleLicenciaFiniquitoDTOs);
+            } else {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @PostMapping("/licenciaFiniquito")
     public ResponseEntity<ResponseDTO> insertarLicenciaFiniquito(@RequestBody LicenciaFiniquitoInputDTO licenciaFiniquito) {
         ResponseDTO responseDTO = new ResponseDTO();
