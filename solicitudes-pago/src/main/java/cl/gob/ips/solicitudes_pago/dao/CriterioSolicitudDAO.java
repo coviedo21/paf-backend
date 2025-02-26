@@ -1,5 +1,6 @@
 package cl.gob.ips.solicitudes_pago.dao;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
@@ -14,4 +15,6 @@ public interface CriterioSolicitudDAO {
     List<CriterioSolicitudCausanteDTO> consultarCriterioCausante(Integer idCausanteSolicitud);
     CriterioSolicitudDTO obtenerCriteriosPorIdCriterio(Integer idCriterioSolicitud);
     CriterioSolicitudCausanteDTO obtenerCriterioCausantePorIdCriterio(Integer idCriterioCausante);
+    boolean obtenerRelacionLaboral(Integer rutBeneficiario);
+    BigDecimal obtenerMontoDescuento(Integer rutBeneficiario);
 }

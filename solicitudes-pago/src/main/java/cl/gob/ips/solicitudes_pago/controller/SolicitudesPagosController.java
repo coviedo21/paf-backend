@@ -559,4 +559,20 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
             return ResponseEntity.noContent().build();
         }
     }
+
+    @GetMapping("/validarSolicitud/{idSolicitud}")
+    public ResponseEntity<ResponseDTO> validarSolicitud(@PathVariable("idSolicitud") Integer idSolicitud) {
+        
+        ResponseDTO responseDTO = new ResponseDTO();
+        boolean validacionCriterios = criterioSolicitudService.validarCriteriosResolucion(idSolicitud);
+        if (validacionCriterios) {
+            //Validar relacion laboral
+        } else {
+            responseDTO.setCodigoRetorno(-1);
+            responseDTO.setGlosaRetorno("Error al validar solicitud de pago.");
+            responseDTO.setTimestamp(new Date());
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

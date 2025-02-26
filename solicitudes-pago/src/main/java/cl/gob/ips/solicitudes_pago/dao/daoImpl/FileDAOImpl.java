@@ -21,6 +21,7 @@ import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.service.CausanteService;
+import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
 import cl.gob.ips.solicitudes_pago.service.SolicitudPagoService;
 
 @Repository
@@ -30,6 +31,9 @@ public class FileDAOImpl implements FileDAO{
 
     @Autowired
     CausanteService causanteService;
+
+    @Autowired
+    CriterioSolicitudService criterioSolicitudService;
 
     public String insertarSolicitud(ArchivoSolicitudDTO archivo){
         //List<SolicitudDTO> solicitudes = new ArrayList<>();
@@ -143,6 +147,7 @@ public class FileDAOImpl implements FileDAO{
                 causante.setDetalle(listaDetalle);
                 causante.setVcPeriodosAprobados(primerPeriodo+" a "+ultimoPeriodo);
                 causante.setTotalReconocimiento(totalPagar);
+                causante.setTotalPago(causante.getTotalReconocimiento().subtract(criterioSolicitudService.obtenerMontoDescuento(causante.getRutBeneficiario())));
                 listaCausantes.add(causante);
                 solicitud.setTipoSolicitante(2); //Empleador si es previred
                 solicitud.setOrigen(Integer.parseInt(archivo.getOrigen()));

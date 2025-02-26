@@ -1,5 +1,6 @@
 package cl.gob.ips.solicitudes_pago.service.serviceImpl;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -251,5 +252,13 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
  
     public CriterioSolicitudCausanteDTO obtenerCriterioCausantePorIdCriterio(Integer idCriterioCausante){
         return criterioSolicitudDAO.obtenerCriterioCausantePorIdCriterio(idCriterioCausante);
+    }
+
+    public boolean obtenerRelacionLaboral(Integer rutBeneficiario){
+        return criterioSolicitudDAO.obtenerRelacionLaboral(rutBeneficiario);
+    }
+    
+    public BigDecimal obtenerMontoDescuento(Integer rutBeneficiario){
+        return criterioSolicitudDAO.obtenerMontoDescuento(rutBeneficiario);
     }
 }

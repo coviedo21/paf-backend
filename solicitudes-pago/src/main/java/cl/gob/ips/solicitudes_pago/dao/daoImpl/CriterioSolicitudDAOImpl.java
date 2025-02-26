@@ -14,6 +14,7 @@ import cl.gob.ips.solicitudes_pago.dao.CriterioSolicitudDAO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
 
+import java.math.BigDecimal;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
@@ -263,6 +264,16 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
             System.err.println("ERROR al obtener el criterio causante: " + e.getMessage());
             return null; // Devuelve null si no se encuentra el registro o ocurre un error
         }
+    }
+
+    @Override
+    public boolean obtenerRelacionLaboral(Integer rutBeneficiario){
+        return false;
+    }
+    
+    @Override
+    public BigDecimal obtenerMontoDescuento(Integer rutBeneficiario){
+        return BigDecimal.ZERO;
     }
 
 }

@@ -3,7 +3,7 @@ package cl.gob.ips.solicitudes_pago.dto;
 import lombok.Data;
 
 @Data
-public class EmisionDTO {
+public class EmisionArchivoDTO {
     private String codInst;
     private String codMuni;
     private String Nis;

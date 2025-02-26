@@ -17,6 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,10 +55,13 @@ import cl.gob.ips.solicitudes_pago.dto.ArchivoResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
-import cl.gob.ips.solicitudes_pago.dto.EmisionDTO;
+import cl.gob.ips.solicitudes_pago.dto.EmisionArchivoDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
+import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
+import cl.gob.ips.solicitudes_pago.service.EmisionService;
 import cl.gob.ips.solicitudes_pago.service.FileService;
+import cl.gob.ips.solicitudes_pago.service.SolicitudPagoService;
 
 @RestController
 @CrossOrigin("*")
@@ -68,6 +73,12 @@ public class FileController {
 
     @Autowired
     private CriterioSolicitudService criterioSolicitudService;
+
+    @Autowired
+    private SolicitudPagoService solicitudPagoService;
+
+    @Autowired
+    private EmisionService emisionService;
 
     private final Map<String, String> estadoTareas = new ConcurrentHashMap<>();
     private final Map<String, String> mensajesTareas = new ConcurrentHashMap<>(); // Guarda la glosa de respuesta
@@ -510,8 +521,8 @@ public class FileController {
     }
 
     @PostMapping("/procesarEmision")
-    public List<EmisionDTO> procesarEmision(@RequestParam("file") MultipartFile file) {
-        List<EmisionDTO> registros = new ArrayList<>();
+    public List<EmisionArchivoDTO> procesarEmision(@RequestParam("file") MultipartFile file) {
+        List<EmisionArchivoDTO> registros = new ArrayList<>();
         int[] posiciones = {2, 3, 13, 1, 1, 2, 1, 1, 3, 3, 4, 1, 1, 40, 8, 40, 8, 8, 1, 8, 1, 2, 1, 8, 1, 1, 2, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7,1, 3, 5, 7, 7, 7, 7, 3, 4, 7, 1, 8, 7, 7, 7, 7, 7, 48, 15, 1, 1, 2, 2, 2, 2, 7, 8, 8, 10, 8};
         
         try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
@@ -521,7 +532,7 @@ public class FileController {
                     continue;
                 }
                 
-                EmisionDTO registro = new EmisionDTO();
+                EmisionArchivoDTO registro = new EmisionArchivoDTO();
                 int inicio = 0;
                 
                 String[] valores = new String[posiciones.length];
@@ -662,10 +673,46 @@ registro.setHDmonto15(valores[86]);
                 registro.setMontoPensActual(valores[108]);
                 registro.setFecIniPeriodo(valores[109]);
                 registro.setFecFinPago(valores[110]);
+                // Convertir a LocalDate
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate fechaInicio = LocalDate.parse(registro.getFecIniPeriodo(), formatter);
+
+        // Obtener el año y mes en formato "yyyy/MM"
+        String periodoInicio = fechaInicio.getYear() + "/" + String.format("%02d", fechaInicio.getMonthValue());
+
                 registro.setNroResol(valores[111]);
                 registro.setFecResol(valores[112]);
                 
                 registros.add(registro);
+                } //Fin While
+
+                if(emisionService.validarSolicitudesEmitidas(registros)){
+                    try {
+                        String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
+                        String fileShareName = "pagosafqa";
+                        String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            
+                        // Guardar temporalmente el archivo
+                        Path tempFile = Files.createTempFile("upload-", nombreRemoto);
+                        Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+            
+                        // Crear cliente para subir archivo a Azure
+                        ShareFileClient fileClient = new ShareFileClientBuilder()
+                                .connectionString(connectionString)
+                                .shareName(fileShareName)
+                                .resourcePath(nombreRemoto)
+                                .buildFileClient();
+            
+                        fileClient.create(file.getSize());
+                        fileClient.uploadFromFile(tempFile.toString());
+
+                        /*TO DO 
+                            Crear DTO para la tabla Emision y crear nuevo registro en esta tabla
+                            Asignando en el campo nombreArchivo el nombreRemoto.
+                        */
+                } catch (Exception e) {
+                    return registros;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -674,5 +721,88 @@ registro.setHDmonto15(valores[86]);
     }
 
 
+    @PostMapping("/subirEvidenciaFiniquitado")
+    public ResponseEntity<String> subirEvidenciaFiniquitado(@RequestParam("file") MultipartFile file, int idSolicitud) {
+        try {
+            String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
+            String fileShareName = "pagosafqa";
+            String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
 
+            // Guardar temporalmente el archivo
+            Path tempFile = Files.createTempFile("upload-", nombreRemoto);
+            Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+
+            // Crear cliente para subir archivo a Azure
+            ShareFileClient fileClient = new ShareFileClientBuilder()
+                    .connectionString(connectionString)
+                    .shareName(fileShareName)
+                    .resourcePath(nombreRemoto)
+                    .buildFileClient();
+
+            fileClient.create(file.getSize());
+            fileClient.uploadFromFile(tempFile.toString());
+
+            SolicitudDTO solicitud = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0);
+            solicitud.setFiniquito(nombreRemoto);
+            solicitudPagoService.actualizarSolicitudPago(solicitud);
+            return ResponseEntity.ok("✅ Archivo subido correctamente: " + nombreRemoto);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("❌ Error subiendo el archivo: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/descargarEvidenciaFiniquitado/{idSolicitud}")
+    public ResponseEntity<byte[]> descargarEvidenciaFiniquitado(@PathVariable int idSolicitud) {
+        String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
+            String fileShareName = "pagosafqa";
+            
+        try {
+            String rutaArchivo = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0).getFiniquito();
+            ShareFileClient fileClient = new ShareFileClientBuilder()
+                    .connectionString(connectionString)
+                    .shareName(fileShareName)
+                    .resourcePath(rutaArchivo)
+                    .buildFileClient();
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            fileClient.download(outputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDisposition(ContentDisposition.attachment().filename(rutaArchivo).build());
+
+            return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("Error al descargar archivo: " + e.getMessage()).getBytes());
+        }
+    }
+
+    @GetMapping("/descargarEvidenciaEmision/{idEmision}")
+    public ResponseEntity<byte[]> descargarEvidenciaEmisoin(@PathVariable int idEmision) {
+        /*String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
+            String fileShareName = "pagosafqa";
+            
+        try {
+            String rutaArchivo = emisionService.obtenerEmision(idEmision).getArhivo();
+            ShareFileClient fileClient = new ShareFileClientBuilder()
+                    .connectionString(connectionString)
+                    .shareName(fileShareName)
+                    .resourcePath(rutaArchivo)
+                    .buildFileClient();
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            fileClient.download(outputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDisposition(ContentDisposition.attachment().filename(rutaArchivo).build());
+
+            return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("Error al descargar archivo: " + e.getMessage()).getBytes());
+        }*/
+        return null;
+    }
 }

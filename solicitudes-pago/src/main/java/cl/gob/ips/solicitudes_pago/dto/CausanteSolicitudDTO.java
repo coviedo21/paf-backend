@@ -20,5 +20,6 @@ public class CausanteSolicitudDTO {
     private LocalDate fechaFinRango;
     private String vcPeriodosAprobados;
     private BigDecimal totalReconocimiento;
+    private BigDecimal totalPago;
     private List<DetalleCausanteDTO> detalle;
 }

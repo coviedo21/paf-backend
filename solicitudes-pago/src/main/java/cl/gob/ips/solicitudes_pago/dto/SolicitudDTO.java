@@ -3,6 +3,8 @@ package cl.gob.ips.solicitudes_pago.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -57,6 +59,7 @@ public class SolicitudDTO {
     private String nombreOrigen;
     private List<CausanteSolicitudDTO> listaCausantes;
     private String cumpleCriterios;
-    String ciudadEmpleador;
-    String motivoRechazo;
+    private String ciudadEmpleador;
+    private String motivoRechazo;
+    private BigDecimal montoHaber;
 }

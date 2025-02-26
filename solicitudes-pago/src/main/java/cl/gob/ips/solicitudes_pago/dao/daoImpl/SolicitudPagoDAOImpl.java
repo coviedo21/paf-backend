@@ -59,6 +59,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
     public ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago, boolean esArchivo) {
         ResponseDTO response = new ResponseDTO();
         boolean rechazar = false;
+        BigDecimal montoHaber = BigDecimal.ZERO;
         // Validación previa: Verificar duplicados
     SimpleJdbcCall validarDuplicadosCall = new SimpleJdbcCall(jdbcTemplate)
     .withSchemaName(esquema)
@@ -85,7 +86,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
         Map<String, Object> validationResult = validarDuplicadosCall.execute(inParams);
         int idSolicitud = (int) validationResult.get("idSolicitud");
         String mensajeRespuesta = (String) validationResult.get("mensajeRespuesta");
-
+        montoHaber = montoHaber.add(causante.getTotalPago());
         // Si se detecta un duplicado
         if(idSolicitud>0){
             if(esArchivo){
@@ -180,6 +181,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("vcNombreComuna", Types.VARCHAR),
                         new SqlParameter("vcNombreRegion", Types.VARCHAR),
                         new SqlParameter("vcCiudad", Types.VARCHAR),
+                        new SqlParameter("nMontoHaber", Types.VARCHAR),
                         new SqlOutParameter("idSolicitud", Types.INTEGER),
                         new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                 );
@@ -225,7 +227,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("folio", solicitudPago.getFolio())
                 .addValue("vcNombreComuna", solicitudPago.getNombreComuna())
                 .addValue("vcNombreRegion", solicitudPago.getNombreRegion())
-                .addValue("vcCiudad", solicitudPago.getCiudadEmpleador());
+                .addValue("vcCiudad", solicitudPago.getCiudadEmpleador())
+                .addValue("nMontoHaber", solicitudPago.getMontoHaber());
 
         try {
             Map<String, Object> result = jdbcCall.execute(inParams);
@@ -297,6 +300,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                             new SqlParameter("dFechaFinRango", Types.DATE),
                             new SqlParameter("vcPeriodosAprobados", Types.VARCHAR),
                             new SqlParameter("mTotalReconocimiento", Types.DECIMAL),
+                            new SqlParameter("mTotalPago", Types.DECIMAL),
                             new SqlOutParameter("iIdCausanteSolicitud", Types.INTEGER),
                             new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                     );
@@ -311,7 +315,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                     .addValue("dFechaInicioRango", causante.getFechaInicioRango())
                     .addValue("dFechaFinRango", causante.getFechaFinRango())
                     .addValue("vcPeriodosAprobados", causante.getVcPeriodosAprobados())
-                    .addValue("mTotalReconocimiento", causante.getTotalReconocimiento());
+                    .addValue("mTotalReconocimiento", causante.getTotalReconocimiento())
+                    .addValue("mTotalReconocimiento", causante.getTotalPago());
     
             try {
                 Map<String, Object> resultCausante = jdbcCallCausante.execute(inParamsCausante);
@@ -390,6 +395,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
             if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
             if (row.get("motivoRechazo") != null) solicitudPagoDTO.setMotivoRechazo((String) row.get("motivoRechazo"));
+            if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
             solicitudesPago.add(solicitudPagoDTO);
 
             // Consulta los causantes de la solicitud actual 
@@ -577,6 +583,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
             if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
                 if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
+                if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
             solicitudesPago.add(solicitudPagoDTO);
         }
         }catch(Exception e){
@@ -641,6 +648,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
                 if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
                 if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
+                if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
                 solicitudesPago.add(solicitudPagoDTO);
             }
 
@@ -772,6 +780,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
             causanteSolicitudDTO.setVcPeriodosAprobados((String) row.get("vcPeriodosAprobados"));
             causanteSolicitudDTO.setTotalReconocimiento((BigDecimal) row.get("mTotalReconocimiento"));
+            causanteSolicitudDTO.setTotalPago((BigDecimal) row.get("mTotalPago"));
 
             causantesSolicitud.add(causanteSolicitudDTO);
         }
@@ -816,6 +825,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("dFechaFinRango", Types.DATE),
                         new SqlParameter("vcPeriodosAprobados", Types.VARCHAR),
                         new SqlParameter("mTotalReconocimiento", Types.DECIMAL),
+                        new SqlParameter("mTotalPago", Types.DECIMAL),
                         new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                 );
 
@@ -829,7 +839,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("dFechaInicioRango", causanteSolicitud.getFechaInicioRango())
                 .addValue("dFechaFinRango", causanteSolicitud.getFechaFinRango())
                 .addValue("vcPeriodosAprobados", causanteSolicitud.getVcPeriodosAprobados())
-                .addValue("mTotalReconocimiento", causanteSolicitud.getTotalReconocimiento());
+                .addValue("mTotalReconocimiento", causanteSolicitud.getTotalReconocimiento())
+                .addValue("mTotalPago", causanteSolicitud.getTotalPago());
 
         try {
             Map<String, Object> result = jdbcCall.execute(inParams);
@@ -896,6 +907,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
                 if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
                 if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
+                if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
                 solicitudesPago.add(solicitudPagoDTO);
             }
 
@@ -949,6 +961,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("folio") != null) solicitudPagoDTO.setFolio((Long) row.get("folio"));
             if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
             if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
+            if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
             solicitudesPago.add(solicitudPagoDTO);
         }
 
@@ -992,6 +1005,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
             if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
             if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
+            if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
             solicitudes.add(solicitudPagoDTO);
         }
         
@@ -1035,6 +1049,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
             if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
             if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
+            if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
             solicitudes.add(solicitudPagoDTO);
         }
         
@@ -1078,6 +1093,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
             if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));        
             if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
+            if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
             solicitudes.add(solicitudPagoDTO);
         }
         
