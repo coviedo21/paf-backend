@@ -49,6 +49,9 @@ public class SolicitudesPagosController {
     private LicenciaFiniquitoService licenciaFiniquitoService;
 
     @Autowired
+    private EmisionService emisionService;
+
+    @Autowired
     private PersonaDAO personaDAO;
 
     @GetMapping("/obtenerCriterio/{id}")
@@ -356,19 +359,19 @@ System.out.println("Período Inicio: " + periodoInicio); // Ejemplo: "201902"
 
 List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         try {
-            if(request.getPeriodoDesde()!=null && request.getPeriodoHasta()!=null){
+            //if(request.getPeriodoDesde()!=null && request.getPeriodoHasta()!=null){
                 derechoCausantes = causanteService.obtenerDerechoCausantes(
                     request.getRutCausante(), request.getRutBeneficiario(), request.getPeriodoDesde(), request.getPeriodoHasta(), request.getTipoCausante());    
-            }
-            else{
-                derechoCausantes = causanteService.obtenerDerechoCausantes(
-                    request.getRutCausante(), request.getRutBeneficiario(), periodoInicio, periodoFinal, request.getTipoCausante());
-            }    
+            //}
+            //else{
+            //    derechoCausantes = causanteService.obtenerDerechoCausantes(
+            //        request.getRutCausante(), request.getRutBeneficiario(), periodoInicio, periodoFinal, request.getTipoCausante());
+            //}    
             
             if (derechoCausantes != null && !derechoCausantes.isEmpty()) {
                 return ResponseEntity.ok(derechoCausantes);
             } else {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No se encontraron registros.");
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No se han encontrado causantes con periodos aprobados menores a 5 años.");
             }
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error en los parámetros: " + e.getMessage());
@@ -376,8 +379,6 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor: " + e.getMessage());
         }
     }
-
-
 
     @GetMapping("/obtenerCausantes/{rutBeneficiario}")
     public ResponseEntity<List<CausanteDTO>> obtenerCausantes(@PathVariable("rutBeneficiario") Integer rutBeneficiario) {
@@ -575,5 +576,41 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping("/obtenerEmisiones")
+    public ResponseEntity<List<EmisionDTO>> obtenerEmisiones() {
+        List<EmisionDTO> emisiones = emisionService.obtenerEmisiones();
+        if (emisiones != null && !emisiones.isEmpty()) {
+            return ResponseEntity.ok(emisiones);
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
+
+    @PostMapping("/insertarEmision")
+    public ResponseEntity<ResponseDTO> crearProceso(
+            @RequestBody EmisionDTO emisionDTO) {
+
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setTimestamp(new Date());
+
+        int resultado = emisionService.insertarEmision(emisionDTO);
+
+        if (resultado>0){
+            responseDTO.setCodigoRetorno(0);
+            responseDTO.setGlosaRetorno("Emisión creada exitósamente!");
+            responseDTO.setResultado(resultado);
+
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        } 
+        else {
+            responseDTO.setCodigoRetorno(-1);
+            responseDTO.setGlosaRetorno("No se creó el registro de emisión.");
+            Date currentDate = new Date();
+            responseDTO.setTimestamp(currentDate);
+            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+        }
     }
 }
