@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class EstadosSolicitudDTO {
 
-    private int IdEstadoResolucion;
-    private String Nombre;
+    private int idEstadoResolucion;
+    private String nombre;
     
 }

@@ -481,12 +481,12 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         }
     }
 
-    @GetMapping("/DetallelicenciaFiniquito")
-    public ResponseEntity<List<DetalleLicenciaFiniquitoDTO>> obtenerDetalleLicenciaFiniquito(@Param("idLicFin") Integer idLicFin) {
+    @GetMapping("/DetallelicenciaFiniquito/{idLicFin}")
+    public ResponseEntity<List<DetalleLicenciaFiniquitoDTO>> obtenerDetalleLicenciaFiniquito(@PathVariable("idLicFin") Integer idLicFin) {
         try {
             List<DetalleLicenciaFiniquitoDTO> detalleLicenciaFiniquitoDTOs = licenciaFiniquitoService.obtenerDetalleLicenciaFiniquito(idLicFin);
 
-            if (null != detalleLicenciaFiniquitoDTOs) {
+            if (detalleLicenciaFiniquitoDTOs != null) {
                 return ResponseEntity.ok(detalleLicenciaFiniquitoDTOs);
             } else {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -496,6 +496,7 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     @PostMapping("/licenciaFiniquito")
     public ResponseEntity<ResponseDTO> insertarLicenciaFiniquito(@RequestBody LicenciaFiniquitoInputDTO licenciaFiniquito) {

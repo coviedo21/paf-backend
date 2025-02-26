@@ -741,7 +741,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Override
     public List<EstadosSolicitudDTO> obtenerEstadosSolicitud() {
-        String sql = "SELECT * FROM paf.vw_EstadoResolucion";
+        String sql = "SELECT idEstadoResolucion, nombre FROM paf.vw_EstadoResolucion";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
 
@@ -749,7 +749,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
         for (Map<String, Object> row : results) {
             EstadosSolicitudDTO estadosSolicitudDTO = new EstadosSolicitudDTO();
-            if (row.get("iIdEstadoResolucion") != null) estadosSolicitudDTO.setIdEstadoResolucion((Integer) row.get("iIdEstadoResolucion"));
+            if (row.get("idEstadoResolucion") != null) estadosSolicitudDTO.setIdEstadoResolucion((int) row.get("idEstadoResolucion"));
             if (row.get("nombre") != null) estadosSolicitudDTO.setNombre((String) row.get("nombre"));
             estadosSolicitud.add(estadosSolicitudDTO);
         }
