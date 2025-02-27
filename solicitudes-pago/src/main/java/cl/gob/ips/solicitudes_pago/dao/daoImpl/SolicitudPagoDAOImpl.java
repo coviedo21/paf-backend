@@ -59,7 +59,6 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
     public ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago, boolean esArchivo) {
         ResponseDTO response = new ResponseDTO();
         boolean rechazar = false;
-        BigDecimal montoHaber = BigDecimal.ZERO;
         // Validación previa: Verificar duplicados
     SimpleJdbcCall validarDuplicadosCall = new SimpleJdbcCall(jdbcTemplate)
     .withSchemaName(esquema)
@@ -86,7 +85,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
         Map<String, Object> validationResult = validarDuplicadosCall.execute(inParams);
         int idSolicitud = (int) validationResult.get("idSolicitud");
         String mensajeRespuesta = (String) validationResult.get("mensajeRespuesta");
-        montoHaber = montoHaber.add(causante.getTotalPago());
+        //montoHaber = montoHaber.add(causante.getTotalPago());
         // Si se detecta un duplicado
         if(idSolicitud>0){
             if(esArchivo){
@@ -316,7 +315,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                     .addValue("dFechaFinRango", causante.getFechaFinRango())
                     .addValue("vcPeriodosAprobados", causante.getVcPeriodosAprobados())
                     .addValue("mTotalReconocimiento", causante.getTotalReconocimiento())
-                    .addValue("mTotalReconocimiento", causante.getTotalPago());
+                    .addValue("mTotalPago", causante.getTotalPago());
     
             try {
                 Map<String, Object> resultCausante = jdbcCallCausante.execute(inParamsCausante);
