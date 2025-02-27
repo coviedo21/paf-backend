@@ -131,5 +131,29 @@ private final JdbcTemplate jdbcTemplate;
         }
     }
 
+    @Override
+    public EmisionDTO obtenerEmision(int idEmision) {
+        String sql = "SELECT * FROM paf.fn_ObtenerEmision(?)"; // Llamada a la función con parámetro
 
+        try {
+            Map<String, Object> row = jdbcTemplate.queryForMap(sql, new Object[]{idEmision});
+            
+            EmisionDTO emisionDTO = new EmisionDTO();
+            if (row.get("iIdEmision") != null) 
+                emisionDTO.setIdEmision((Integer) row.get("iIdEmision"));
+            if (row.get("dFecha") != null) 
+                emisionDTO.setFechaEmision(new java.util.Date(((java.sql.Date) row.get("dFecha")).getTime()));
+            if (row.get("iIdProceso") != null) 
+                emisionDTO.setIdProceso((Integer) row.get("iIdProceso"));
+            if (row.get("vcRutaArchivo") != null) 
+                emisionDTO.setRutaArchivo((String) row.get("vcRutaArchivo"));
+
+            return emisionDTO;
+        } catch (Exception e) {
+            System.out.println("Error al obtener la emisión: " + e.getMessage());
+            return null;
+        }
+    }
+
+    
 }

@@ -1,6 +1,7 @@
 package cl.gob.ips.proceso_pago.controller;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -14,7 +15,10 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -373,6 +377,34 @@ registro.setHDmonto15(valores[86]);
             Date currentDate = new Date();
             responseDTO.setTimestamp(currentDate);
             return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+
+    @GetMapping("/descargarEvidenciaEmision/{idEmision}")
+    public ResponseEntity<byte[]> descargarEvidenciaEmisoin(@PathVariable int idEmision) {
+        String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
+            String fileShareName = "pagosafqa";
+            
+        try {
+            String rutaArchivo = emisionService.obtenerEmision(idEmision).getRutaArchivo();
+            ShareFileClient fileClient = new ShareFileClientBuilder()
+                    .connectionString(connectionString)
+                    .shareName(fileShareName)
+                    .resourcePath(rutaArchivo)
+                    .buildFileClient();
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            fileClient.download(outputStream);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDisposition(ContentDisposition.attachment().filename(rutaArchivo).build());
+
+            return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("Error al descargar archivo: " + e.getMessage()).getBytes());
         }
     }
 }

@@ -11,4 +11,5 @@ public interface EmisionDAO {
     List<EmisionDTO> obtenerEmisiones();
     int insertarEmision(EmisionDTO emision);
     ProcesoDTO obtenerProcesoPorPeriodo(String periodo);
+    EmisionDTO obtenerEmision(int idEmision);
 }

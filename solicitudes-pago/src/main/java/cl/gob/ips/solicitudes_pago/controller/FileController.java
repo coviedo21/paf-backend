@@ -575,31 +575,4 @@ public class FileController {
         }
     }
 
-    @GetMapping("/descargarEvidenciaEmision/{idEmision}")
-    public ResponseEntity<byte[]> descargarEvidenciaEmisoin(@PathVariable int idEmision) {
-        /*String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
-            String fileShareName = "pagosafqa";
-            
-        try {
-            String rutaArchivo = emisionService.obtenerEmision(idEmision).getArhivo();
-            ShareFileClient fileClient = new ShareFileClientBuilder()
-                    .connectionString(connectionString)
-                    .shareName(fileShareName)
-                    .resourcePath(rutaArchivo)
-                    .buildFileClient();
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            fileClient.download(outputStream);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDisposition(ContentDisposition.attachment().filename(rutaArchivo).build());
-
-            return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(("Error al descargar archivo: " + e.getMessage()).getBytes());
-        }*/
-        return null;
-    }
 }

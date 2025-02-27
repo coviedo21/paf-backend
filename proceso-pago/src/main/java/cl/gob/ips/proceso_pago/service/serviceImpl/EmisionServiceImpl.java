@@ -111,4 +111,9 @@ public class EmisionServiceImpl implements EmisionService {
     public ProcesoDTO obtenerProcesoPorPeriodo(String periodo){
         return emisionDAO.obtenerProcesoPorPeriodo(periodo);
     }
+    
+    @Override
+    public EmisionDTO obtenerEmision(int idEmision) {
+    	return emisionDAO.obtenerEmision(idEmision);
+    }
 }
