@@ -154,3 +154,13 @@ fabric.properties
 # Ignore all local history of files
 .history
 .ionide
+/.idea/.gitignore
+/.idea/compiler.xml
+/.idea/encodings.xml
+/.idea/jarRepositories.xml
+/.idea/jpa.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/paf-backend.iml
+/.run/solicitudes-pago full.run.xml
+/.idea/vcs.xml
