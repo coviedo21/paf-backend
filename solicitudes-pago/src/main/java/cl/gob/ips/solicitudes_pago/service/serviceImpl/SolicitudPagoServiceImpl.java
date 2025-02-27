@@ -19,6 +19,7 @@ import cl.gob.ips.solicitudes_pago.dto.RechazoSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.SolicitudProcesoDTO;
 import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
 import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
 import cl.gob.ips.solicitudes_pago.service.EmailService;
@@ -117,7 +118,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         return solicitudPagoDAO.filtrarSolicitudesPago(texto);    
     }
 
-    public List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSolicitante, Integer idEstado) {
+    public List<SolicitudProcesoDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSolicitante, Integer idEstado) {
         return solicitudPagoDAO.obtenerSolicitudesPorProceso(idProceso, tipoSolicitante, idEstado);
     }
 

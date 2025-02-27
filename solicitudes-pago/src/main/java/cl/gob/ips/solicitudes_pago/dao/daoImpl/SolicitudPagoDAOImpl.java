@@ -9,6 +9,7 @@ import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.SolicitudProcesoDTO;
 import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
 import cl.gob.ips.solicitudes_pago.service.EmailService;
 
@@ -546,16 +547,16 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
     }
 
     @Override
-    public List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSolicitante, Integer idEstado) {
+    public List<SolicitudProcesoDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSolicitante, Integer idEstado) {
         String sql = "SELECT * FROM paf.fn_ObtenerSolicitudesPorProceso(?, ?, ?)";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, idProceso, tipoSolicitante, idEstado);
 
-        List<SolicitudDTO> solicitudes = new ArrayList<>();
+        //List<SolicitudProcesoDTO> solicitudes = new ArrayList<>();
 
-        List<SolicitudDTO> solicitudesPago = new ArrayList<>();
+        List<SolicitudProcesoDTO> solicitudesPago = new ArrayList<>();
             for (Map<String, Object> row : results) {
-                SolicitudDTO solicitudPagoDTO = new SolicitudDTO();
+            	SolicitudProcesoDTO solicitudPagoDTO = new SolicitudProcesoDTO();
                 if (row.get("idSolicitud") != null) solicitudPagoDTO.setIdSolicitud((Integer) row.get("idSolicitud"));
                 if (row.get("idProceso") != null) solicitudPagoDTO.setIdProceso((Integer) row.get("idProceso"));
                 if (row.get("idUsuario") != null) solicitudPagoDTO.setIdUsuario((Integer) row.get("idUsuario"));
@@ -600,6 +601,11 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
                 if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
                 if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
+                if (row.get("nombreTipoSolicitante") != null) solicitudPagoDTO.setNombreTipoSolicitante((String) row.get("nombreTipoSolicitante"));
+                if (row.get("rutCausante") != null) solicitudPagoDTO.setRutCausante((Integer) row.get("rutCausante"));
+                if (row.get("dvCausante") != null) solicitudPagoDTO.setDvCausante((String) row.get("dvCausante"));
+                if (row.get("totalPago") != null) solicitudPagoDTO.setTotalPago((BigDecimal) row.get("totalPago"));
+                
                 solicitudesPago.add(solicitudPagoDTO);
             }
 
