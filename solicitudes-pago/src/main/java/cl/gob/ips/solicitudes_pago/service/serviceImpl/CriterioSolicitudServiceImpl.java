@@ -59,20 +59,13 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
         // 2) Validación de Comuna de Dirección de Empleador
         agregarCriterioResolucion(idSolicitud, 2, true, null,null,null);
         
-        // 7) Verificación de Relación Laboral Vigente
-        if (verificarRelacionLaboralVigente()) {
-            agregarCriterioResolucion(idSolicitud, 7, true, null,null,null);
-        } else {
-            solicitudAprobada = false;
-            agregarCriterioResolucion(idSolicitud, 7, false, null,null,null);
-        }
-
         for(CriterioSolicitudDTO criterio: listaCriterios){
             criterioSolicitudDAO.insertarCriterioSolicitud(criterio);
         }
         System.out.println("Finalizó validación de Criterios de Resolución por Solicitud");
 
         for(CausanteSolicitudDTO causante: listaCausantes){
+        	listaCriteriosCausante.clear();
         // 1) Validación de Rol Único Tributario Causante
             agregarCriterioCausante(causante.getIIdCausanteSolicitud(),1,true,null,null,null);
            
@@ -84,7 +77,15 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
             
             // 5) Validación de Fechas Válidas
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 5, true, null,null,null); 
-
+                
+             // 7) Verificación de Relación Laboral Vigente
+                if (verificarRelacionLaboralVigente()) {
+                    agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 7, true, null,null,null);
+                } else {
+                    solicitudAprobada = false;
+                    agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 7, false, null,null,null);
+                }
+                
             // 8) Verificación de Vigencia del Causante
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 8, true, null,null,null);
             

@@ -29,6 +29,7 @@ import cl.gob.ips.solicitudes_pago.dao.SolicitudPagoDAO;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -92,8 +93,11 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                     Date fechaSolicitudEncontrada = (Date) validationResult.get("fechaSolicitudEncontrada");
                     
                     if(idDetalle>0){
-                        if (solicitudPago.getFechaSolicitud().after(fechaSolicitudEncontrada)) {
-                            detalle.setEstado(2);                     
+                    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    	String fecha1 = sdf.format(solicitudPago.getFechaSolicitud());
+                    	String fecha2 = sdf.format(fechaSolicitudEncontrada);
+                    	if (fecha1.compareTo(fecha2) > 0) {
+                            detalle.setEstado(3); //Periodo rechazado por duplicidad                     
                         }
                     }
             }
