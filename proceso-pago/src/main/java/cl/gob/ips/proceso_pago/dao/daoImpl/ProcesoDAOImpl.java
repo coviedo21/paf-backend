@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import cl.gob.ips.proceso_pago.dao.ProcesoDAO;
 import cl.gob.ips.proceso_pago.dto.ProcesoDTO;
+import cl.gob.ips.proceso_pago.dto.SolicitudDTO;
 import cl.gob.ips.proceso_pago.dto.DatosProcesoPorTipoDTO;
 
 @Repository
@@ -258,5 +259,66 @@ public void insertarProcesoTipoSolicitante(int idProceso, List<Integer> listaTip
     }
 
 }
+
+    @Override
+    public List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso) {
+        String sql = "SELECT * FROM paf.fn_ListarSolicitudesPorProceso(?)";
+
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, idProceso);
+
+        List<SolicitudDTO> solicitudes = new ArrayList<>();
+
+        List<SolicitudDTO> solicitudesPago = new ArrayList<>();
+            for (Map<String, Object> row : results) {
+                SolicitudDTO solicitudPagoDTO = new SolicitudDTO();
+                if (row.get("idSolicitud") != null) solicitudPagoDTO.setIdSolicitud((Integer) row.get("idSolicitud"));
+                if (row.get("idProceso") != null) solicitudPagoDTO.setIdProceso((Integer) row.get("idProceso"));
+                if (row.get("idUsuario") != null) solicitudPagoDTO.setIdUsuario((Integer) row.get("idUsuario"));
+                if (row.get("idComuna") != null) solicitudPagoDTO.setIdComuna((Integer) row.get("idComuna"));
+                if (row.get("idInstitucion") != null) solicitudPagoDTO.setIdInstitucion((Integer) row.get("idInstitucion"));
+                if (row.get("idHaber") != null) solicitudPagoDTO.setIdHaber((Integer) row.get("idHaber"));
+                if (row.get("idFormaPago") != null) solicitudPagoDTO.setIdFormaPago((Integer) row.get("idFormaPago"));
+                if (row.get("periodo") != null) solicitudPagoDTO.setPeriodo((String) row.get("periodo"));
+                if (row.get("code") != null) solicitudPagoDTO.setCode((String) row.get("code"));
+                if (row.get("rutEmpleador") != null) solicitudPagoDTO.setRutEmpleador((Integer) row.get("rutEmpleador"));
+                if (row.get("dvEmpleador") != null) solicitudPagoDTO.setDvEmpleador((String) row.get("dvEmpleador"));
+                if (row.get("razonSocialEmpleador") != null) solicitudPagoDTO.setRazonSocialEmpleador((String) row.get("razonSocialEmpleador"));
+                if (row.get("direccion") != null) solicitudPagoDTO.setDireccion((String) row.get("direccion"));
+                if (row.get("email") != null) solicitudPagoDTO.setEmail((String) row.get("email"));
+                if (row.get("rutBeneficiario") != null) solicitudPagoDTO.setRutBeneficiario((Integer) row.get("rutBeneficiario"));
+                if (row.get("dvBeneficiario") != null) solicitudPagoDTO.setDvBeneficiario((String) row.get("dvBeneficiario"));
+                if (row.get("nombresBeneficiario") != null) solicitudPagoDTO.setNombresBeneficiario((String) row.get("nombresBeneficiario"));
+                if (row.get("apellidoPaternoBeneficiario") != null) solicitudPagoDTO.setApellidoPaternoBeneficiario((String) row.get("apellidoPaternoBeneficiario"));
+                if (row.get("apellidoMaternoBeneficiario") != null) solicitudPagoDTO.setApellidoMaternoBeneficiario((String) row.get("apellidoMaternoBeneficiario"));
+                if (row.get("rutReteniente") != null) solicitudPagoDTO.setRutReteniente((Integer) row.get("rutReteniente"));
+                if (row.get("dvReteniente") != null) solicitudPagoDTO.setDvReteniente((String) row.get("dvReteniente"));
+                if (row.get("nombresReteniente") != null) solicitudPagoDTO.setNombresReteniente((String) row.get("nombresReteniente"));
+                if (row.get("apellidoPaternoReteniente") != null) solicitudPagoDTO.setApellidoPaternoReteniente((String) row.get("apellidoPaternoReteniente"));
+                if (row.get("apellidoMaternoReteniente") != null) solicitudPagoDTO.setApellidoMaternoReteniente((String) row.get("apellidoMaternoReteniente"));
+                if (row.get("filePathPrevired") != null) solicitudPagoDTO.setFilePathPrevired((String) row.get("filePathPrevired"));
+                if (row.get("filePathEspecial") != null) solicitudPagoDTO.setFilePathEspecial((String) row.get("filePathEspecial"));
+                if (row.get("origen") != null) solicitudPagoDTO.setOrigen((Integer) row.get("origen"));
+                if (row.get("tipoSolicitante") != null) solicitudPagoDTO.setTipoSolicitante((Integer) row.get("tipoSolicitante"));
+                if (row.get("observaciones") != null) solicitudPagoDTO.setObservaciones((String) row.get("observaciones"));
+                if (row.get("conRetencionJudicial") != null) solicitudPagoDTO.setConRetencionJudicial((String) row.get("conRetencionJudicial"));
+                if (row.get("idCuentaBancaria") != null) solicitudPagoDTO.setIdCuentaBancaria((Integer) row.get("idCuentaBancaria"));
+                if (row.get("telefono") != null) solicitudPagoDTO.setTelefono((Integer) row.get("telefono"));
+                if (row.get("idRegion") != null) solicitudPagoDTO.setIdRegion((Integer) row.get("idRegion"));
+                if (row.get("finiquito") != null) solicitudPagoDTO.setFiniquito((String) row.get("finiquito"));
+                if (row.get("fechaFiniquito") != null) solicitudPagoDTO.setFechaFiniquito((Date) row.get("fechaFiniquito"));
+                if (row.get("rutRepresentante") != null) solicitudPagoDTO.setRutRepresentante((Integer) row.get("rutRepresentante"));
+                if (row.get("dvRepresentante") != null) solicitudPagoDTO.setDvRepresentante((String) row.get("dvRepresentante"));
+                if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
+                if (row.get("folio") != null) solicitudPagoDTO.setFolio((Long) row.get("folio"));
+                if (row.get("estado") != null) solicitudPagoDTO.setEstado((String) row.get("estado"));
+                if (row.get("nombreOrigen") != null) solicitudPagoDTO.setNombreOrigen((String) row.get("nombreOrigen"));
+                if (row.get("nombreRegion") != null) solicitudPagoDTO.setNombreRegion((String) row.get("nombreRegion"));
+                if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
+                if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
+                solicitudesPago.add(solicitudPagoDTO);
+            }
+
+            return solicitudesPago;
+    }
 
 }

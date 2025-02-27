@@ -49,9 +49,6 @@ public class SolicitudesPagosController {
     private LicenciaFiniquitoService licenciaFiniquitoService;
 
     @Autowired
-    private EmisionService emisionService;
-
-    @Autowired
     private PersonaDAO personaDAO;
 
     @GetMapping("/obtenerCriterio/{id}")
@@ -100,11 +97,11 @@ public class SolicitudesPagosController {
             }
 
             // Validar si la fecha es mayor a 5 años
-            if (!utilService.esFechaValida(causante.getFechaInicioRango(), fechaComparacion)) {
+            /*if (!utilService.esFechaValida(causante.getFechaInicioRango(), fechaComparacion)) {
                 responseDTO.setCodigoRetorno(-1);
                 responseDTO.setGlosaRetorno("Error: Uno o más causantes tienen una fecha de inicio de rango inválida o mayor a 5 años.");
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-            }
+            }*/
         }
         
         responseDTO = solicitudPagoService.insertarSolicitudPago(solicitudPago,false);
@@ -578,39 +575,4 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @GetMapping("/obtenerEmisiones")
-    public ResponseEntity<List<EmisionDTO>> obtenerEmisiones() {
-        List<EmisionDTO> emisiones = emisionService.obtenerEmisiones();
-        if (emisiones != null && !emisiones.isEmpty()) {
-            return ResponseEntity.ok(emisiones);
-        } else {
-            return ResponseEntity.noContent().build();
-        }
-    }
-
-    @PostMapping("/insertarEmision")
-    public ResponseEntity<ResponseDTO> crearProceso(
-            @RequestBody EmisionDTO emisionDTO) {
-
-        ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setTimestamp(new Date());
-
-        int resultado = emisionService.insertarEmision(emisionDTO);
-
-        if (resultado>0){
-            responseDTO.setCodigoRetorno(0);
-            responseDTO.setGlosaRetorno("Emisión creada exitósamente!");
-            responseDTO.setResultado(resultado);
-
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-
-        } 
-        else {
-            responseDTO.setCodigoRetorno(-1);
-            responseDTO.setGlosaRetorno("No se creó el registro de emisión.");
-            Date currentDate = new Date();
-            responseDTO.setTimestamp(currentDate);
-            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-        }
-    }
 }

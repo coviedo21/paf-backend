@@ -43,7 +43,7 @@ public class FileDAOImpl implements FileDAO{
             List<CausanteSolicitudDTO> listaCausantes = new ArrayList<>();
             CausanteSolicitudDTO causante = new CausanteSolicitudDTO();
             String periodosAprobados = "";
-            BigDecimal totalPagar = new BigDecimal(0);
+            //BigDecimal totalPagar = new BigDecimal(0);
             try {
                 solicitud.setFolio(Long.parseLong(archivo.getFolio()));
                 solicitud.setFechaSolicitud(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(archivo.getFechaHora()));
@@ -120,7 +120,7 @@ public class FileDAOImpl implements FileDAO{
                         derecho.setDiasReconocimiento(derechoCausante.getDetalle().get(0).getDiasReconocimiento());
                         derecho.setEstado(1);
                         //periodosAprobados = periodosAprobados + derecho.getPeriodo()+","; 
-                        totalPagar = totalPagar.add(derecho.getMontoMovimiento());
+                        //totalPagar = totalPagar.add(derecho.getMontoMovimiento());
                         listaDetalle.add(derecho);
                     }
                     else{
@@ -146,8 +146,8 @@ public class FileDAOImpl implements FileDAO{
                 
                 causante.setDetalle(listaDetalle);
                 causante.setVcPeriodosAprobados(primerPeriodo+" a "+ultimoPeriodo);
-                causante.setTotalReconocimiento(totalPagar);
-                causante.setTotalPago(causante.getTotalReconocimiento().subtract(criterioSolicitudService.obtenerMontoDescuento(causante.getRutBeneficiario())));
+                //causante.setTotalReconocimiento(0);
+                //causante.setTotalPago(causante.getTotalReconocimiento().subtract(criterioSolicitudService.obtenerMontoDescuento(causante.getRutBeneficiario())));
                 listaCausantes.add(causante);
                 solicitud.setTipoSolicitante(2); //Empleador si es previred
                 solicitud.setOrigen(Integer.parseInt(archivo.getOrigen()));

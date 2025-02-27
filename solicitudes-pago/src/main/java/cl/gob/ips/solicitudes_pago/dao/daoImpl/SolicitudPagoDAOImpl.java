@@ -62,78 +62,47 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
         // Validación previa: Verificar duplicados
     SimpleJdbcCall validarDuplicadosCall = new SimpleJdbcCall(jdbcTemplate)
     .withSchemaName(esquema)
-    .withProcedureName("SP_ValidarDuplicadosSolicitudCausante")
+    .withProcedureName("SP_ValidarDuplicadosSolicitudCausanteB")
     .declareParameters(
             new SqlParameter("iRutBeneficiario", Types.INTEGER),
-            new SqlParameter("vcPeriodo", Types.VARCHAR),
+            new SqlParameter("iPeriodo", Types.INTEGER),
             new SqlParameter("iRutCausante", Types.INTEGER),
-            new SqlParameter("fechaInicioRango", Types.DATE),
-            new SqlParameter("fechaFinRango", Types.DATE),
+            new SqlParameter("fechaSolicitud", Types.DATE),
             new SqlOutParameter("mensajeRespuesta", Types.VARCHAR),
-            new SqlOutParameter("idSolicitud", Types.INTEGER)
+            new SqlOutParameter("idDetalleCausante", Types.INTEGER),
+            new SqlOutParameter("fechaSolicitudEncontrada", Types.DATE)
     );
 
     try {
-    for (CausanteSolicitudDTO causante : solicitudPago.getListaCausantes()) {
-        MapSqlParameterSource inParams = new MapSqlParameterSource()
-                .addValue("iRutBeneficiario", solicitudPago.getRutBeneficiario())
-                .addValue("vcPeriodo", solicitudPago.getPeriodo())
-                .addValue("iRutCausante", causante.getRutCausante())
-                .addValue("fechaInicioRango", causante.getFechaInicioRango())
-                .addValue("fechaFinRango", causante.getFechaFinRango());
+        //Recorremos los causantes
+        for (CausanteSolicitudDTO causante : solicitudPago.getListaCausantes()) {
+            //Por cada causante recorremos sus detalles
+            for(DetalleCausanteDTO detalle : causante.getDetalle()){
 
-        Map<String, Object> validationResult = validarDuplicadosCall.execute(inParams);
-        int idSolicitud = (int) validationResult.get("idSolicitud");
-        String mensajeRespuesta = (String) validationResult.get("mensajeRespuesta");
-        //montoHaber = montoHaber.add(causante.getTotalPago());
-        // Si se detecta un duplicado
-        if(idSolicitud>0){
-            if(esArchivo){
-                SolicitudDTO solicitud = consultarSolicitudPago(idSolicitud).get(0);
-                    if (!solicitud.getFechaSolicitud().before(solicitudPago.getFechaSolicitud())) {
-                        //Fecha menor es del archivo, se rechaza la que ya existe.
-                        ResolucionDTO resolucion = new ResolucionDTO();
-                        resolucion.setIIdSolicitud(idSolicitud);
-                        resolucion.setIAutor(1);
-                        resolucion.setIIdEstado(4);
-                        resolucion.setVcDescripcion("Ya existe solicitud.");
-                        resolucion.setIMotivoRechazo(4);
-                        insertarResolucion(resolucion);
-                        try {
-                            emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+idSolicitud+" rechazada.","Su solicitud N° "+idSolicitud+" ha sido rechazada. Motivo de Rechazo:  Solicitud ya existe");    
-                            response.setCodigoRetorno(3);
-                            response.setGlosaRetorno("Se inserta solicitud y se rechaza la existente");
-                            response.setResultado(0);
-                            //return response; // Detener si se encuentra un duplicado
-                        } catch (Exception e) {
-                            // Captura cualquier excepción relacionada con el envío del correo y loguea el error
-                            System.err.println("Error enviando correo para la solicitud " + solicitud.getIdSolicitud() + ": " + e.getMessage());
-                        }   
-                    }else{
-                        rechazar = true;
-                        /*System.out.println("Validación fallida: " + mensajeRespuesta);
-                        response.setCodigoRetorno(3);
-                        response.setGlosaRetorno(mensajeRespuesta);
-                        response.setResultado(0);
-                        return response; // Detener si se encuentra un duplicado*/
+                MapSqlParameterSource inParams = new MapSqlParameterSource()
+                    .addValue("iRutBeneficiario", causante.getRutBeneficiario())
+                    .addValue("iPeriodo", detalle.getPeriodo())
+                    .addValue("iRutCausante", causante.getRutCausante())
+                    .addValue("fechaSolicitud", solicitudPago.getFechaSolicitud());
+
+                    Map<String, Object> validationResult = validarDuplicadosCall.execute(inParams);
+                    int idDetalle = (int) validationResult.get("idDetalleCausante");
+                    String mensajeRespuesta = (String) validationResult.get("mensajeRespuesta");
+                    Date fechaSolicitudEncontrada = (Date) validationResult.get("fechaSolicitudEncontrada");
+                    
+                    if(idDetalle>0){
+                        if (solicitudPago.getFechaSolicitud().after(fechaSolicitudEncontrada)) {
+                            detalle.setEstado(2);                     
+                        }
                     }
-            
             }
-            else{
-                System.out.println("Validación fallida: " + mensajeRespuesta);
-                response.setCodigoRetorno(3);
-                response.setGlosaRetorno(mensajeRespuesta);
-                response.setResultado(0);
-                return response; // Detener si se encuentra un duplicado
-            }
-            
-        }
-    }
+        } //Fin For Causante   
+    
     } catch (Exception e) {
         response.setCodigoRetorno(1);
         response.setGlosaRetorno("ERROR");
         response.setResultado(0);
-        return response; // Detener si se encuentra un duplicado
+        return response;
     }
         
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withSchemaName(esquema)
@@ -241,24 +210,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 response.setCodigoRetorno(0);
                 response.setGlosaRetorno("Solicitud creada exitósamente. ID: "+idSolicitud);
                 response.setResultado(idSolicitud);
-                if(rechazar){
-                    rechazar = false;
-                    ResolucionDTO resolucion = new ResolucionDTO();
-                    resolucion.setIIdSolicitud(idSolicitud);
-                    resolucion.setIAutor(1);
-                    resolucion.setIIdEstado(4);
-                    resolucion.setVcDescripcion("Ya existe solicitud.");
-                    resolucion.setIMotivoRechazo(4);
-                    insertarResolucion(resolucion);
-                    try {
-                        response.setCodigoRetorno(3);
-                        response.setGlosaRetorno("Se inserta solicitud pero se rechaza porque ya existe otra más antigua");
-                        response.setResultado(idSolicitud);
-                        //return response; // Detener si se encuentra un duplicado
-                    } catch (Exception e) {
-                        // Captura cualquier excepción relacionada con el envío del correo y loguea el error
-                    }
-                }
+                
                 return response; // Detener si se encuentra un duplicado
                 //return idSolicitud;
             } else {

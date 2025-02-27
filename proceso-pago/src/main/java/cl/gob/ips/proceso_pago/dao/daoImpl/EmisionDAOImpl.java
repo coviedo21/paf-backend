@@ -1,4 +1,4 @@
-package cl.gob.ips.solicitudes_pago.dao.daoImpl;
+package cl.gob.ips.proceso_pago.dao.daoImpl;
 
 import java.sql.Types;
 import java.util.ArrayList;
@@ -16,9 +16,10 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
-import cl.gob.ips.solicitudes_pago.dao.EmisionDAO;
-import cl.gob.ips.solicitudes_pago.dto.EmisionArchivoDTO;
-import cl.gob.ips.solicitudes_pago.dto.EmisionDTO;
+import cl.gob.ips.proceso_pago.dao.EmisionDAO;
+import cl.gob.ips.proceso_pago.dto.EmisionArchivoDTO;
+import cl.gob.ips.proceso_pago.dto.EmisionDTO;
+import cl.gob.ips.proceso_pago.dto.ProcesoDTO;
 
 @Repository
 public class EmisionDAOImpl implements EmisionDAO{
@@ -91,5 +92,44 @@ private final JdbcTemplate jdbcTemplate;
         System.out.println((String) result.get("mensajeRespuesta"));
         return idEmision;
     }
+
+    @Override
+    public ProcesoDTO obtenerProcesoPorPeriodo(String periodo) {
+        String sql = "SELECT * FROM paf.fn_ObtenerProcesoPorPeriodo(?)"; // Llamada a la función con parámetro
+
+        try {
+            Map<String, Object> row = jdbcTemplate.queryForMap(sql, new Object[]{periodo});
+            
+            ProcesoDTO procesoDTO = new ProcesoDTO();
+            if (row.get("IdProceso") != null) 
+                procesoDTO.setIdProceso((Integer) row.get("IdProceso"));
+            if (row.get("IdUsuario") != null) 
+                procesoDTO.setIdUsuario((Integer) row.get("IdUsuario"));
+            if (row.get("nombreUsuario") != null) 
+                procesoDTO.setNombreUsuario((String) row.get("nombreUsuario"));
+            if (row.get("PagosTotales") != null) 
+                procesoDTO.setPagosTotales((Integer) row.get("PagosTotales"));
+            if (row.get("Aprobados") != null) 
+                procesoDTO.setAprobados((Integer) row.get("Aprobados"));
+            if (row.get("Rechazados") != null) 
+                procesoDTO.setRechazados((Integer) row.get("Rechazados"));
+            if (row.get("IdEstado") != null) 
+                procesoDTO.setIdEstado((Integer) row.get("IdEstado"));
+            if (row.get("FechaCreacion") != null) 
+                procesoDTO.setFechaCreacion(new java.util.Date(((java.sql.Date) row.get("FechaCreacion")).getTime()));
+            if (row.get("nombreEstado") != null) 
+                procesoDTO.setNombreEstado((String) row.get("nombreEstado"));
+            if (row.get("periodo") != null) 
+                procesoDTO.setPeriodo((String) row.get("periodo"));
+            if (row.get("fechaEjecucion") != null) 
+                procesoDTO.setFechaEjecucion(new java.util.Date(((java.sql.Date) row.get("fechaEjecucion")).getTime()));
+
+            return procesoDTO;
+        } catch (Exception e) {
+            System.out.println("Error al obtener el proceso por periodo: " + e.getMessage());
+            return null;
+        }
+    }
+
 
 }
