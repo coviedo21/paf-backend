@@ -1,6 +1,7 @@
 package cl.gob.ips.proceso_pago.controller;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import cl.gob.ips.proceso_pago.service.NominaPagoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +39,8 @@ import cl.gob.ips.proceso_pago.dto.ResponseDTO;
 import cl.gob.ips.proceso_pago.service.EmisionService;
 import cl.gob.ips.proceso_pago.service.ProcesoService;
 
+import javax.servlet.http.HttpServletResponse;
+
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/procesoPago")
@@ -47,6 +51,9 @@ public class ProcesoPagoController {
 
     @Autowired
     private EmisionService emisionService;
+
+    @Autowired
+    private NominaPagoService nominaPagoService;
     
     @PostMapping("/crear-proceso")
     public ResponseEntity<ResponseDTO> crearProceso(
@@ -374,5 +381,16 @@ registro.setHDmonto15(valores[86]);
             responseDTO.setTimestamp(currentDate);
             return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping(value = "/nomina-pago", produces = "text/csv")
+    public void getNominaPagoCSV(@RequestParam("iIdProceso") int iIdProcesoIN,
+                                 @RequestParam("fecPago") String fecPago,
+                                  HttpServletResponse response) throws IOException {
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"nomina_pago.csv\"");
+
+        nominaPagoService.generateCsvResponse(response, iIdProcesoIN, fecPago);
     }
 }
