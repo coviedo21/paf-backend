@@ -1,5 +1,6 @@
 package cl.gob.ips.proceso_pago.dao.daoImpl;
 
+import java.math.BigDecimal;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
@@ -108,11 +109,11 @@ private final JdbcTemplate jdbcTemplate;
             if (row.get("nombreUsuario") != null) 
                 procesoDTO.setNombreUsuario((String) row.get("nombreUsuario"));
             if (row.get("PagosTotales") != null) 
-                procesoDTO.setPagosTotales((Integer) row.get("PagosTotales"));
+                procesoDTO.setPagosTotales((BigDecimal) row.get("PagosTotales"));
             if (row.get("Aprobados") != null) 
-                procesoDTO.setAprobados((Integer) row.get("Aprobados"));
+                procesoDTO.setAprobados((BigDecimal) row.get("Aprobados"));
             if (row.get("Rechazados") != null) 
-                procesoDTO.setRechazados((Integer) row.get("Rechazados"));
+                procesoDTO.setRechazados((BigDecimal) row.get("Rechazados"));
             if (row.get("IdEstado") != null) 
                 procesoDTO.setIdEstado((Integer) row.get("IdEstado"));
             if (row.get("FechaCreacion") != null) 

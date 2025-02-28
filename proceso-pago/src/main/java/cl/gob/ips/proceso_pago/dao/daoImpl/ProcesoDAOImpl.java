@@ -132,14 +132,15 @@ public List<ProcesoDTO> consultarProceso(Long idProceso) {
         if (u.get("IdProceso") != null) procesoDTO.setIdProceso((Integer) u.get("IdProceso"));
         if (u.get("IdUsuario") != null) procesoDTO.setIdUsuario((Integer) u.get("IdUsuario"));
         if (u.get("nombreUsuario") != null) procesoDTO.setNombreUsuario((String) u.get("nombreUsuario"));
-        if (u.get("PagosTotales") != null) procesoDTO.setPagosTotales((Integer) u.get("PagosTotales"));
-        if (u.get("Aprobados") != null) procesoDTO.setAprobados((Integer) u.get("Aprobados"));
-        if (u.get("Rechazados") != null) procesoDTO.setRechazados((Integer) u.get("Rechazados"));
+        if (u.get("PagosTotales") != null) procesoDTO.setPagosTotales((BigDecimal) u.get("PagosTotales"));
+        if (u.get("Aprobados") != null) procesoDTO.setAprobados((BigDecimal) u.get("Aprobados"));
+        if (u.get("Rechazados") != null) procesoDTO.setRechazados((BigDecimal) u.get("Rechazados"));
         if (u.get("IdEstado") != null) procesoDTO.setIdEstado((Integer) u.get("IdEstado"));
         if (u.get("FechaCreacion") != null) procesoDTO.setFechaCreacion((Date) u.get("FechaCreacion"));
         if (u.get("nombreEstado") != null) procesoDTO.setNombreEstado((String) u.get("nombreEstado"));
         if (u.get("fechaEjecucion") != null) procesoDTO.setFechaEjecucion((Date) u.get("fechaEjecucion"));
         if (u.get("periodo") != null) procesoDTO.setPeriodo((String) u.get("periodo"));
+        if (u.get("TiposSolicitante") != null) procesoDTO.setNombresTiposSolicitantes((String) u.get("TiposSolicitante"));
         procesos.add(procesoDTO);
     }
 
@@ -161,13 +162,14 @@ public List<ProcesoDTO> filtrarProcesos(String texto) {
             if (row.get("idProceso") != null) procesoDTO.setIdProceso((Integer) row.get("idProceso"));
             if (row.get("idUsuario") != null) procesoDTO.setIdUsuario((Integer) row.get("idUsuario"));
             if (row.get("nombreUsuario") != null) procesoDTO.setNombreUsuario((String) row.get("nombreUsuario"));
-            if (row.get("pagosTotales") != null) procesoDTO.setPagosTotales((Integer) row.get("pagosTotales"));
-            if (row.get("aprobados") != null) procesoDTO.setAprobados((Integer) row.get("aprobados"));
-            if (row.get("rechazados") != null) procesoDTO.setRechazados((Integer) row.get("rechazados"));
+            if (row.get("pagosTotales") != null) procesoDTO.setPagosTotales((BigDecimal) row.get("pagosTotales"));
+            if (row.get("aprobados") != null) procesoDTO.setAprobados((BigDecimal) row.get("aprobados"));
+            if (row.get("rechazados") != null) procesoDTO.setRechazados((BigDecimal) row.get("rechazados"));
             if (row.get("idEstado") != null) procesoDTO.setIdEstado((Integer) row.get("idEstado"));
             if (row.get("fechaCreacion") != null) procesoDTO.setFechaCreacion((Date) row.get("fechaCreacion"));
             if (row.get("fechaEjecucion") != null) procesoDTO.setFechaEjecucion((Date) row.get("fechaEjecucion"));
             if (row.get("periodo") != null) procesoDTO.setPeriodo((String) row.get("periodo"));
+            if (row.get("TiposSolicitante") != null) procesoDTO.setNombresTiposSolicitantes((String) row.get("TiposSolicitante"));
             procesos.add(procesoDTO);
         }
     } catch (Exception e) {
