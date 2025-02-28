@@ -10,7 +10,7 @@ public class DatosProcesoPorTipoDTO {
     private String nombreTipoSolicitante;
     private Integer cantidad;
     private BigDecimal porcentaje;
-    private Integer pagosTotales;
-    private Integer pagosAprobados;
-    private Integer pagosRechazados;
+    private BigDecimal pagosTotales;
+    private BigDecimal pagosAprobados;
+    private BigDecimal pagosRechazados;
 }
