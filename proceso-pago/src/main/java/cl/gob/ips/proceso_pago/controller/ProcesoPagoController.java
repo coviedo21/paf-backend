@@ -150,7 +150,7 @@ public class ProcesoPagoController {
     }
 
     @PostMapping("/procesarEmision")
-    public List<EmisionArchivoDTO> procesarEmision(@RequestParam("file") MultipartFile file) {
+    public List<EmisionArchivoDTO> procesarEmision(@RequestParam("file") MultipartFile file, @RequestParam("idProceso") Integer idProceso) {
         List<EmisionArchivoDTO> registros = new ArrayList<>();
         int[] posiciones = {2, 3, 13, 1, 1, 2, 1, 1, 3, 3, 4, 1, 1, 40, 8, 40, 8, 8, 1, 8, 1, 2, 1, 8, 1, 1, 2, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7,1, 3, 5, 7, 7, 7, 7, 3, 4, 7, 1, 8, 7, 7, 7, 7, 7, 48, 15, 1, 1, 2, 2, 2, 2, 7, 8, 8, 10, 8};
         
@@ -307,7 +307,7 @@ registro.setHDmonto15(valores[86]);
         LocalDate fechaInicio = LocalDate.parse(registro.getFecIniPeriodo(), formatter);
 
         // Obtener el año y mes en formato "yyyy/MM"
-        String periodoProceso = fechaInicio.getYear() + "/" + String.format("%02d", fechaInicio.getMonthValue());
+        //String periodoProceso = fechaInicio.getYear() + "/" + String.format("%02d", fechaInicio.getMonthValue());
 
                 registro.setNroResol(valores[111]);
                 registro.setFecResol(valores[112]);
@@ -337,7 +337,7 @@ registro.setHDmonto15(valores[86]);
 
                         EmisionDTO emision = new EmisionDTO();
                         emision.setFechaEmision(new Date());  
-                        emision.setIdProceso(1); //CAMBIAR ESTO QUE ESTA EN DURO
+                        emision.setIdProceso(idProceso); //CAMBIAR ESTO QUE ESTA EN DURO
                         emision.setRutaArchivo(nombreRemoto);
                         emisionService.insertarEmision(emision);
                                               
