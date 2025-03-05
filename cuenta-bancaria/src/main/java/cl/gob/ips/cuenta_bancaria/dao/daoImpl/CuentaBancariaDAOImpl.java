@@ -124,7 +124,9 @@ public class CuentaBancariaDAOImpl implements CuentaBancariaDAO {
             if (u.get("RutTitular") != null) cuentaDTO.setRutTitular((Integer) u.get("RutTitular"));
             if (u.get("DvTitular") != null) cuentaDTO.setDvTitular((String) u.get("DvTitular"));
             if (u.get("CodigoBanco") != null) cuentaDTO.setCodigoBanco((Integer) u.get("CodigoBanco"));
+            if (u.get("nombreBanco") != null) cuentaDTO.setNombreBanco((String) u.get("nombreBanco"));
             if (u.get("TipoCuenta") != null) cuentaDTO.setTipoCuenta((Integer) u.get("TipoCuenta"));
+            if (u.get("nombreTipoCuenta") != null) cuentaDTO.setNombreTipoCuenta((String) u.get("nombreTipoCuenta"));
             if (u.get("EstadoCuenta") != null) cuentaDTO.setEstadoCuenta((Integer) u.get("EstadoCuenta"));
             if (u.get("Origen") != null) cuentaDTO.setOrigen((Integer) u.get("Origen"));
             cuentas.add(cuentaDTO);
