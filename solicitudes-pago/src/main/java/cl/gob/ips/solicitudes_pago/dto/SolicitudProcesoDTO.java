@@ -65,4 +65,6 @@ public class SolicitudProcesoDTO {
     private Integer rutCausante;
     private String dvCausante;
     private BigDecimal totalPago;
+    private Integer tipoCausante;
+    private Integer tipoMovimiento;
 }

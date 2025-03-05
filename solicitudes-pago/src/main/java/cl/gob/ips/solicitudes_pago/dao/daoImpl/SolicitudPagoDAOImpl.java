@@ -609,6 +609,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 if (row.get("rutCausante") != null) solicitudPagoDTO.setRutCausante((Integer) row.get("rutCausante"));
                 if (row.get("dvCausante") != null) solicitudPagoDTO.setDvCausante((String) row.get("dvCausante"));
                 if (row.get("totalPago") != null) solicitudPagoDTO.setTotalPago((BigDecimal) row.get("totalPago"));
+                if (row.get("tipoCausante") != null) solicitudPagoDTO.setTipoCausante((Integer) row.get("tipoCausante"));
+                if (row.get("tipoMovimiento") != null) solicitudPagoDTO.setTipoMovimiento((Integer) row.get("tipoMovimiento"));
                 
                 solicitudesPago.add(solicitudPagoDTO);
             }

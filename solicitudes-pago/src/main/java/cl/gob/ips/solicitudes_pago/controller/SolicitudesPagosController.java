@@ -565,12 +565,24 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         ResponseDTO responseDTO = new ResponseDTO();
         boolean validacionCriterios = criterioSolicitudService.validarCriteriosResolucion(idSolicitud);
         if (validacionCriterios) {
-            //Validar relacion laboral
+        	ResolucionDTO resolucion = new ResolucionDTO();
+            resolucion.setIIdSolicitud(idSolicitud);
+            resolucion.setIAutor(1);
+            resolucion.setIIdEstado(2);
+            resolucion.setVcDescripcion("Se valida solicitud.");
+            resolucion.setIMotivoRechazo(null);
+            int resolucionResponse = solicitudPagoService.insertarResolucion(resolucion);
+            if(resolucionResponse>0) {
+            	responseDTO.setCodigoRetorno(0);
+                responseDTO.setGlosaRetorno("Se validó la solicitud de pago. Puede ser asignada a un proceso de pago.");
+                responseDTO.setTimestamp(new Date());
+                return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
         } else {
             responseDTO.setCodigoRetorno(-1);
             responseDTO.setGlosaRetorno("Error al validar solicitud de pago.");
             responseDTO.setTimestamp(new Date());
-            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.ok(responseDTO);
         }
         return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
