@@ -42,71 +42,72 @@ public class EmisionServiceImpl implements EmisionService {
             return false;
         }
 
-        // Obtener las solicitudes asociadas al proceso y agruparlas por RutBeneficiario
+        // Obtener las solicitudes asociadas al proceso
         List<SolicitudDTO> solicitudes = procesoDAO.obtenerSolicitudesPorProceso(idProceso);
-        
-        // Agrupar las solicitudes por RutBeneficiario y sumar sus montos
+
+        // Agrupar solicitudes por RutBeneficiario y sumar sus montos
         Map<String, BigDecimal> solicitudesAgrupadas = solicitudes.stream()
-            .filter(s -> s.getRutBeneficiario() != null && s.getMontoHaber() != null) // Filtrar solicitudes válidas
+            .filter(s -> s.getRutBeneficiario() != null && s.getMontoHaber() != null)
             .collect(Collectors.groupingBy(
-                s -> s.getRutBeneficiario().toString(), // Agrupar por RutBeneficiario
-                Collectors.reducing(BigDecimal.ZERO, SolicitudDTO::getMontoHaber, BigDecimal::add) // Sumar montos
+                s -> s.getRutBeneficiario().toString(),
+                Collectors.reducing(BigDecimal.ZERO, SolicitudDTO::getMontoHaber, BigDecimal::add)
             ));
 
         boolean errorEncontrado = false;
-        
+
         // Recorrer las solicitudes agrupadas por RutBeneficiario
         for (Map.Entry<String, BigDecimal> entry : solicitudesAgrupadas.entrySet()) {
             String rut = entry.getKey();
             BigDecimal montoSolicitudes = entry.getValue();
-            
+
             // Buscar si existe un registro en el archivo con el mismo RutBeneficiario
             EmisionArchivoDTO archivoEncontrado = emision.stream()
                 .filter(e -> e.getRutBenef().replaceFirst("^0+(?!$)", "").equals(rut))
                 .findFirst()
                 .orElse(null);
-            
-            boolean solicitudEncontrada = archivoEncontrado != null && montoSolicitudes.compareTo(new BigDecimal(archivoEncontrado.getTotalHaberes())) == 0;
-            
-            // Obtener el idSolicitud de una de las solicitudes del grupo
-            Integer idSolicitud = solicitudes.stream()
+
+            boolean solicitudEncontrada = archivoEncontrado != null 
+                && montoSolicitudes.compareTo(new BigDecimal(archivoEncontrado.getTotalHaberes())) == 0;
+
+            // Obtener TODAS las solicitudes del grupo con el mismo RutBeneficiario
+            List<SolicitudDTO> solicitudesDelGrupo = solicitudes.stream()
                 .filter(s -> s.getRutBeneficiario().toString().equals(rut))
-                .map(SolicitudDTO::getIdSolicitud)
-                .findFirst()
-                .orElse(null);
-            
-            // Crear la resolución correspondiente
-            try {
-	            ResolucionDTO resolucion = new ResolucionDTO();
-	            resolucion.setIIdSolicitud(idSolicitud);
-	            resolucion.setIAutor(1); // Asignar el autor (ajustar si es necesario)
-	            resolucion.setVcDescripcion(solicitudEncontrada ? "Solicitud aprobada para pago." : "Solicitud rechazada para pago.");
-	            resolucion.setIMotivoRechazo(null);
-	            resolucion.setIIdEstado(solicitudEncontrada ? 3 : 5);
-	
-	            // Mensaje de depuración sobre la validación
-	            System.out.println(solicitudEncontrada
-	                ? "Solicitud encontrada en emisiones, generando resolución con estado 3."
-	                : "Solicitud NO encontrada en emisiones, generando resolución con estado 5.");
-	
-	            // Llamar a la API externa para insertar la resolución
-	            String url = baseUrl + "/insertarResolucion";
-	            ResponseDTO response = restTemplate.postForObject(url, resolucion, ResponseDTO.class);
-	
-	            // Validar la respuesta de la API
-	            if (response == null || response.getCodigoRetorno() != 0) {
-	                System.out.println("Error al insertar resolución en la API: " + (response != null ? response.getGlosaRetorno() : "Respuesta nula"));
-	                errorEncontrado = true;
-            }
-            }catch(Exception e) {
-            	System.out.println("Error al insertar resolucion");
+                .collect(Collectors.toList());
+
+            // Generar una resolución por cada solicitud
+            for (SolicitudDTO solicitud : solicitudesDelGrupo) {
+                try {
+                    ResolucionDTO resolucion = new ResolucionDTO();
+                    resolucion.setIIdSolicitud(solicitud.getIdSolicitud());
+                    resolucion.setIAutor(1); // Asignar el autor (ajustar si es necesario)
+                    resolucion.setVcDescripcion(solicitudEncontrada ? "Solicitud aprobada para pago." : "Solicitud rechazada para pago.");
+                    resolucion.setIMotivoRechazo(null);
+                    resolucion.setIIdEstado(solicitudEncontrada ? 3 : 5);
+
+                    // Mensaje de depuración sobre la validación
+                    System.out.println("Generando resolución para ID Solicitud: " + solicitud.getIdSolicitud() +
+                        " - Estado: " + (solicitudEncontrada ? "3 (Aprobado)" : "5 (Rechazado)"));
+
+                    // Llamar a la API externa para insertar la resolución
+                    String url = baseUrl + "/insertarResolucion";
+                    ResponseDTO response = restTemplate.postForObject(url, resolucion, ResponseDTO.class);
+
+                    // Validar la respuesta de la API
+                    if (response == null || response.getCodigoRetorno() != 0) {
+                        System.out.println("Error al insertar resolución en la API: " + 
+                            (response != null ? response.getGlosaRetorno() : "Respuesta nula"));
+                        errorEncontrado = true;
+                    }
+                } catch (Exception e) {
+                    System.out.println("Error al insertar resolución para ID Solicitud: " + solicitud.getIdSolicitud());
+                    e.printStackTrace(); // Mostrar el error real
+                }
             }
         }
-        
+
         // Retornar true solo si no hubo errores y la validación de emisiones fue exitosa
         return !errorEncontrado && emisionDAO.validarSolicitudesEmitidas(emision);
     }
-
 
 
     @Override
