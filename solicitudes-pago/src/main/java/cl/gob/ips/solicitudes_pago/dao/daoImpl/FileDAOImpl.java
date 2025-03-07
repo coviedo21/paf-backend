@@ -83,7 +83,7 @@ public class FileDAOImpl implements FileDAO{
                 List<CausanteCuentaCorrienteDTO> detalle = new ArrayList<>();
                 List<DetalleCausanteDTO> listaDetalle  = new ArrayList<>();
                 List<String> periodosCausante = obtenerPeriodos(causante.getFechaInicioRango(),causante.getFechaFinRango());
-                boolean tieneDerecho = false;
+                 boolean tieneDerecho = false;
                 String primerPeriodo = null;
                 String ultimoPeriodo = null;
                 for(String periodo: periodosCausante){
@@ -109,8 +109,16 @@ public class FileDAOImpl implements FileDAO{
                         derecho.setPeriodo(derechoCausante.getDetalle().get(0).getPeriodo());
                         derecho.setTipoMovimiento(derechoCausante.getDetalle().get(0).getTipoMovimientoId());
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                        Date fechaMovimiento = dateFormat.parse(derechoCausante.getDetalle().get(0).getFechaMovimiento());
-                        derecho.setFechaMovimiento(fechaMovimiento);
+                        String fechaMovimientoStr = derechoCausante.getDetalle().get(0).getFechaMovimiento();
+
+	                     // Verificar si la fecha no es null ni vacía antes de convertirla
+	                     if (fechaMovimientoStr != null && !fechaMovimientoStr.isEmpty()) {
+	                         Date fechaMovimiento = dateFormat.parse(fechaMovimientoStr);
+	                         derecho.setFechaMovimiento(fechaMovimiento);
+	                     } else {
+	                         derecho.setFechaMovimiento(null); // O cualquier valor por defecto si lo necesitas
+	                     }
+	                     
                         derecho.setEntradaSalida(derechoCausante.getDetalle().get(0).getEntradaSalida());
                         derecho.setMontoMovimiento(new BigDecimal(derechoCausante.getDetalle().get(0).getMontoMovimiento()));
                         derecho.setTipoCausante(derechoCausante.getDetalle().get(0).getTipoCausante());
@@ -129,7 +137,7 @@ public class FileDAOImpl implements FileDAO{
                         derecho.setDvCausante(causante.getVcDvCausante());
                         derecho.setRutBeneficiario(causante.getRutBeneficiario());
                         derecho.setDvBeneficiario(causante.getVcDvBeneficiario());
-                        derecho.setPeriodo(0);
+                        derecho.setPeriodo(Integer.valueOf(periodo));
                         derecho.setTipoMovimiento(0);
                         derecho.setFechaMovimiento(null);
                         derecho.setEntradaSalida(null);
