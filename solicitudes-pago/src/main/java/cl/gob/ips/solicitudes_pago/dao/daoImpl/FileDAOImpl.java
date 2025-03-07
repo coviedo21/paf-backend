@@ -88,7 +88,7 @@ public class FileDAOImpl implements FileDAO{
                 String ultimoPeriodo = null;
                 for(String periodo: periodosCausante){
 
-                    detalle = causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), periodo, periodo, null);
+                    detalle = causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), archivo.getRutEmpleador(), periodo, periodo, null);
 
                     derechoCausante = (detalle != null && 
                    !detalle.isEmpty()) 

@@ -33,7 +33,7 @@ public class CausanteServiceImpl implements CausanteService{
     private final RestTemplate restTemplate;
 
     @Override
-    public List<CausanteCuentaCorrienteDTO> obtenerDerechoCausantes(String rutCausante, String rutBeneficiario, String periodoDesde, String periodoHasta, String tipoCausante) {
+    public List<CausanteCuentaCorrienteDTO> obtenerDerechoCausantes(String rutCausante, String rutBeneficiario, String rutEmpleador, String periodoDesde, String periodoHasta, String tipoCausante) {
         String baseUrl = "https://ctacorrienteback-dev.azurewebsites.net/causante-service/v1/ctacte/causante/derecho/sinPagar/listar";
 
         // Construcción de la URL con parámetros en query string
@@ -50,8 +50,17 @@ public class CausanteServiceImpl implements CausanteService{
         // Convertir el array en lista, si es nulo devolver una lista vacía
         List<DerechoCausanteDTO> derechos = (responseArray != null) ? Arrays.asList(responseArray) : Collections.emptyList();
 
+     // Convertir el rutEmpleador recibido a int (si no es null y es un número válido)
+        int rutEmpleadorInt = (rutEmpleador != null && !rutEmpleador.isEmpty()) ? Integer.parseInt(rutEmpleador) : 0;
+
+        // 🔹 Filtrar solo los registros donde el rutEmpleador de la API coincida con el rutEmpleador recibido como parámetro
+        List<DerechoCausanteDTO> derechosFiltrados = derechos.stream()
+                .filter(d -> d.getRutEmpleador() == rutEmpleadorInt)
+                .collect(Collectors.toList());
+
+
         // 🔹 Agrupar por rutCausante y dvCausante
-        Map<String, List<DerechoCausanteDTO>> agrupados = derechos.stream()
+        Map<String, List<DerechoCausanteDTO>> agrupados = derechosFiltrados.stream()
                 .collect(Collectors.groupingBy(d -> d.getRutCausante() + "-" + d.getDvCausante()));
 
         // Lista de resultado
@@ -105,7 +114,6 @@ public class CausanteServiceImpl implements CausanteService{
 
         return resultado;
     }
-
 
 
     public List<CausanteDTO> obtenerDetalleCausante(int rutBeneficiario){

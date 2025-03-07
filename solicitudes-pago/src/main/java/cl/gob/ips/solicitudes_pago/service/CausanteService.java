@@ -7,7 +7,7 @@ import cl.gob.ips.solicitudes_pago.dto.CausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
 
 public interface CausanteService {
-    List<CausanteCuentaCorrienteDTO> obtenerDerechoCausantes(String rutCausante,String rutBeneficiario,String periodoDesde, String periodoHasta, String tipoCausante);
+    List<CausanteCuentaCorrienteDTO> obtenerDerechoCausantes(String rutCausante,String rutBeneficiario,String rutEmpleador, String periodoDesde, String periodoHasta, String tipoCausante);
     List<CausanteDTO> obtenerDetalleCausante(int rutBeneficiario);
     String insertarDetalleCausante(DetalleCausanteDTO causanteDTO);
     List<DetalleCausanteDTO> obtenerDetalleCausantePorId(int iIdCausanteSolicitud);

@@ -6,6 +6,7 @@ import lombok.Data;
 public class DerechoCausanteRequestDTO {
     private String rutCausante;
     private String rutBeneficiario;
+    private String rutEmpleador;
     private String periodoDesde;
     private String periodoHasta;
     private String tipoCausante;

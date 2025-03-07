@@ -358,7 +358,7 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         try {
             //if(request.getPeriodoDesde()!=null && request.getPeriodoHasta()!=null){
                 derechoCausantes = causanteService.obtenerDerechoCausantes(
-                    request.getRutCausante(), request.getRutBeneficiario(), request.getPeriodoDesde(), request.getPeriodoHasta(), request.getTipoCausante());    
+                    request.getRutCausante(), request.getRutBeneficiario(), request.getRutEmpleador(), request.getPeriodoDesde(), request.getPeriodoHasta(), request.getTipoCausante());    
             //}
             //else{
             //    derechoCausantes = causanteService.obtenerDerechoCausantes(
