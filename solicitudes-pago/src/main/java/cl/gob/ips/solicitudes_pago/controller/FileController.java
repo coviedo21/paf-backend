@@ -495,13 +495,13 @@ public class FileController {
         }
     }
 
-    @GetMapping("/descargarEvidenciaCausante/{idCriterioCausante}")
-    public ResponseEntity<byte[]> descargarEvidenciaCausante(@PathVariable int idCriterioCausante) {
+    @GetMapping("/descargarEvidenciaCausante/{idDetalleCausante}")
+    public ResponseEntity<byte[]> descargarEvidenciaCausante(@PathVariable int idDetalleCausante) {
         String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
             String fileShareName = "pagosafqa";
             
         try {
-            String rutaArchivo = criterioSolicitudService.obtenerCriterioCausantePorIdCriterio(idCriterioCausante).getArchivo();
+            String rutaArchivo = causanteService.obtenerDetalleCausantePorIdDetalle(idDetalleCausante).getArchivo();
             ShareFileClient fileClient = new ShareFileClientBuilder()
                     .connectionString(connectionString)
                     .shareName(fileShareName)
