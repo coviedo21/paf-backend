@@ -526,7 +526,7 @@ public class FileController {
     }
 
     @PostMapping("/subirEvidenciaFiniquitado")
-    public ResponseEntity<String> subirEvidenciaFiniquitado(@RequestParam("file") MultipartFile file, int idSolicitud) {
+    public ResponseEntity<String> subirEvidenciaFiniquitado(@RequestParam("file") MultipartFile file) {
         try {
             //String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
             String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
@@ -547,10 +547,7 @@ public class FileController {
             fileClient.create(file.getSize());
             fileClient.uploadFromFile(tempFile.toString());
 
-            SolicitudDTO solicitud = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0);
-            solicitud.setFiniquito(nombreRemoto);
-            solicitudPagoService.actualizarSolicitudPago(solicitud);
-            return ResponseEntity.ok("✅ Archivo subido correctamente: " + nombreRemoto);
+            return ResponseEntity.ok(nombreRemoto);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("❌ Error subiendo el archivo: " + e.getMessage());
         }
