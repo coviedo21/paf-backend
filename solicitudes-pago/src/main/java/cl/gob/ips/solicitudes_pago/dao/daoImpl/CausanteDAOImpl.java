@@ -287,6 +287,9 @@ public class CausanteDAOImpl implements CausanteDAO{
 
                 if (row.get("vcArchivo") != null) 
                     detalleDTO.setArchivo((String) row.get("vcArchivo"));
+                
+                if (row.get("vcNombreEstado") != null) 
+                    detalleDTO.setNombreEstado((String) row.get("vcNombreEstado"));
 
                 detallesCausante.add(detalleDTO);
             }
@@ -405,6 +408,9 @@ public class CausanteDAOImpl implements CausanteDAO{
 
             if (row.get("vcArchivo") != null) 
                 detalleDTO.setArchivo((String) row.get("vcArchivo"));
+
+            if (row.get("vcNombreEstado") != null) 
+                detalleDTO.setNombreEstado((String) row.get("vcNombreEstado"));
 
             return detalleDTO;
 
