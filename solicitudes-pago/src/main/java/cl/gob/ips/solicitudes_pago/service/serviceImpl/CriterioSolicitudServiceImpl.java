@@ -90,13 +90,8 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 8, true, null,null,null);
             
             // 10) Verificación de Retenciones Judiciales
-            if (verificarRetencionesJudiciales(String.valueOf(causante.getRutCausante()))) {
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 10, true, null,null,null);
-            } else {
-                solicitudAprobada = false;
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 10, false, null,null,null);
-            }
-
+            
             
         for(CriterioSolicitudCausanteDTO criterio: listaCriteriosCausante){
             criterioSolicitudDAO.insertarCriterioCausante(criterio);
