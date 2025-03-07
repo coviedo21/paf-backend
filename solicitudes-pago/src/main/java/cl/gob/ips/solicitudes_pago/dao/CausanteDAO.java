@@ -9,4 +9,6 @@ public interface CausanteDAO {
     List<CausanteDTO> obtenerDetalleCausante(int rutBeneficiario);
     String insertarDetalleCausante(DetalleCausanteDTO causanteDTO);
     List<DetalleCausanteDTO> obtenerDetalleCausantePorId(int iIdCausanteSolicitud);
+    DetalleCausanteDTO obtenerDetalleCausantePorIdDetalle(int iIdDetalleCausante);
+    boolean actualizarDetalleCausante(DetalleCausanteDTO detalleCausanteDTO);
 }

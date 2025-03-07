@@ -30,4 +30,19 @@ public class DetalleCausanteDTO {
     private String nombreEstado;
     private int rutEmpleador;
     private String dvEmpleador;
+    private int iNis;
+    private String dvNis;
+    private int numeroDocumento;
+    private String dvDocumento;
+    private Date fechaPago;
+    private int idRetencion;
+    private int rutReteniente;
+    private String dvReteniente;
+    private String nombresReteniente;
+    private String apellidoPaternoReteniente;
+    private String apellidoMaternoReteniente;
+    private int idFormaPago;
+    private int idBanco;
+    private String numeroCuenta;
+    private String archivo;
 }

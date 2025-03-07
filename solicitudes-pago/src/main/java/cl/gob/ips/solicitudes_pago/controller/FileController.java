@@ -56,8 +56,10 @@ import cl.gob.ips.solicitudes_pago.dto.ArchivoResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
+import cl.gob.ips.solicitudes_pago.service.CausanteService;
 import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
 import cl.gob.ips.solicitudes_pago.service.FileService;
 import cl.gob.ips.solicitudes_pago.service.SolicitudPagoService;
@@ -76,6 +78,8 @@ public class FileController {
     @Autowired
     private SolicitudPagoService solicitudPagoService;
 
+    @Autowired
+    private CausanteService causanteService;
     
 
     private final Map<String, String> estadoTareas = new ConcurrentHashMap<>();
@@ -433,7 +437,7 @@ public class FileController {
     }
 
     @PostMapping("/subirEvidenciaCausante")
-    public ResponseEntity<String> subirEvidenciaCausante(@RequestParam("file") MultipartFile file, int idCriterioCausante) {
+    public ResponseEntity<String> subirEvidenciaCausante(@RequestParam("file") MultipartFile file, int idDetalleCausante) {
         try {
             String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
             String fileShareName = "pagosafqa";
@@ -453,10 +457,10 @@ public class FileController {
             fileClient.create(file.getSize());
             fileClient.uploadFromFile(tempFile.toString());
 
-            CriterioSolicitudCausanteDTO criterio = criterioSolicitudService.obtenerCriterioCausantePorIdCriterio(idCriterioCausante);
-            criterio.setIdCriterioSolicitudCausante(idCriterioCausante);
-            criterio.setArchivo(nombreRemoto);
-            criterioSolicitudService.actualizarCriterioCausante(criterio);
+            DetalleCausanteDTO detalleCausante = causanteService.obtenerDetalleCausantePorIdDetalle(idDetalleCausante);
+            detalleCausante.setIdDetalleCausante(idDetalleCausante);
+            detalleCausante.setArchivo(nombreRemoto);
+            causanteService.actualizarDetalleCausante(detalleCausante);
             return ResponseEntity.ok("✅ Archivo subido correctamente: " + nombreRemoto);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("❌ Error subiendo el archivo: " + e.getMessage());

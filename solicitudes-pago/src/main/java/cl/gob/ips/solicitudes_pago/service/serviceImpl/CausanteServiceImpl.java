@@ -119,6 +119,14 @@ public class CausanteServiceImpl implements CausanteService{
     public List<DetalleCausanteDTO> obtenerDetalleCausantePorId(int iIdCausanteSolicitud){
         return causanteDAO.obtenerDetalleCausantePorId(iIdCausanteSolicitud);
     }
+    
+    public DetalleCausanteDTO obtenerDetalleCausantePorIdDetalle(int iIdDetalleCausante) {
+    	return causanteDAO.obtenerDetalleCausantePorIdDetalle(iIdDetalleCausante);
+    }
+    
+    public boolean actualizarDetalleCausante(DetalleCausanteDTO detalleCausanteDTO) {
+    	return causanteDAO.actualizarDetalleCausante(detalleCausanteDTO);
+    }
 
     private LocalDate obtenerPrimerDiaMes(int periodo) {
         int year = periodo / 100;
