@@ -165,7 +165,7 @@ public class FileDAOImpl implements FileDAO{
                     else{return "**ERROR** Solicitud ya existe. Folio: "+archivo.getFolio()+" Rut Beneficiario: "+archivo.getRutTrabajador()+"-"+archivo.getDvTrabajador()+", Rut Causante: "+archivo.getRutCargaFamiliar()+"-"+archivo.getDvCargaFamiliar()+" Periodo: "+archivo.getPeriodo()+" Fecha Inicio Compensación: "+archivo.getFechaInicioCompensacion()+" Fecha Fin Compensación: "+archivo.getFechaFinCompensacion();}
                 }
                 else{
-                    return "**ERROR** Causante no cuenta con periodos con derecho a pago.";
+                    return "**ERROR** Causante no cuenta con periodos con derecho a pago. Folio: "+archivo.getFolio()+" Rut Beneficiario: "+archivo.getRutTrabajador()+"-"+archivo.getDvTrabajador()+", Rut Causante: "+archivo.getRutCargaFamiliar()+"-"+archivo.getDvCargaFamiliar()+" Periodo: "+archivo.getPeriodo()+" Fecha Inicio Compensación: "+archivo.getFechaInicioCompensacion()+" Fecha Fin Compensación: "+archivo.getFechaFinCompensacion();
                 }
             } catch (NumberFormatException | ParseException e) {
                 // Manejar la excepción adecuadamente
