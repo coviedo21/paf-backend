@@ -155,6 +155,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("vcNombreRegion", Types.VARCHAR),
                         new SqlParameter("vcCiudad", Types.VARCHAR),
                         new SqlParameter("nMontoHaber", Types.VARCHAR),
+                        new SqlParameter("vcEsPortuario", Types.VARCHAR),
                         new SqlOutParameter("idSolicitud", Types.INTEGER),
                         new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                 );
@@ -201,7 +202,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("vcNombreComuna", solicitudPago.getNombreComuna())
                 .addValue("vcNombreRegion", solicitudPago.getNombreRegion())
                 .addValue("vcCiudad", solicitudPago.getCiudadEmpleador())
-                .addValue("nMontoHaber", solicitudPago.getMontoHaber());
+                .addValue("nMontoHaber", solicitudPago.getMontoHaber())
+        		.addValue("vcEsPortuario", solicitudPago.getEsPortuario());
 
         try {
             Map<String, Object> result = jdbcCall.execute(inParams);

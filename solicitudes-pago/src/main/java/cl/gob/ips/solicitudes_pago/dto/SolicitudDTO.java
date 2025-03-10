@@ -62,4 +62,5 @@ public class SolicitudDTO {
     private String ciudadEmpleador;
     private String motivoRechazo;
     private BigDecimal montoHaber;
+    private String esPortuario;
 }
