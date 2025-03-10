@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class DerechoCausanteDTO {
-    private int id;
+    private Long id;
     private int rutCausante;
     private String dvCausante;
     private int rutBeneficiario;
