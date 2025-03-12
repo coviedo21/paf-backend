@@ -587,4 +587,10 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @GetMapping("/dias-licencia-finiquito")
+    public int obtenerDiasLicenciaFiniquito(@RequestParam int rutBeneficiario,
+                                            @RequestParam String fechaInicio,
+                                            @RequestParam String fechaFin) {
+        return licenciaFiniquitoService.obtenerDiasLicenciaFiniquito(rutBeneficiario, fechaInicio, fechaFin);
+    }
 }

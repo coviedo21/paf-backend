@@ -13,4 +13,5 @@ public interface LicenciaFiniquitoDAO {
     List<LicenciaFiniquitoDTO> obtenerLicenciaFiniquito(int rutBeneficiario, String nroLicencia, String fechaInicio, String fechaFin);
     List<DetalleLicenciaFiniquitoDTO> obtenerDetalleLicenciaFiniquito(int idLicFin);
     HashMap<String, String> agregarLicenciaFiniquito(LicenciaFiniquitoInputDTO licenciaFiniquito);
+    int calcularDiasLicenciaFiniquito(int rutBeneficiario, String fechaInicio, String fechaFin);
 }
