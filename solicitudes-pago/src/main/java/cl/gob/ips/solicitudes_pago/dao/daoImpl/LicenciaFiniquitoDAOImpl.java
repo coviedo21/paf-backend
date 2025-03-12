@@ -144,6 +144,17 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
         return respuesta;
     }
 
+    public int calcularDiasLicenciaFiniquito(int rutBeneficiario, String fechaInicio, String fechaFin) {
+        String sql = "{call " + esquema + ".sp_CalcularDiasLicenciaFiniquito(?, ?, ?)}";
+        return jdbcTemplate.queryForObject(
+                sql,
+                Integer.class,
+                rutBeneficiario,
+                fechaInicio,
+                fechaFin
+        );
+    }
+
     public static class LicenciaFiniquitoRowMapper implements RowMapper<LicenciaFiniquitoDTO> {
         @Override
         public LicenciaFiniquitoDTO mapRow(ResultSet rs, int rowNum) throws SQLException {

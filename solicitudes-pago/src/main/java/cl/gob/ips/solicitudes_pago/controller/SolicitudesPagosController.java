@@ -593,4 +593,10 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         return ResponseEntity.ok(resultado);
     }
 
+    @GetMapping("/diasLicenciaFiniquito")
+    public int obtenerDiasLicenciaFiniquito(@RequestParam int rutBeneficiario,
+                                            @RequestParam String fechaInicio,
+                                            @RequestParam String fechaFin) {
+        return licenciaFiniquitoService.obtenerDiasLicenciaFiniquito(rutBeneficiario, fechaInicio, fechaFin);
+    }
 }

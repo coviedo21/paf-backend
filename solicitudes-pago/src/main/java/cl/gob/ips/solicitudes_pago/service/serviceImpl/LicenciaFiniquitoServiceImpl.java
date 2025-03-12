@@ -31,4 +31,8 @@ public class LicenciaFiniquitoServiceImpl implements LicenciaFiniquitoService {
     public HashMap<String, String> agregarLicenciaFiniquito(LicenciaFiniquitoInputDTO licenciaFiniquito) {
         return licenciaFiniquitoDAO.agregarLicenciaFiniquito(licenciaFiniquito);
     }
+
+    public int obtenerDiasLicenciaFiniquito(int rutBeneficiario, String fechaInicio, String fechaFin) {
+        return licenciaFiniquitoDAO.calcularDiasLicenciaFiniquito(rutBeneficiario, fechaInicio, fechaFin);
+    }
 }
