@@ -2,24 +2,30 @@ package cl.gob.ips.solicitudes_pago.service.serviceImpl;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cl.gob.ips.solicitudes_pago.dao.CriterioSolicitudDAO;
 import cl.gob.ips.solicitudes_pago.dao.SolicitudPagoDAO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.RetencionJudicialDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
+import cl.gob.ips.solicitudes_pago.service.CausanteService;
 import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
 import cl.gob.ips.solicitudes_pago.service.FileService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +41,9 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 
     @Autowired
     private SolicitudPagoDAO solicitudPagoDAO;
+    
+    @Autowired
+    private CausanteService causanteService;
 
     List<CriterioSolicitudDTO> listaCriterios = new ArrayList<CriterioSolicitudDTO>();
     List<CriterioSolicitudCausanteDTO> listaCriteriosCausante = new ArrayList<CriterioSolicitudCausanteDTO>();
@@ -45,7 +54,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     }
 
     @Override
-    public boolean validarCriteriosResolucion(Integer idSolicitud){
+    public boolean validarCriteriosResolucion(Integer idSolicitud, boolean esArchivo){
         listaCriterios.clear();
         listaCriteriosCausante.clear();
         //List<SolicitudDTO> listaSolicitud = solicitudPagoDAO.consultarSolicitudPago(idSolicitud);
@@ -79,20 +88,42 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 5, true, null,null,null); 
                 
              // 7) Verificación de Relación Laboral Vigente
-                if (verificarRelacionLaboralVigente()) {
-                    agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 7, true, null,null,null);
-                } else {
-                    solicitudAprobada = false;
-                    agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 7, false, null,null,null);
+                if(!esArchivo) {
+	                if (verificarRelacionLaboralVigente()) {
+	                    agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 7, true, null,null,null);
+	                } else {
+	                    solicitudAprobada = false;
+	                    agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 7, false, null,null,null);
+	                }
                 }
-                
-            // 8) Verificación de Vigencia del Causante
+                else {
+                	agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 7, true, null,null,null);
+                }
+ 
+                // 8) Verificación de Vigencia del Causante
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 8, true, null,null,null);
             
             // 10) Verificación de Retenciones Judiciales
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 10, true, null,null,null);
             
-            
+                if(!esArchivo) {
+                List<DetalleCausanteDTO> listaDetalleCausante = causanteService.obtenerDetalleCausantePorId(causante.getIIdCausanteSolicitud());
+                
+	                for(DetalleCausanteDTO detalleCausante: listaDetalleCausante) {
+	                	RetencionJudicialDTO retencion = obtenerRetencionJudicial(detalleCausante.getRutCausante(),detalleCausante.getRutBeneficiario(), detalleCausante.getPeriodo());
+	                	DetalleCausanteDTO detalle = causanteService.obtenerDetalleCausantePorIdDetalle(detalleCausante.getIdDetalleCausante());
+	                	detalle.setIdRetencion(retencion.getIdRetencion());
+	                	detalle.setRutReteniente(retencion.getRutRetenedor());
+	                	detalle.setDvReteniente(retencion.getDvRetenedor());
+	                	detalle.setNombresReteniente(retencion.getNombreRetenedor());
+	                	detalle.setApellidoMaternoReteniente(retencion.getApellidoMaternoRetenedor());
+	                	detalle.setApellidoPaternoReteniente(retencion.getApellidoPaternoRetenedor());
+	                	detalle.setIdFormaPago(retencion.getIdFormaPago());
+	                	detalle.setIdBanco(retencion.getCodBanco());
+	                	detalle.setIdTipoCuenta(retencion.getCodTipoCuenta());
+	                	causanteService.actualizarDetalleCausante(detalle);
+	                }
+                }
         for(CriterioSolicitudCausanteDTO criterio: listaCriteriosCausante){
             criterioSolicitudDAO.insertarCriterioCausante(criterio);
         }
@@ -172,23 +203,31 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
         return false;
     }
     
-    public boolean verificarRetencionesJudiciales(String rut) {
-        // Usamos un Map para solo enviar rutCausante
-        Map<String, String> payload = new HashMap<>();
-        payload.put("rutCausante", rut);
-        String url = String.format("https://retencionjudicialback-dev.azurewebsites.net/retencion-judicial-filtro-ms-v1/filtro/filtrar-retenciones-judiciales");
-        ResponseDTO response = restTemplate.postForObject(url, payload, ResponseDTO.class);
-        
-        // getResultado() devuelve una lista, hacemos el casting
-        if (response.getResultado() instanceof List) {
+    public RetencionJudicialDTO obtenerRetencionJudicial(int rutCausante, int rutBeneficiario, int periodo) {
+        // Construcción de la URL con parámetros dinámicos
+        String url = String.format(
+            "https://retencionjudicialback-dev.azurewebsites.net/retencion-judicial-informacion-ms-v1/informacion/obtener-detalle-causante/%s/%s/%s",
+            rutCausante, rutBeneficiario, periodo
+        );
+
+        // Llamada a la API con RestTemplate
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseDTO response = restTemplate.getForObject(url, ResponseDTO.class);
+
+        // Validamos si la respuesta contiene una lista en el campo 'resultado'
+        if (response != null && response.getResultado() instanceof List<?>) {
             List<?> resultado = (List<?>) response.getResultado();
-            // Verificamos si el tamaño de la lista es mayor a 0
+
             if (!resultado.isEmpty()) {
-                return true;
+                // Convertimos el primer elemento de la lista a RetencionJudicialDTO
+                ObjectMapper objectMapper = new ObjectMapper();
+                return objectMapper.convertValue(resultado.get(0), RetencionJudicialDTO.class);
             }
         }
-        return false;
+
+        return null; // Retorna null si no hay datos
     }
+
 
     public boolean validarRut(String rut) {
         // Limpiar el RUT, eliminando puntos, guiones y espacios

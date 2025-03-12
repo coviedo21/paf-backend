@@ -6,22 +6,21 @@ import lombok.Data;
 
 @Data
 public class RetencionJudicialDTO {
-    private long idRetencion;
-    private long rutBeneficiario;
-    private String rutBeneficiarioString;
-    private String dvBeneficiario;
-    private String rutCausante;
-    private String rutCausanteString;
-    private long rutRetenedor;
+	private int idRetencion;
+    private int rutRetenedor;
+    private String dvRetenedor;
+    private String nombreRetenedor;
+    private String apellidoPaternoRetenedor;
+    private String apellidoMaternoRetenedor;
+    private int idFormaPago;
+    private int idCuentaBancaria;
+    private int codTipoCuenta;
+    private String nombreTipoCuenta;
+    private int codBanco;
+    private String nombreBanco;
+    private String numeroCuenta;
+    private Date fechaRetencion;
     private String rutRetenedorString;
-    private long estadoRetencion;
-    private long formaPago;
-    private long cuentaBancaria;
-    private Date fechaIngresoRetencion;
-    private Date fechaInicio;
-    private Date fechaFin;
-    private String declaracionJurada;
-    private String nombreFormaPago;
-    private String nombreEstadoRetencion;
-    private String tipoCausante;
+    private Date fechaInicioRetencion;
+    private Date fechaFinRetencion;
 }

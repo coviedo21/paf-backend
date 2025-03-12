@@ -563,7 +563,7 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
     public ResponseEntity<ResponseDTO> validarSolicitud(@PathVariable("idSolicitud") Integer idSolicitud) {
         
         ResponseDTO responseDTO = new ResponseDTO();
-        boolean validacionCriterios = criterioSolicitudService.validarCriteriosResolucion(idSolicitud);
+        boolean validacionCriterios = criterioSolicitudService.validarCriteriosResolucion(idSolicitud,false);
         if (validacionCriterios) {
         	ResolucionDTO resolucion = new ResolucionDTO();
             resolucion.setIIdSolicitud(idSolicitud);

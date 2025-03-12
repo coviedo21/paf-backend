@@ -43,6 +43,7 @@ public class DetalleCausanteDTO {
     private String apellidoMaternoReteniente;
     private int idFormaPago;
     private int idBanco;
+    private int idTipoCuenta;
     private String numeroCuenta;
     private String archivo;
 }
