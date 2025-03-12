@@ -8,11 +8,11 @@ import cl.gob.ips.mantenedor_comunas.dto.ResultadoRegionDTO;
 
 public interface ComunaDAO {
     ListaComunaDTO obtenerIdComunaPorNombre(String nombreComuna);
-    int insertarComunaMantenedor(ComunaMantenedorDTO comuna);
+    String insertarComunaMantenedor(ComunaMantenedorDTO comuna);
     ResultadoRegionDTO obtenerIdRegionPorNombre(String nombreRegion);
     int insertarRegionMantenedor(String regionIngresada, Integer idRegionOriginal, String nombreComunaOriginal, String esCoincidencia);
     ComunaMantenedorDTO obtenerComunaPorIdCoincidencia(Integer iIdCoincidencia);
-    int actualizarComunaMantenedor(ComunaMantenedorDTO comuna);
+    String actualizarComunaMantenedor(ComunaMantenedorDTO comuna);
     int eliminarComunaPorIdCoincidencia(Integer iIdCoincidencia);
     List<ComunaMantenedorDTO> obtenerRegistrosPorComunaOriginal(Integer iIdComunaOriginal);
 }

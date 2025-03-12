@@ -195,7 +195,7 @@ public class ComunaServiceImpl implements ComunaService {
         return comunaDAO.obtenerComunaPorIdCoincidencia(iIdCoincidencia);
     }
         
-    public int actualizarComunaMantenedor(ComunaMantenedorDTO comuna){
+    public String actualizarComunaMantenedor(ComunaMantenedorDTO comuna){
         return comunaDAO.actualizarComunaMantenedor(comuna);
     }
         
@@ -207,7 +207,7 @@ public class ComunaServiceImpl implements ComunaService {
         return comunaDAO.obtenerRegistrosPorComunaOriginal(iIdComunaOriginal);
     }
 
-    public int insertarComunaMantenedor(ComunaMantenedorDTO comuna){
+    public String insertarComunaMantenedor(ComunaMantenedorDTO comuna){
         return comunaDAO.insertarComunaMantenedor(comuna);
     }
 }

@@ -88,32 +88,24 @@ public class MantenedorController {
     }
 
     @PostMapping("/insertarComuna")
-    public ResponseEntity<Map<String, Object>> insertarComunaMantenedor(@RequestBody ComunaMantenedorDTO comuna) {
-        int result = comunaService.insertarComunaMantenedor(comuna);
-        Map<String, Object> response = new HashMap<>();
-        if (result > 0) {
-            response.put("message", "Comuna insertada correctamente.");
-            response.put("success", true);
-            response.put("comuna", comuna); 
-            return ResponseEntity.ok(response);
+    public ResponseEntity<String> insertarComunaMantenedor(@RequestBody ComunaMantenedorDTO comuna) {
+        String result = comunaService.insertarComunaMantenedor(comuna);
+
+        if (result == null || result.trim().isEmpty()) {  
+            return ResponseEntity.ok("Alias insertado correctamente.");
         } else {
-            response.put("message", "No se pudo insertar la comuna.");
-            response.put("success", false);
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().body("No se pudo insertar el alias. " + result);
         }
     }
 
-
     @PutMapping("/actualizarComuna")
-    public ResponseEntity<Map<String, String>> actualizarComunaMantenedor(@RequestBody ComunaMantenedorDTO comuna) {
-        int result = comunaService.actualizarComunaMantenedor(comuna);
-        Map<String, String> response = new HashMap<>();
-        if (result > 0) {
-            response.put("mensaje", "Comuna actualizada correctamente.");
-            return ResponseEntity.ok(response);
+    public ResponseEntity<String> actualizarComunaMantenedor(@RequestBody ComunaMantenedorDTO comuna) {
+        String result = comunaService.actualizarComunaMantenedor(comuna);
+        
+        if (result == null || result.trim().isEmpty()) {  
+            return ResponseEntity.ok("Alias actualizado correctamente.");
         } else {
-            response.put("mensaje", "No se pudo actualizar la comuna.");
-            return ResponseEntity.badRequest().body(response);
+            return ResponseEntity.badRequest().body("No se pudo actualizar el alias. " + result);
         }
     }
 

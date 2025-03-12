@@ -13,8 +13,8 @@ public interface ComunaService {
     public ListaComunaDTO validarComuna(int idRegion, String comuna);
     public ResultadoRegionDTO validarRegion(String region);
     ComunaMantenedorDTO obtenerComunaPorIdCoincidencia(Integer iIdCoincidencia);
-    int actualizarComunaMantenedor(ComunaMantenedorDTO comuna);
+    String actualizarComunaMantenedor(ComunaMantenedorDTO comuna);
     int eliminarComunaPorIdCoincidencia(Integer iIdCoincidencia);
     List<ComunaMantenedorDTO> obtenerRegistrosPorComunaOriginal(Integer iIdComunaOriginal);
-    int insertarComunaMantenedor(ComunaMantenedorDTO comuna);
+    String insertarComunaMantenedor(ComunaMantenedorDTO comuna);
 }

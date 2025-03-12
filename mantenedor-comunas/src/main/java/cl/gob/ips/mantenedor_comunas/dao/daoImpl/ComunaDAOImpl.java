@@ -50,17 +50,18 @@ public class ComunaDAOImpl implements ComunaDAO{
         return null;
     }
 
-    public int insertarComunaMantenedor(ComunaMantenedorDTO comuna) {
+    public String insertarComunaMantenedor(ComunaMantenedorDTO comuna) {
         try {
             SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
-                    .withSchemaName("paf")  // Asumiendo que el esquema es 'paf', cámbialo si es necesario
+                    .withSchemaName("paf")  // Esquema, cámbialo si es diferente
                     .withProcedureName("SP_InsertarComunaMantenedor")
                     .declareParameters(
                             new SqlParameter("ComunaIngresada", Types.VARCHAR),
                             new SqlParameter("IdComunaOriginal", Types.INTEGER),
                             new SqlParameter("NombreComunaOriginal", Types.VARCHAR),
                             new SqlParameter("EsCoincidencia", Types.CHAR),
-                            new SqlOutParameter("ReturnIdComunaMantenedor", Types.INTEGER)
+                            new SqlOutParameter("ReturnIdComunaMantenedor", Types.INTEGER),
+                            new SqlOutParameter("MensajeError", Types.VARCHAR) // Agregamos este parámetro
                     );
 
             MapSqlParameterSource inParams = new MapSqlParameterSource()
@@ -70,18 +71,22 @@ public class ComunaDAOImpl implements ComunaDAO{
                     .addValue("EsCoincidencia", comuna.getEsCoincidencia());
 
             Map<String, Object> result = jdbcCall.execute(inParams);
-            return result.get("ReturnIdComunaMantenedor") != null ? (Integer) result.get("ReturnIdComunaMantenedor") : 0;
+
+            String mensajeError = (String) result.get("MensajeError");
+
+            return (mensajeError != null && !mensajeError.isEmpty()) 
+                    ? mensajeError 
+                    : "";
 
         } catch (DataAccessException e) {
-            // Manejo específico de excepciones relacionadas con la base de datos
             System.err.println("Error al ejecutar el procedimiento almacenado: " + e.getMessage());
-            return 0; // Puedes retornar un valor específico o manejar el error de otra manera
+            return "Error al ejecutar el procedimiento almacenado.";
         } catch (Exception e) {
-            // Manejo de cualquier otra excepción
             System.err.println("Error inesperado: " + e.getMessage());
-            return 0;
+            return "Error inesperado.";
         }
     }
+
 
     public ResultadoRegionDTO obtenerIdRegionPorNombre(String nombreRegion){
         String sql = "SELECT idRegion,vcNombre FROM paf.fn_ObtenerRegionPorNombre(?)";
@@ -145,16 +150,31 @@ public class ComunaDAOImpl implements ComunaDAO{
         return null;
     }
 
-    // Método para actualizar registros en la tabla ComunaMantenedor
-    public int actualizarComunaMantenedor(ComunaMantenedorDTO comuna) {
-        String sql = "EXEC paf.SP_ActualizarComunaMantenedor ?, ?, ?, ?, ?";
-        return jdbcTemplate.update(sql, 
-            comuna.getIdCoincidencia(),
-            comuna.getComunaIngresada(),
-            comuna.getIdComunaOriginal(),
-            comuna.getNombreComunaOriginal(),
-            comuna.getEsCoincidencia()
-        );
+    public String actualizarComunaMantenedor(ComunaMantenedorDTO comuna) {
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
+                .withSchemaName("paf")
+                .withProcedureName("SP_ActualizarComunaMantenedor")
+                .declareParameters(
+                        new SqlParameter("iIdCoincidencia", Types.INTEGER),
+                        new SqlParameter("vcComunaIngresada", Types.VARCHAR),
+                        new SqlParameter("iIdComunaOriginal", Types.INTEGER),
+                        new SqlParameter("vcNombreComunaOriginal", Types.VARCHAR),
+                        new SqlParameter("cEsCoincidencia", Types.CHAR),
+                        new SqlOutParameter("MensajeError", Types.VARCHAR) // Captura el mensaje de error
+                );
+
+        MapSqlParameterSource inParams = new MapSqlParameterSource()
+                .addValue("iIdCoincidencia", comuna.getIdCoincidencia())
+                .addValue("vcComunaIngresada", comuna.getComunaIngresada())
+                .addValue("iIdComunaOriginal", comuna.getIdComunaOriginal())
+                .addValue("vcNombreComunaOriginal", comuna.getNombreComunaOriginal())
+                .addValue("cEsCoincidencia", comuna.getEsCoincidencia());
+
+        Map<String, Object> result = jdbcCall.execute(inParams);
+
+        String mensajeError = (String) result.get("MensajeError");
+
+        return (mensajeError != null && !mensajeError.isEmpty()) ? mensajeError : "";
     }
 
     // Método para eliminar registros de la tabla ComunaMantenedor
