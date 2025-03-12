@@ -47,8 +47,14 @@ public class CausanteServiceImpl implements CausanteService{
         // Llamada al endpoint usando RestTemplate
         DerechoCausanteDTO[] responseArray = restTemplate.getForObject(builder.toUriString(), DerechoCausanteDTO[].class);
 
-        // Convertir el array en lista, si es nulo devolver una lista vacía
-        List<DerechoCausanteDTO> derechos = (responseArray != null) ? Arrays.asList(responseArray) : Collections.emptyList();
+     // Convertir el array en lista y filtrar los registros donde rutEmpleador sea 0 o negativo
+        List<DerechoCausanteDTO> derechos = (responseArray != null)
+                ? Arrays.stream(responseArray)
+                        .filter(d -> d.getRutEmpleador() > 0) // Excluir si rutEmpleador es 0 o negativo
+                        .collect(Collectors.toList())
+                : Collections.emptyList();
+
+
 
         // 🔹 Agrupar por rutCausante y dvCausante
         Map<String, List<DerechoCausanteDTO>> agrupados = derechos.stream()
