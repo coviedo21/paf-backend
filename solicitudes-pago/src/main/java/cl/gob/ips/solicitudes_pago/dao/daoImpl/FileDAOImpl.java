@@ -126,6 +126,8 @@ public class FileDAOImpl implements FileDAO{
                         derecho.setRentaPromedio(new BigDecimal(derechoCausante.getDetalle().get(0).getRentaPromedio()));
                         derecho.setCodigoTramo(derechoCausante.getDetalle().get(0).getCodigoTramo());
                         derecho.setDiasReconocimiento(derechoCausante.getDetalle().get(0).getDiasReconocimiento());
+                        derecho.setRutEmpleador(derechoCausante.getDetalle().get(0).getRutEmpleador());
+                        derecho.setDvEmpleador(derechoCausante.getDetalle().get(0).getDvEmpleador());
                         derecho.setEstado(1);
                         //periodosAprobados = periodosAprobados + derecho.getPeriodo()+","; 
                         //totalPagar = totalPagar.add(derecho.getMontoMovimiento());
@@ -147,6 +149,8 @@ public class FileDAOImpl implements FileDAO{
                         derecho.setRentaPromedio(BigDecimal.ZERO);
                         derecho.setCodigoTramo(0);
                         derecho.setDiasReconocimiento(0);
+                        derecho.setRutEmpleador(0);
+                        derecho.setDvEmpleador(null);
                         derecho.setEstado(2);
                         listaDetalle.add(derecho);    
                     }
