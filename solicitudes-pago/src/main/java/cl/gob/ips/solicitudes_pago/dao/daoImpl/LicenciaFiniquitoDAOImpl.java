@@ -145,7 +145,7 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
     }
 
     public int calcularDiasLicenciaFiniquito(int rutBeneficiario, String fechaInicio, String fechaFin) {
-        String sql = "{call paf.CalcularDiasLicenciaFiniquito(?, ?, ?)}";
+        String sql = "{call " + esquema + ".sp_CalcularDiasLicenciaFiniquito(?, ?, ?)}";
         return jdbcTemplate.queryForObject(
                 sql,
                 Integer.class,
