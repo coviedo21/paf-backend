@@ -163,10 +163,11 @@ public List<ProcesoDTO> filtrarProcesos(String texto) {
             if (row.get("idUsuario") != null) procesoDTO.setIdUsuario((Integer) row.get("idUsuario"));
             if (row.get("nombreUsuario") != null) procesoDTO.setNombreUsuario((String) row.get("nombreUsuario"));
             if (row.get("pagosTotales") != null) procesoDTO.setPagosTotales((BigDecimal) row.get("pagosTotales"));
-            if (row.get("aprobados") != null) procesoDTO.setAprobados((BigDecimal) row.get("aprobados"));
-            if (row.get("rechazados") != null) procesoDTO.setRechazados((BigDecimal) row.get("rechazados"));
+            if (row.get("aprobados") != null) procesoDTO.setAprobados((BigDecimal) row.get("Aprobados"));
+            if (row.get("rechazados") != null) procesoDTO.setRechazados((BigDecimal) row.get("Rechazados"));
             if (row.get("idEstado") != null) procesoDTO.setIdEstado((Integer) row.get("idEstado"));
             if (row.get("fechaCreacion") != null) procesoDTO.setFechaCreacion((Date) row.get("fechaCreacion"));
+            if (row.get("nombreEstado") != null) procesoDTO.setNombreEstado((String) row.get("nombreEstado"));
             if (row.get("fechaEjecucion") != null) procesoDTO.setFechaEjecucion((Date) row.get("fechaEjecucion"));
             if (row.get("periodo") != null) procesoDTO.setPeriodo((String) row.get("periodo"));
             if (row.get("TiposSolicitante") != null) procesoDTO.setNombresTiposSolicitantes((String) row.get("TiposSolicitante"));
