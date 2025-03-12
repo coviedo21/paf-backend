@@ -523,7 +523,7 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
 
 
     @GetMapping("/obtenerDetalleCausantePorId/{idCausanteSolicitud}")
-    public ResponseEntity<List<DetalleCausanteDTO>> obtenerDetalleCausantePorIdgit (@PathVariable("idCausanteSolicitud") Integer idCausanteSolicitud) {
+    public ResponseEntity<List<DetalleCausanteDTO>> obtenerDetalleCausantePorId (@PathVariable("idCausanteSolicitud") Integer idCausanteSolicitud) {
         List<DetalleCausanteDTO> detalleCausante = causanteService.obtenerDetalleCausantePorId(idCausanteSolicitud);
         if (detalleCausante != null && !detalleCausante.isEmpty()) {
             return ResponseEntity.ok(detalleCausante);
@@ -585,6 +585,12 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
             return ResponseEntity.ok(responseDTO);
         }
         return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+    @PostMapping("/actualizarDetalleCausante")
+    public ResponseEntity<Boolean> actualizarDetalleCausante(@RequestBody DetalleCausanteDTO detalleCausanteDTO) {
+        Boolean resultado = causanteService.actualizarDetalleCausante(detalleCausanteDTO);
+        return ResponseEntity.ok(resultado);
     }
 
     @GetMapping("/dias-licencia-finiquito")
