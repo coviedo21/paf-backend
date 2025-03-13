@@ -107,22 +107,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
                 agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 10, true, null,null,null);
             
                 if(!esArchivo) {
-                List<DetalleCausanteDTO> listaDetalleCausante = causanteService.obtenerDetalleCausantePorId(causante.getIIdCausanteSolicitud());
                 
-	                for(DetalleCausanteDTO detalleCausante: listaDetalleCausante) {
-	                	RetencionJudicialDTO retencion = obtenerRetencionJudicial(detalleCausante.getRutCausante(),detalleCausante.getRutBeneficiario(), detalleCausante.getPeriodo());
-	                	DetalleCausanteDTO detalle = causanteService.obtenerDetalleCausantePorIdDetalle(detalleCausante.getIdDetalleCausante());
-	                	detalle.setIdRetencion(retencion.getIdRetencion());
-	                	detalle.setRutReteniente(retencion.getRutRetenedor());
-	                	detalle.setDvReteniente(retencion.getDvRetenedor());
-	                	detalle.setNombresReteniente(retencion.getNombreRetenedor());
-	                	detalle.setApellidoMaternoReteniente(retencion.getApellidoMaternoRetenedor());
-	                	detalle.setApellidoPaternoReteniente(retencion.getApellidoPaternoRetenedor());
-	                	detalle.setIdFormaPago(retencion.getIdFormaPago());
-	                	detalle.setIdBanco(retencion.getCodBanco());
-	                	detalle.setIdTipoCuenta(retencion.getCodTipoCuenta());
-	                	causanteService.actualizarDetalleCausante(detalle);
-	                }
                 }
         for(CriterioSolicitudCausanteDTO criterio: listaCriteriosCausante){
             criterioSolicitudDAO.insertarCriterioCausante(criterio);
@@ -203,31 +188,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
         return false;
     }
     
-    public RetencionJudicialDTO obtenerRetencionJudicial(int rutCausante, int rutBeneficiario, int periodo) {
-        // Construcción de la URL con parámetros dinámicos
-        String url = String.format(
-            "https://retencionjudicialback-dev.azurewebsites.net/retencion-judicial-informacion-ms-v1/informacion/obtener-detalle-causante/%s/%s/%s",
-            rutCausante, rutBeneficiario, periodo
-        );
-
-        // Llamada a la API con RestTemplate
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseDTO response = restTemplate.getForObject(url, ResponseDTO.class);
-
-        // Validamos si la respuesta contiene una lista en el campo 'resultado'
-        if (response != null && response.getResultado() instanceof List<?>) {
-            List<?> resultado = (List<?>) response.getResultado();
-
-            if (!resultado.isEmpty()) {
-                // Convertimos el primer elemento de la lista a RetencionJudicialDTO
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.convertValue(resultado.get(0), RetencionJudicialDTO.class);
-            }
-        }
-
-        return null; // Retorna null si no hay datos
-    }
-
+    
 
     public boolean validarRut(String rut) {
         // Limpiar el RUT, eliminando puntos, guiones y espacios

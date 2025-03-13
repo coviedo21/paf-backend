@@ -46,4 +46,13 @@ public class DetalleCausanteDTO {
     private int idTipoCuenta;
     private String numeroCuenta;
     private String archivo;
+    private int idProcesoPago;
+    private int rutBeneficiarioPago;
+    private String dvBeneficiarioPago;
+    private int idFormaPagoFinal;
+    private int idBancoFinal;
+    private int idTipoCuentaFinal;
+    private String numeroCuentaFinal;
+    private int diasPago;
+    private int tipoSolicitante;
 }
