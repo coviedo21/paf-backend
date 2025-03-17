@@ -484,7 +484,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("vcApellidoPaternoReteniente", detalleCausanteDTO.getApellidoPaternoReteniente(), Types.VARCHAR)
                 .addValue("vcApellidoMaternoReteniente", detalleCausanteDTO.getApellidoMaternoReteniente(), Types.VARCHAR)
                 .addValue("iIdFormaPagoFinal", detalleCausanteDTO.getIdFormaPagoFinal(), Types.INTEGER)
-                .addValue("iBancoFinal", detalleCausanteDTO.getIdBancoFinal(), Types.INTEGER)
+                .addValue("iIdBancoFinal", detalleCausanteDTO.getIdBancoFinal(), Types.INTEGER)
                 .addValue("iIdTipoCuentaFinal", detalleCausanteDTO.getIdTipoCuentaFinal())
                 .addValue("vcNumeroCuentaFinal", detalleCausanteDTO.getNumeroCuentaFinal(), Types.VARCHAR)
                 .addValue("vcArchivo", detalleCausanteDTO.getArchivo(), Types.VARCHAR)
