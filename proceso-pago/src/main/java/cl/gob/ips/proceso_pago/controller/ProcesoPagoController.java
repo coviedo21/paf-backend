@@ -36,6 +36,7 @@ import com.azure.storage.file.share.ShareFileClient;
 import com.azure.storage.file.share.ShareFileClientBuilder;
 
 import cl.gob.ips.proceso_pago.dto.DatosProcesoPorTipoDTO;
+import cl.gob.ips.proceso_pago.dto.DetalleCausanteDTO;
 import cl.gob.ips.proceso_pago.dto.EmisionArchivoDTO;
 import cl.gob.ips.proceso_pago.dto.EmisionDTO;
 import cl.gob.ips.proceso_pago.dto.ProcesoDTO;
@@ -340,7 +341,8 @@ registro.setHDmonto15(valores[86]);
                         emision.setIdProceso(idProceso); //CAMBIAR ESTO QUE ESTA EN DURO
                         emision.setRutaArchivo(nombreRemoto);
                         emisionService.insertarEmision(emision);
-                                              
+                        
+                                                                 
                 } catch (Exception e) {
                     return registros;
                 }
@@ -389,7 +391,7 @@ registro.setHDmonto15(valores[86]);
 
 
     @GetMapping("/descargarEvidenciaEmision/{idEmision}")
-    public ResponseEntity<byte[]> descargarEvidenciaEmisoin(@PathVariable int idEmision) {
+    public ResponseEntity<byte[]> descargarEvidenciaEmision(@PathVariable int idEmision) {
         String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
             String fileShareName = "pagosafqa";
 

@@ -4,6 +4,7 @@ import java.util.List;
 import cl.gob.ips.proceso_pago.dto.ProcesoDTO;
 import cl.gob.ips.proceso_pago.dto.SolicitudDTO;
 import cl.gob.ips.proceso_pago.dto.DatosProcesoPorTipoDTO;
+import cl.gob.ips.proceso_pago.dto.DetalleCausanteDTO;
 public interface ProcesoDAO {
     int insertarProceso(ProcesoDTO insertarProcesoDTO);
     List<ProcesoDTO> consultarProceso(Long idProceso);
@@ -12,4 +13,5 @@ public interface ProcesoDAO {
     boolean actualizarEstadoProceso(int idProceso, int idEstadoProceso);
     void insertarProcesoTipoSolicitante(int idProceso, List<Integer> listaTipoSolicitante);
     List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso);
+    List<DetalleCausanteDTO> obtenerDetallesPorProcesoPago(int idProcesoPago);
 }

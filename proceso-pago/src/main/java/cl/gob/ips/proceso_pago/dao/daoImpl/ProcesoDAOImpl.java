@@ -20,6 +20,7 @@ import cl.gob.ips.proceso_pago.dao.ProcesoDAO;
 import cl.gob.ips.proceso_pago.dto.ProcesoDTO;
 import cl.gob.ips.proceso_pago.dto.SolicitudDTO;
 import cl.gob.ips.proceso_pago.dto.DatosProcesoPorTipoDTO;
+import cl.gob.ips.proceso_pago.dto.DetalleCausanteDTO;
 
 @Repository
 public class ProcesoDAOImpl implements ProcesoDAO {
@@ -322,6 +323,163 @@ public void insertarProcesoTipoSolicitante(int idProceso, List<Integer> listaTip
             }
 
             return solicitudesPago;
+    }
+    
+    @Override
+    public List<DetalleCausanteDTO> obtenerDetallesPorProcesoPago(int idProcesoPago) {
+        String sql = "SELECT * FROM paf.fn_ObtenerDetallesPorProcesoPago(?)";
+
+        try {
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, idProcesoPago);
+            List<DetalleCausanteDTO> detallesList = new ArrayList<>();
+
+            for (Map<String, Object> row : rows) {
+                DetalleCausanteDTO detalleDTO = new DetalleCausanteDTO();
+
+                if (row.get("idDetalleCausante") != null)
+                    detalleDTO.setIdDetalleCausante((Integer) row.get("idDetalleCausante"));
+
+                if (row.get("idCausanteSolicitud") != null)
+                    detalleDTO.setIdCausanteSolicitud((Integer) row.get("idCausanteSolicitud"));
+
+                if (row.get("rutCausante") != null)
+                    detalleDTO.setRutCausante((Integer) row.get("rutCausante"));
+
+                if (row.get("dvCausante") != null)
+                    detalleDTO.setDvCausante((String) row.get("dvCausante"));
+
+                if (row.get("periodo") != null)
+                    detalleDTO.setPeriodo((Integer) row.get("periodo"));
+
+                if (row.get("tipoMovimiento") != null)
+                    detalleDTO.setTipoMovimiento((Integer) row.get("tipoMovimiento"));
+
+                if (row.get("fechaMovimiento") != null)
+                    detalleDTO.setFechaMovimiento((Date) row.get("fechaMovimiento"));
+
+                if (row.get("entradaSalida") != null)
+                    detalleDTO.setEntradaSalida((String) row.get("entradaSalida"));
+
+                if (row.get("montoMovimiento") != null)
+                    detalleDTO.setMontoMovimiento((BigDecimal) row.get("montoMovimiento"));
+
+                if (row.get("tipoCausante") != null)
+                    detalleDTO.setTipoCausante((Integer) row.get("tipoCausante"));
+
+                if (row.get("idBeneficio") != null)
+                    detalleDTO.setIdBeneficio((Integer) row.get("idBeneficio"));
+
+                if (row.get("rentaPromedio") != null)
+                    detalleDTO.setRentaPromedio((BigDecimal) row.get("rentaPromedio"));
+
+                if (row.get("diasReconocimiento") != null)
+                    detalleDTO.setDiasReconocimiento((Integer) row.get("diasReconocimiento"));
+
+                if (row.get("codigoTramo") != null)
+                    detalleDTO.setCodigoTramo((Integer) row.get("codigoTramo"));
+
+                if (row.get("fechaFinVigencia") != null)
+                    detalleDTO.setFechaFinVigencia((Date) row.get("fechaFinVigencia"));
+
+                if (row.get("fechaInicioVigencia") != null)
+                    detalleDTO.setFechaInicioVigencia((Date) row.get("fechaInicioVigencia"));
+
+                if (row.get("estado") != null)
+                    detalleDTO.setEstado((Integer) row.get("estado"));
+
+                if (row.get("rutBeneficiario") != null)
+                    detalleDTO.setRutBeneficiario((Integer) row.get("rutBeneficiario"));
+
+                if (row.get("dvBeneficiario") != null)
+                    detalleDTO.setDvBeneficiario((String) row.get("dvBeneficiario"));
+
+                if (row.get("rutEmpleador") != null)
+                    detalleDTO.setRutEmpleador((Integer) row.get("rutEmpleador"));
+
+                if (row.get("dvEmpleador") != null)
+                    detalleDTO.setDvEmpleador((String) row.get("dvEmpleador"));
+
+                if (row.get("nis") != null)
+                    detalleDTO.setINis((Integer) row.get("nis"));
+
+                if (row.get("dvNis") != null)
+                    detalleDTO.setDvNis((String) row.get("dvNis"));
+
+                if (row.get("numeroDocumento") != null)
+                    detalleDTO.setNumeroDocumento((Integer) row.get("numeroDocumento"));
+
+                if (row.get("dvNumeroDocumento") != null)
+                    detalleDTO.setDvDocumento((String) row.get("dvNumeroDocumento"));
+
+                if (row.get("fechaPago") != null)
+                    detalleDTO.setFechaPago((Date) row.get("fechaPago"));
+
+                if (row.get("idRetencion") != null)
+                    detalleDTO.setIdRetencion((Integer) row.get("idRetencion"));
+
+                if (row.get("rutReteniente") != null)
+                    detalleDTO.setRutReteniente((Integer) row.get("rutReteniente"));
+
+                if (row.get("dvReteniente") != null)
+                    detalleDTO.setDvReteniente((String) row.get("dvReteniente"));
+
+                if (row.get("nombresReteniente") != null)
+                    detalleDTO.setNombresReteniente((String) row.get("nombresReteniente"));
+
+                if (row.get("apellidoPaternoReteniente") != null)
+                    detalleDTO.setApellidoPaternoReteniente((String) row.get("apellidoPaternoReteniente"));
+
+                if (row.get("apellidoMaternoReteniente") != null)
+                    detalleDTO.setApellidoMaternoReteniente((String) row.get("apellidoMaternoReteniente"));
+
+                if (row.get("idFormaPago") != null)
+                    detalleDTO.setIdFormaPago((Integer) row.get("idFormaPago"));
+
+                if (row.get("banco") != null)
+                    detalleDTO.setIdBanco((Integer) row.get("banco"));
+
+                if (row.get("numeroCuenta") != null)
+                    detalleDTO.setNumeroCuenta((String) row.get("numeroCuenta"));
+
+                if (row.get("archivo") != null)
+                    detalleDTO.setArchivo((String) row.get("archivo"));
+
+                if (row.get("idProcesoPago") != null)
+                    detalleDTO.setIdProcesoPago((Integer) row.get("idProcesoPago"));
+
+                if (row.get("tipoCuenta") != null)
+                    detalleDTO.setIdTipoCuenta((Integer) row.get("tipoCuenta"));
+
+                if (row.get("rutBeneficiarioPago") != null)
+                    detalleDTO.setRutBeneficiarioPago((Integer) row.get("rutBeneficiarioPago"));
+
+                if (row.get("dvBeneficiarioPago") != null)
+                    detalleDTO.setDvBeneficiarioPago((String) row.get("dvBeneficiarioPago"));
+
+                if (row.get("formaPagoFinal") != null)
+                    detalleDTO.setIdFormaPagoFinal((Integer) row.get("formaPagoFinal"));
+
+                if (row.get("bancoFinal") != null)
+                    detalleDTO.setIdBancoFinal((Integer) row.get("bancoFinal"));
+
+                if (row.get("tipoCuentaFinal") != null)
+                    detalleDTO.setIdTipoCuentaFinal((Integer) row.get("tipoCuentaFinal"));
+
+                if (row.get("numeroCuentaFinal") != null)
+                    detalleDTO.setNumeroCuentaFinal((String) row.get("numeroCuentaFinal"));
+
+                if (row.get("diasPago") != null)
+                    detalleDTO.setDiasPago((Integer) row.get("diasPago"));
+
+                detallesList.add(detalleDTO);
+            }
+
+            return detallesList;
+
+        } catch (Exception e) {
+            System.err.println("Error al ejecutar la consulta: " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
 }

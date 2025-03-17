@@ -156,7 +156,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("iEstado", causanteDTO.getEstado())
                 .addValue("iRutEmpleador", causanteDTO.getRutEmpleador())
                 .addValue("vcDvEmpleador", causanteDTO.getDvEmpleador())
-                .addValue("iNis", causanteDTO.getINis())
+                .addValue("iNis", causanteDTO.getRutNis())
                 .addValue("vcDvNis", causanteDTO.getDvNis())
                 .addValue("iNumeroDocumento", causanteDTO.getNumeroDocumento())
                 .addValue("vcDvDocumento", causanteDTO.getDvDocumento())
@@ -167,10 +167,12 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("vcNombresReteniente", causanteDTO.getNombresReteniente())
                 .addValue("vcApellidoPaternoReteniente", causanteDTO.getApellidoPaternoReteniente())
                 .addValue("vcApellidoMaternoReteniente", causanteDTO.getApellidoMaternoReteniente())
-                .addValue("iIdFormaPago", causanteDTO.getIdFormaPago())
-                .addValue("iIdBanco", causanteDTO.getIdBanco())
-                .addValue("vcNumeroCuenta", causanteDTO.getNumeroCuenta())
+                .addValue("iIdFormaPagoFinal", causanteDTO.getIdFormaPagoFinal())
+                .addValue("iIdBancoFinal", causanteDTO.getIdBancoFinal())
+                .addValue("iIdTipoCuentaFinal", causanteDTO.getIdTipoCuentaFinal())
+                .addValue("vcNumeroCuentaFinal", causanteDTO.getNumeroCuentaFinal())
                 .addValue("vcArchivo", causanteDTO.getArchivo())
+                .addValue("iDiasPago", causanteDTO.getDiasPago())
                 .addValue("mensajeRespuesta", Types.VARCHAR);
 
         Map<String, Object> result = jdbcCall.execute(inParams);
@@ -244,7 +246,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                     detalleDTO.setDvEmpleador((String) row.get("vcDvEmpleador"));
 
                 if (row.get("iNis") != null) 
-                    detalleDTO.setINis((Integer) row.get("iNis"));
+                    detalleDTO.setRutNis((Integer) row.get("iNis"));
 
                 if (row.get("vcDvNis") != null) 
                     detalleDTO.setDvNis((String) row.get("vcDvNis"));
@@ -276,20 +278,32 @@ public class CausanteDAOImpl implements CausanteDAO{
                 if (row.get("vcApellidoMaternoReteniente") != null) 
                     detalleDTO.setApellidoMaternoReteniente((String) row.get("vcApellidoMaternoReteniente"));
 
-                if (row.get("iIdFormaPago") != null) 
-                    detalleDTO.setIdFormaPago((Integer) row.get("iIdFormaPago"));
+                if (row.get("iFormaPagoFinal") != null) 
+                    detalleDTO.setIdFormaPagoFinal((Integer) row.get("iFormaPagoFinal"));
 
-                if (row.get("iIdBanco") != null) 
-                    detalleDTO.setIdBanco((Integer) row.get("iIdBanco"));
+                if (row.get("iBancoFinal") != null) 
+                    detalleDTO.setIdBancoFinal((Integer) row.get("iBancoFinal"));
+                
+                if (row.get("iTipoCuentaFinal") != null) 
+                    detalleDTO.setIdTipoCuentaFinal((Integer) row.get("iTipoCuentaFinal"));
 
-                if (row.get("vcNumeroCuenta") != null) 
-                    detalleDTO.setNumeroCuenta((String) row.get("vcNumeroCuenta"));
+                if (row.get("vcNumeroCuentaFinal") != null) 
+                    detalleDTO.setNumeroCuentaFinal((String) row.get("vcNumeroCuentaFinal"));
 
                 if (row.get("vcArchivo") != null) 
                     detalleDTO.setArchivo((String) row.get("vcArchivo"));
                 
                 if (row.get("vcNombreEstado") != null) 
                     detalleDTO.setNombreEstado((String) row.get("vcNombreEstado"));
+                
+                if (row.get("iDiasPago") != null) 
+                    detalleDTO.setDiasPago((Integer) row.get("iDiasPago"));
+                
+                if (row.get("iRutBeneficiarioPago") != null) 
+                    detalleDTO.setRutBeneficiarioPago((Integer) row.get("iRutBeneficiarioPago"));
+                
+                if (row.get("vcDvBeneficiarioPago") != null) 
+                    detalleDTO.setDvBeneficiarioPago((String) row.get("vcDvBeneficiarioPago"));
 
                 detallesCausante.add(detalleDTO);
             }
@@ -365,7 +379,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 detalleDTO.setDvEmpleador((String) row.get("vcDvEmpleador"));
 
             if (row.get("iNis") != null) 
-                detalleDTO.setINis((Integer) row.get("iNis"));
+                detalleDTO.setRutNis((Integer) row.get("iNis"));
 
             if (row.get("vcDvNis") != null) 
                 detalleDTO.setDvNis((String) row.get("vcDvNis"));
@@ -397,14 +411,17 @@ public class CausanteDAOImpl implements CausanteDAO{
             if (row.get("vcApellidoMaternoReteniente") != null) 
                 detalleDTO.setApellidoMaternoReteniente((String) row.get("vcApellidoMaternoReteniente"));
 
-            if (row.get("iIdFormaPago") != null) 
-                detalleDTO.setIdFormaPago((Integer) row.get("iIdFormaPago"));
+            if (row.get("iFormaPagoFinal") != null) 
+                detalleDTO.setIdFormaPagoFinal((Integer) row.get("iFormaPagoFinal"));
 
-            if (row.get("iIdBanco") != null) 
-                detalleDTO.setIdBanco((Integer) row.get("iIdBanco"));
+            if (row.get("iBancoFinal") != null) 
+                detalleDTO.setIdBancoFinal((Integer) row.get("iBancoFinal"));
+            
+            if (row.get("iTipoCuentaFinal") != null) 
+                detalleDTO.setIdTipoCuentaFinal((Integer) row.get("iTipoCuentaFinal"));
 
-            if (row.get("vcNumeroCuenta") != null) 
-                detalleDTO.setNumeroCuenta((String) row.get("vcNumeroCuenta"));
+            if (row.get("vcNumeroCuentaFinal") != null) 
+                detalleDTO.setNumeroCuentaFinal((String) row.get("vcNumeroCuentaFinal"));
 
             if (row.get("vcArchivo") != null) 
                 detalleDTO.setArchivo((String) row.get("vcArchivo"));
@@ -412,6 +429,15 @@ public class CausanteDAOImpl implements CausanteDAO{
             if (row.get("vcNombreEstado") != null) 
                 detalleDTO.setNombreEstado((String) row.get("vcNombreEstado"));
 
+            if (row.get("iDiasPago") != null) 
+                detalleDTO.setDiasPago((Integer) row.get("iDiasPago"));
+            
+            if (row.get("iRutBeneficiarioPago") != null) 
+                detalleDTO.setRutBeneficiarioPago((Integer) row.get("iRutBeneficiarioPago"));
+            
+            if (row.get("vcDvBeneficiarioPago") != null) 
+                detalleDTO.setDvBeneficiarioPago((String) row.get("vcDvBeneficiarioPago"));
+            
             return detalleDTO;
 
         } catch (Exception e) {
@@ -446,7 +472,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("dFechaInicioVigencia", detalleCausanteDTO.getFechaInicioVigencia(), Types.DATE)
                 .addValue("iRutEmpleador", detalleCausanteDTO.getRutEmpleador(), Types.INTEGER)
                 .addValue("vcDvEmpleador", detalleCausanteDTO.getDvEmpleador(), Types.VARCHAR)
-                .addValue("iNis", detalleCausanteDTO.getINis(), Types.INTEGER)
+                .addValue("iNis", detalleCausanteDTO.getRutNis(), Types.INTEGER)
                 .addValue("vcDvNis", detalleCausanteDTO.getDvNis(), Types.VARCHAR)
                 .addValue("iNumeroDocumento", detalleCausanteDTO.getNumeroDocumento(), Types.INTEGER)
                 .addValue("vcDvNumeroDocumento", detalleCausanteDTO.getDvDocumento(), Types.VARCHAR)
@@ -457,9 +483,10 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("vcNombresReteniente", detalleCausanteDTO.getNombresReteniente(), Types.VARCHAR)
                 .addValue("vcApellidoPaternoReteniente", detalleCausanteDTO.getApellidoPaternoReteniente(), Types.VARCHAR)
                 .addValue("vcApellidoMaternoReteniente", detalleCausanteDTO.getApellidoMaternoReteniente(), Types.VARCHAR)
-                .addValue("iIdFormaPago", detalleCausanteDTO.getIdFormaPago(), Types.INTEGER)
-                .addValue("iBanco", detalleCausanteDTO.getIdBanco(), Types.INTEGER)
-                .addValue("vcNumeroCuenta", detalleCausanteDTO.getNumeroCuenta(), Types.VARCHAR)
+                .addValue("iIdFormaPagoFinal", detalleCausanteDTO.getIdFormaPagoFinal(), Types.INTEGER)
+                .addValue("iBancoFinal", detalleCausanteDTO.getIdBancoFinal(), Types.INTEGER)
+                .addValue("iIdTipoCuentaFinal", detalleCausanteDTO.getIdTipoCuentaFinal())
+                .addValue("vcNumeroCuentaFinal", detalleCausanteDTO.getNumeroCuentaFinal(), Types.VARCHAR)
                 .addValue("vcArchivo", detalleCausanteDTO.getArchivo(), Types.VARCHAR)
                 .addValue("mensajeRespuesta", Types.VARCHAR);
 
