@@ -63,4 +63,5 @@ public class SolicitudDTO {
     private String motivoRechazo;
     private BigDecimal montoHaber;
     private String esPortuario;
+    private BigDecimal totalPago;
 }
