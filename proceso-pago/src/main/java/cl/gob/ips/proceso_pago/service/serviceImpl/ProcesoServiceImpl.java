@@ -67,7 +67,7 @@ public class ProcesoServiceImpl implements ProcesoService {
             }
             return idProceso;
         }
-        return 0;
+        return idProceso;
     }
     
     public RetencionJudicialDTO obtenerRetencionJudicial(int rutCausante, int rutBeneficiario, int periodo) {
