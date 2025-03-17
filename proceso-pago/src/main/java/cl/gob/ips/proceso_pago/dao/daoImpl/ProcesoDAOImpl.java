@@ -470,6 +470,9 @@ public void insertarProcesoTipoSolicitante(int idProceso, List<Integer> listaTip
 
                 if (row.get("diasPago") != null)
                     detalleDTO.setDiasPago((Integer) row.get("diasPago"));
+                
+                if (row.get("tipoSolicitante") != null)
+                    detalleDTO.setTipoSolicitante((Integer) row.get("tipoSolicitante"));
 
                 detallesList.add(detalleDTO);
             }
