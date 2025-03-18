@@ -55,4 +55,5 @@ public class DetalleCausanteDTO {
     private String numeroCuentaFinal;
     private int diasPago;
     private int tipoSolicitante;
+    private BigDecimal totalPago;
 }

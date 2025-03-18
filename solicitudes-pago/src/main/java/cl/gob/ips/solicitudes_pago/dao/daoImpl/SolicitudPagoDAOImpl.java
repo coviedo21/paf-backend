@@ -671,20 +671,26 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                     );
 
             MapSqlParameterSource inParams = new MapSqlParameterSource()
-                    .addValue("iIdSolicitud", resolucionDTO.getIIdSolicitud())
-                    .addValue("iIdEstado", resolucionDTO.getIIdEstado())
+                    .addValue("iIdSolicitud", resolucionDTO.getIdSolicitud())
+                    .addValue("iIdEstado", resolucionDTO.getIdEstado())
                     .addValue("vcDescripcion", resolucionDTO.getVcDescripcion())
                     .addValue("vcApelable", resolucionDTO.getVcApelable())
-                    .addValue("iAutor", resolucionDTO.getIAutor())
+                    .addValue("iAutor", resolucionDTO.getAutor())
                     .addValue("dFechaAval", resolucionDTO.getDFechaAval())
                     .addValue("dFechaApelacion", resolucionDTO.getDFechaApelacion())
-                    .addValue("iMotivoRechazo", resolucionDTO.getIMotivoRechazo());
+                    .addValue("iMotivoRechazo", resolucionDTO.getMotivoRechazo());
 
             try {
-                Map<String, Object> result = jdbcCall.execute(inParams);
-                System.out.println("Resolución creada exitósamente");
-                String mensaje = (String) result.get("mensajeRespuesta");
-                return (Integer) result.get("idResolucion");
+            	Map<String, Object> result = jdbcCall.execute(inParams);
+
+            	String mensaje = (String) result.get("mensajeRespuesta");
+
+            	if (mensaje != null && !mensaje.trim().isEmpty()) {
+            	    System.out.println("Resolución creada exitosamente");
+            	}
+
+            	return (Integer) result.get("idResolucion");
+
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
                 return 0;

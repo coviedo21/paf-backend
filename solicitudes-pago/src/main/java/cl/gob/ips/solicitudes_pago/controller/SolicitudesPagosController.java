@@ -566,11 +566,11 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         boolean validacionCriterios = criterioSolicitudService.validarCriteriosResolucion(idSolicitud,false);
         if (validacionCriterios) {
         	ResolucionDTO resolucion = new ResolucionDTO();
-            resolucion.setIIdSolicitud(idSolicitud);
-            resolucion.setIAutor(1);
-            resolucion.setIIdEstado(2);
+            resolucion.setIdSolicitud(idSolicitud);
+            resolucion.setAutor(1);
+            resolucion.setIdEstado(2);
             resolucion.setVcDescripcion("Se valida solicitud.");
-            resolucion.setIMotivoRechazo(null);
+            resolucion.setMotivoRechazo(null);
             int resolucionResponse = solicitudPagoService.insertarResolucion(resolucion);
             if(resolucionResponse>0) {
             	responseDTO.setCodigoRetorno(0);

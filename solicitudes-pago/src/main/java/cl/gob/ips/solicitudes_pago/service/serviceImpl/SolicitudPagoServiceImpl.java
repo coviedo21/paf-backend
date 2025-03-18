@@ -56,11 +56,11 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 actualizarSolicitudPago(actualizarSolicitud);
                 
                 ResolucionDTO resolucion = new ResolucionDTO();
-                resolucion.setIIdSolicitud((int) response.getResultado());
-                resolucion.setIAutor(solicitudPago.getIdUsuario());
-                resolucion.setIIdEstado(2);
+                resolucion.setIdSolicitud((int) response.getResultado());
+                resolucion.setAutor(solicitudPago.getIdUsuario());
+                resolucion.setIdEstado(2);
                 resolucion.setVcDescripcion("Solicitud cumple criterios y es enviada automáticamente.");
-                resolucion.setIMotivoRechazo(null);
+                resolucion.setMotivoRechazo(null);
                 insertarResolucion(resolucion);
                 try {
                     if(!esArchivo){
@@ -159,11 +159,11 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         
             for(SolicitudDTO solicitud : solicitudesPago){
                 ResolucionDTO resolucion = new ResolucionDTO();
-                resolucion.setIIdSolicitud(solicitud.getIdSolicitud());
-                resolucion.setIAutor(solicitud.getIdUsuario());
-                resolucion.setIIdEstado(7);
+                resolucion.setIdSolicitud(solicitud.getIdSolicitud());
+                resolucion.setAutor(solicitud.getIdUsuario());
+                resolucion.setIdEstado(7);
                 resolucion.setVcDescripcion("Termina plazo para subsanar, solicitud no es enviada y debe ser revisada");
-                resolucion.setIMotivoRechazo(null);
+                resolucion.setMotivoRechazo(null);
                 insertarResolucion(resolucion);
                 try {
                     emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" enviada","Terminó plazo de "+diasAntiguedad+" días para subsanar su solicitud N° "+solicitud.getIdSolicitud()+". Será revisada.");    
@@ -202,11 +202,11 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         SolicitudDTO solicitud = solicitudPagoDAO.consultarSolicitudPago(rechazoSolicitudDTO.getIdSolicitud()).get(0);
         MotivoRechazoDTO rechazo = solicitudPagoDAO.obtenerMotivoRechazoPorId(rechazoSolicitudDTO.getIdMotivoRechazo());
         ResolucionDTO resolucion = new ResolucionDTO();
-        resolucion.setIIdSolicitud(rechazoSolicitudDTO.getIdSolicitud());
-        resolucion.setIAutor(1);
-        resolucion.setIIdEstado(4);
+        resolucion.setIdSolicitud(rechazoSolicitudDTO.getIdSolicitud());
+        resolucion.setAutor(1);
+        resolucion.setIdEstado(4);
         resolucion.setVcDescripcion("Se rechaza solicitud.");
-        resolucion.setIMotivoRechazo(rechazoSolicitudDTO.getIdMotivoRechazo());
+        resolucion.setMotivoRechazo(rechazoSolicitudDTO.getIdMotivoRechazo());
         insertarResolucion(resolucion);
         try {
             emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" rechazada.","Su solicitud N° "+solicitud.getIdSolicitud()+" ha sido rechazada. Motivo de Rechazo:  "+rechazo.getNombre());    

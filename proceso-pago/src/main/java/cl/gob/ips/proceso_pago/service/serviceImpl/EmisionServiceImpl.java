@@ -1,7 +1,10 @@
 package cl.gob.ips.proceso_pago.service.serviceImpl;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,100 +48,93 @@ public class EmisionServiceImpl implements EmisionService {
             return false;
         }
 
-        // Obtener las solicitudes asociadas al proceso
-        List<SolicitudDTO> solicitudes = procesoDAO.obtenerSolicitudesPorProceso(idProceso);
+        // 1️ Obtener los detalles del proceso de pago
+        List<DetalleCausanteDTO> detalles = procesoDAO.obtenerDetallesPorProcesoPago(idProceso);
 
-        // Agrupar solicitudes por RutBeneficiario y sumar sus montos
-        Map<String, BigDecimal> solicitudesAgrupadas = solicitudes.stream()
-            .filter(s -> s.getRutBeneficiario() != null && s.getMontoHaber() != null)
+        // 2️ Agrupar los detalles por rutBeneficiarioPago y sumar los montos de totalPago
+        Map<Integer, BigDecimal> detallesAgrupados = detalles.stream()
             .collect(Collectors.groupingBy(
-                s -> s.getRutBeneficiario().toString(),
-                Collectors.reducing(BigDecimal.ZERO, SolicitudDTO::getMontoHaber, BigDecimal::add)
+                DetalleCausanteDTO::getRutBeneficiarioPago, // No es necesario verificar null, es un int
+                Collectors.reducing(BigDecimal.ZERO, DetalleCausanteDTO::getMontoMovimiento, BigDecimal::add)
             ));
 
         boolean errorEncontrado = false;
 
-        // Recorrer las solicitudes agrupadas por RutBeneficiario
-        for (Map.Entry<String, BigDecimal> entry : solicitudesAgrupadas.entrySet()) {
-            String rut = entry.getKey();
-            BigDecimal montoSolicitudes = entry.getValue();
+        // 3️ Recorrer los detalles agrupados por rutBeneficiarioPago
+        for (Map.Entry<Integer, BigDecimal> entry : detallesAgrupados.entrySet()) {
+            int rut = entry.getKey(); // `rutBeneficiarioPago` ya es int, no puede ser null
+            BigDecimal montoTotalPago = entry.getValue();
 
-            // Buscar si existe un registro en el archivo con el mismo RutBeneficiario
+            // Buscar si existe un registro en el archivo con el mismo RutBeneficiarioPago
             EmisionArchivoDTO archivoEncontrado = emision.stream()
-                .filter(e -> e.getRutBenef().replaceFirst("^0+(?!$)", "").equals(rut))
+                .filter(e -> Integer.parseInt(e.getRutBenef().replaceFirst("^0+(?!$)", "")) == rut)
                 .findFirst()
                 .orElse(null);
 
-            boolean solicitudEncontrada = archivoEncontrado != null 
-                && montoSolicitudes.compareTo(new BigDecimal(archivoEncontrado.getTotalHaberes())) == 0;
+            boolean montosCoinciden = archivoEncontrado != null 
+            	    && montoTotalPago.compareTo(new BigDecimal(archivoEncontrado.getTotalHaberes())) == 0;
 
-            // Obtener TODAS las solicitudes del grupo con el mismo RutBeneficiario
-            List<SolicitudDTO> solicitudesDelGrupo = solicitudes.stream()
-                .filter(s -> s.getRutBeneficiario().toString().equals(rut))
+            // 4️ Obtener todos los detalles del grupo y actualizar con los valores del archivo
+            List<DetalleCausanteDTO> detallesDelGrupo = detalles.stream()
+                .filter(d -> d.getRutBeneficiarioPago() == rut) // Comparación directa sin equals()
                 .collect(Collectors.toList());
 
-            // Actualizar los detalles de cada solicitud
-            for (SolicitudDTO solicitud : solicitudesDelGrupo) {
-                try {
-                    // Obtener la lista de causantes por solicitud
-                    String urlCausantes = baseUrl + "/obtenerCausantesPorSolicitud/" + solicitud.getIdSolicitud();
-                    List<CausanteSolicitudDTO> causantes = Arrays.asList(restTemplate.getForObject(urlCausantes, CausanteSolicitudDTO[].class));
-
-                    if (causantes != null) {
-                        for (CausanteSolicitudDTO causante : causantes) {
-                            // Obtener la lista de detalles del causante
-                            String urlDetalle = baseUrl + "/obtenerDetalleCausantePorId/" + causante.getIIdCausanteSolicitud();
-                            List<DetalleCausanteDTO> detallesCausante = Arrays.asList(restTemplate.getForObject(urlDetalle, DetalleCausanteDTO[].class));
-
-                            if (detallesCausante != null) {
-                                for (DetalleCausanteDTO detalleCausante : detallesCausante) {
-                                    detalleCausante.setINis(0);
-                                    detalleCausante.setDvNis(null);
-                                    detalleCausante.setNumeroDocumento(0);
-                                    detalleCausante.setDvDocumento(null);
-                                    detalleCausante.setFechaPago(null);
-                                    
-                                    // Llamar a la API para actualizar detalle causante
-                                    String urlActualizar = baseUrl + "/actualizarDetalleCausante";
-                                    restTemplate.postForObject(urlActualizar, detalleCausante, Boolean.class);
-                                }
-                            }
-                        }
+            for (DetalleCausanteDTO detalle : detallesDelGrupo) {
+                if (archivoEncontrado != null) {
+                    detalle.setINis(Integer.parseInt(archivoEncontrado.getNis()));
+                    detalle.setDvNis(archivoEncontrado.getDvNis());
+                    detalle.setNumeroDocumento(Integer.parseInt(archivoEncontrado.getNroDocto()));
+                    detalle.setDvDocumento(archivoEncontrado.getDvNroDocto());
+                    
+                    SimpleDateFormat formato = new SimpleDateFormat("yyyyMMdd");
+                    try {
+                        Date fecha = formato.parse(archivoEncontrado.getFecPago());
+                        System.out.println("Fecha convertida: " + fecha);
+                        detalle.setFechaPago(fecha);
+                    } catch (ParseException e) {
+                        System.out.println("Error al convertir la fecha.");
                     }
-
-                    // Generar resolución por cada solicitud
-                    ResolucionDTO resolucion = new ResolucionDTO();
-                    resolucion.setIIdSolicitud(solicitud.getIdSolicitud());
-                    resolucion.setIAutor(1); // Asignar el autor (ajustar si es necesario)
-                    resolucion.setVcDescripcion(solicitudEncontrada ? "Solicitud aprobada para pago." : "Solicitud rechazada para pago.");
-                    resolucion.setIMotivoRechazo(null);
-                    resolucion.setIIdEstado(solicitudEncontrada ? 3 : 5);
-
-                    // Mensaje de depuración sobre la validación
-                    System.out.println("Generando resolución para ID Solicitud: " + solicitud.getIdSolicitud() +
-                        " - Estado: " + (solicitudEncontrada ? "3 (Aprobado)" : "5 (Rechazado)"));
-
-                    // Llamar a la API externa para insertar la resolución
-                    String url = baseUrl + "/insertarResolucion";
-                    ResponseDTO response = restTemplate.postForObject(url, resolucion, ResponseDTO.class);
-
-                    // Validar la respuesta de la API
-                    if (response == null || response.getCodigoRetorno() != 0) {
-                        System.out.println("Error al insertar resolución en la API: " + 
-                            (response != null ? response.getGlosaRetorno() : "Respuesta nula"));
-                        errorEncontrado = true;
-                    }
-                  
-                } catch (Exception e) {
-                    System.out.println("Error al procesar solicitud ID: " + solicitud.getIdSolicitud());
-                    e.printStackTrace(); // Mostrar el error real
+                    
                 }
+                detalle.setEstado(montosCoinciden ? 4 : 5); // 4 si coincide, 5 si no
+
+                // Llamar a la API para actualizar detalle causante
+                String urlActualizar = baseUrl + "/actualizarDetalleCausante";
+                restTemplate.postForObject(urlActualizar, detalle, Boolean.class);
+                System.out.println("Se actualizó el detalle");
+            }
+        }
+
+        // 5️ Obtener todas las solicitudes del proceso
+        List<SolicitudDTO> solicitudes = procesoDAO.obtenerSolicitudesPorProceso(idProceso);
+
+        // 6️ Todas las solicitudes del proceso cambian de estado a 3
+        for (SolicitudDTO solicitud : solicitudes) {
+            try {
+                // Crear resolución con estado 3
+                ResolucionDTO resolucion = new ResolucionDTO();
+                resolucion.setIIdSolicitud(solicitud.getIdSolicitud());
+                resolucion.setIAutor(1); // Asignar el autor (ajustar si es necesario)
+                resolucion.setVcDescripcion("Solicitud procesada para pago.");
+                resolucion.setIMotivoRechazo(null);
+                resolucion.setIIdEstado(3);
+
+                // Llamar a la API externa para insertar la resolución
+                String url = baseUrl + "/insertarResolucion";
+                restTemplate.postForObject(url, resolucion, ResponseDTO.class);
+
+            } catch (Exception e) {
+                System.out.println("Error al generar resolución para solicitud ID: " + solicitud.getIdSolicitud());
+                e.printStackTrace();
+                errorEncontrado = true;
             }
         }
 
         // Retornar true solo si no hubo errores y la validación de emisiones fue exitosa
         return !errorEncontrado && emisionDAO.validarSolicitudesEmitidas(emision);
     }
+
+
 
     @Override
     public List<EmisionDTO> obtenerEmisiones(){

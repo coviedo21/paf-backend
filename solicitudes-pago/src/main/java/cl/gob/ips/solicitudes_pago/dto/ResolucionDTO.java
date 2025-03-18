@@ -6,13 +6,13 @@ import lombok.Data;
 
 @Data
 public class ResolucionDTO {
-    private int iIdSolicitud;
-    private int iIdEstado;
+    private int idSolicitud;
+    private int idEstado;
     private String vcDescripcion;
     private String vcApelable;
-    private int iAutor;
+    private int autor;
     private Date dFechaAval;
     private Date dFechaApelacion;
     private String vcVigente;
-    private Integer iMotivoRechazo;
+    private Integer motivoRechazo;
 }
