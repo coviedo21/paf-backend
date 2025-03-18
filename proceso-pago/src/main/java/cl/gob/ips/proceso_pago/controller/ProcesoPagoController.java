@@ -343,7 +343,7 @@ registro.setHDmonto15(valores[86]);
                         emision.setRutaArchivo(nombreRemoto);
                         emisionService.insertarEmision(emision);
                         
-                                                                 
+                        boolean resultado = procesoService.actualizarEstadoProceso(idProceso, 2);                                        
                 } catch (Exception e) {
                     return registros;
                 }

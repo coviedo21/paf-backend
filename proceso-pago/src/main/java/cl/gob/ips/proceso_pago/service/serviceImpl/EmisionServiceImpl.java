@@ -113,11 +113,10 @@ public class EmisionServiceImpl implements EmisionService {
             try {
                 // Crear resolución con estado 3
                 ResolucionDTO resolucion = new ResolucionDTO();
-                resolucion.setIIdSolicitud(solicitud.getIdSolicitud());
-                resolucion.setIAutor(1); // Asignar el autor (ajustar si es necesario)
+                resolucion.setIdSolicitud(solicitud.getIdSolicitud());
+                resolucion.setAutor(1); // Asignar el autor (ajustar si es necesario)
                 resolucion.setVcDescripcion("Solicitud procesada para pago.");
-                resolucion.setIMotivoRechazo(null);
-                resolucion.setIIdEstado(3);
+                resolucion.setIdEstado(3);
 
                 // Llamar a la API externa para insertar la resolución
                 String url = baseUrl + "/insertarResolucion";
