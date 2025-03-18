@@ -304,7 +304,10 @@ public class CausanteDAOImpl implements CausanteDAO{
                 
                 if (row.get("vcDvBeneficiarioPago") != null) 
                     detalleDTO.setDvBeneficiarioPago((String) row.get("vcDvBeneficiarioPago"));
-
+                
+                if (row.get("nTotalPago") != null) 
+                    detalleDTO.setTotalPago((BigDecimal) row.get("nTotalPago"));
+                
                 detallesCausante.add(detalleDTO);
             }
 
@@ -437,6 +440,9 @@ public class CausanteDAOImpl implements CausanteDAO{
             
             if (row.get("vcDvBeneficiarioPago") != null) 
                 detalleDTO.setDvBeneficiarioPago((String) row.get("vcDvBeneficiarioPago"));
+            
+            if (row.get("nTotalPago") != null) 
+                detalleDTO.setTotalPago((BigDecimal) row.get("nTotalPago"));
             
             return detalleDTO;
 
