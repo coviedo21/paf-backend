@@ -35,7 +35,10 @@ public class ProcesoServiceImpl implements ProcesoService {
 
     @Value("${app.base.url}")
     private String baseUrl; 
-    
+
+    @Value("${app.base.urlRetencion}")
+    private String baseUrlRetencion; 
+
     @Override
     public int crearProceso(ProcesoDTO insertarProcesoDTO) {
     	int idProceso = procesoDAO.insertarProceso(insertarProcesoDTO);
@@ -73,7 +76,7 @@ public class ProcesoServiceImpl implements ProcesoService {
     public RetencionJudicialDTO obtenerRetencionJudicial(int rutCausante, int rutBeneficiario, int periodo) {
         // Construcción de la URL con parámetros dinámicos
         String url = String.format(
-            "https://retencionjudicialback-dev.azurewebsites.net/retencion-judicial-informacion-ms-v1/informacion/obtener-detalle-causante/%s/%s/%s",
+            baseUrlRetencion + "/obtener-detalle-causante/%s/%s/%s",
             rutCausante, rutBeneficiario, periodo
         );
 
@@ -96,12 +99,46 @@ public class ProcesoServiceImpl implements ProcesoService {
             }
         }
 
-        // Validamos si la respuesta no es nula y tiene un resultado válido
+     // Validamos si la respuesta no es nula y tiene un resultado válido
         if (response != null && response.getResultado() != null) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
                 // Convertimos el resultado a RetencionJudicialDTO
-                return objectMapper.convertValue(response.getResultado(), RetencionJudicialDTO.class);
+                RetencionJudicialDTO retencionJudicialDTO = objectMapper.convertValue(response.getResultado(), RetencionJudicialDTO.class);
+
+                // Segunda API para obtener los datos adicionales
+                String urlSegundaApi = String.format(
+                    baseUrlRetencion + "/obtener-detalle-causante-retenedor/%s/%s/%s",
+                    rutCausante, rutBeneficiario, periodo
+                );
+
+                System.out.println("Esta es la URL de la segunda API: " + urlSegundaApi);
+
+                try {
+                    ResponseDTO responseSegundaApi = restTemplate.getForObject(urlSegundaApi, ResponseDTO.class);
+
+                    if (responseSegundaApi != null && responseSegundaApi.getResultado() != null) {
+                        RetencionJudicialDTO datosAdicionales = objectMapper.convertValue(responseSegundaApi.getResultado(), RetencionJudicialDTO.class);
+
+                        // Actualizar los campos en RetencionJudicialDTO
+                        retencionJudicialDTO.setIdFormaPago(datosAdicionales.getIdFormaPago());
+                        retencionJudicialDTO.setCodTipoCuenta(datosAdicionales.getCodTipoCuenta());
+                        retencionJudicialDTO.setCodBanco(datosAdicionales.getCodBanco());
+                        retencionJudicialDTO.setNombreBanco(datosAdicionales.getNombreBanco());
+                        retencionJudicialDTO.setNumeroCuenta(datosAdicionales.getNumeroCuenta());
+                    }
+
+                } catch (HttpClientErrorException e) {
+                    if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                        System.err.println("Segunda API retornó 404: No se encontraron datos adicionales para el causante en este periodo " + periodo + ".");
+                    } else {
+                        System.err.println("Error al llamar a la segunda API: " + e.getMessage());
+                        throw e;
+                    }
+                }
+
+                return retencionJudicialDTO;
+
             } catch (IllegalArgumentException e) {
                 System.err.println("Error al convertir resultado a RetencionJudicialDTO: " + e.getMessage());
             }
