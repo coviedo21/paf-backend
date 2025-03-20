@@ -153,7 +153,17 @@ public class FileController {
                                 carga.setEstadoCarga(fields.length > 23 && !fields[23].trim().isEmpty() ? fields[23].trim() : null);
                                 carga.setOrigen(origen);
                                 carga.setPeriodo(periodo);
-
+                                int idCuentaBancaria = fileService.obtenerCuentaBancaria(Integer.valueOf(carga.getRutEmpleador()));
+                                                                
+                                if(idCuentaBancaria==0) {
+                                	carga.setIdCuentaBancaria(null);
+                                	carga.setFormaPago(4);
+                                }
+                                else{
+                                	carga.setIdCuentaBancaria(idCuentaBancaria);
+                                	carga.setFormaPago(8);
+                                }
+                                
                                 listaSolicitudes.add(carga);
                             } catch (Exception e) {
                                 // Ignoramos la línea errónea
@@ -272,7 +282,17 @@ public class FileController {
                                 carga.setEstadoCarga(fields.length > 23 && !fields[23].trim().isEmpty() ? fields[23].trim() : null);
                                 carga.setOrigen(origen);
                                 carga.setPeriodo(periodo);
-
+                                int idCuentaBancaria = fileService.obtenerCuentaBancaria(Integer.valueOf(carga.getRutEmpleador()));
+                                
+                                if(idCuentaBancaria==0) {
+                                	carga.setIdCuentaBancaria(null);
+                                	carga.setFormaPago(4);
+                                }
+                                else{
+                                	carga.setIdCuentaBancaria(idCuentaBancaria);
+                                	carga.setFormaPago(9);
+                                }
+                                
                                 listaSolicitudes.add(carga);
                             } catch (Exception e) {
                                 // Ignoramos la línea errónea

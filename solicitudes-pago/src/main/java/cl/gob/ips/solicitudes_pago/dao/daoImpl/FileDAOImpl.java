@@ -86,6 +86,7 @@ public class FileDAOImpl implements FileDAO{
                  boolean tieneDerecho = false;
                 String primerPeriodo = null;
                 String ultimoPeriodo = null;
+                try {
                 for(String periodo: periodosCausante){
 
                     detalle = causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), archivo.getRutEmpleador(), periodo, periodo, null);
@@ -155,7 +156,9 @@ public class FileDAOImpl implements FileDAO{
                         listaDetalle.add(derecho);    
                     }
                 }
-                
+                }catch(Exception e) {
+                	return "Error al obtener derecho causante Folio: "+archivo.getFolio()+" Rut Beneficiario: "+archivo.getRutTrabajador()+"-"+archivo.getDvTrabajador()+", Rut Causante: "+archivo.getRutCargaFamiliar()+"-"+archivo.getDvCargaFamiliar()+" Periodo: "+archivo.getPeriodo()+" Fecha Inicio Compensación: "+archivo.getFechaInicioCompensacion()+" Fecha Fin Compensación: "+archivo.getFechaFinCompensacion();
+                }
                 causante.setDetalle(listaDetalle);
                 causante.setVcPeriodosAprobados(primerPeriodo+" a "+ultimoPeriodo);
                 //causante.setTotalReconocimiento(0);
@@ -168,7 +171,8 @@ public class FileDAOImpl implements FileDAO{
                 solicitud.setListaCausantes(listaCausantes);
                 solicitud.setCiudadEmpleador(archivo.getCiudadEmpleador());
                 solicitud.setPeriodo(archivo.getPeriodo());
-                solicitud.setIdFormaPago(4);
+                solicitud.setIdCuentaBancaria(archivo.getIdCuentaBancaria());
+                solicitud.setIdFormaPago(archivo.getFormaPago());
                 if(tieneDerecho){
                     ResponseDTO respuesta = solicitudPagoService.insertarSolicitudPago(solicitud,true);
                     if((int) respuesta.getResultado()>0){

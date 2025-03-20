@@ -18,22 +18,32 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import com.azure.core.util.serializer.TypeReference;
 import com.azure.storage.file.share.ShareDirectoryClient;
 import com.azure.storage.file.share.ShareFileClient;
 import com.azure.storage.file.share.ShareFileClientBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
 import cl.gob.ips.solicitudes_pago.dao.FileDAO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.dto.CuentaBancariaDTO;
 import cl.gob.ips.solicitudes_pago.dto.ListaComunaDTO;
+import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResultadoRegionDTO;
 import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
 import cl.gob.ips.solicitudes_pago.service.FileService;
@@ -58,7 +68,10 @@ public class FileServiceImpl implements FileService {
     private UtilService utilService;
 
     @Value("${app.base.url}")
-    private String baseUrl;    
+    private String baseUrl;  
+    
+    @Value("${app.base.urlCuentaBancaria}")
+    private String baseUrlCuentaBancaria;  
     
     public ArchivoResponseDTO insertarSolicitudes(List<ArchivoSolicitudDTO> listaSolicitudes, String periodo) {
         Map<String, ListaComunaDTO> comunaCache = new HashMap<>();
@@ -308,4 +321,40 @@ public class FileServiceImpl implements FileService {
         }
         return new ByteArrayInputStream(outputStream.toByteArray());
     }
+  
+    public int obtenerCuentaBancaria(int rutEmpleador) {
+        String urlActualizar = baseUrlCuentaBancaria + "/obtenerCuentas/{rutTitular}";
+        RestTemplate restTemplate = new RestTemplate();
+        List<CuentaBancariaDTO> cuentas = null;
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("rutTitular", rutEmpleador);
+
+        try {
+            ResponseEntity<List<CuentaBancariaDTO>> response = restTemplate.exchange(
+                urlActualizar, HttpMethod.GET, null, new ParameterizedTypeReference<List<CuentaBancariaDTO>>() {}, params
+            );
+
+            cuentas = response.getBody();
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.NO_CONTENT) {
+                System.err.println("La API retornó 204: No hay cuentas bancarias para el titular " + rutEmpleador + ".");
+                return 0;
+            } else if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                System.err.println("La API retornó 404: No se encontró cuenta bancaria para el titular " + rutEmpleador + ".");
+                return 0;
+            } else {
+                System.err.println("Error al llamar a la API: " + e.getMessage());
+                throw e;
+            }
+        } catch (Exception e) {
+            System.err.println("Error inesperado al llamar a la API: " + e.getMessage());
+            return 0;
+        }
+
+        return (cuentas != null && !cuentas.isEmpty()) ? cuentas.get(0).getIdCuentaBancaria() : 0;
+    }
+
+
+
 }

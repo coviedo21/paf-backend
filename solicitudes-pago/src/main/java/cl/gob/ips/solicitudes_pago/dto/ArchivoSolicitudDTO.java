@@ -37,4 +37,6 @@ public class ArchivoSolicitudDTO {
     private String estadoCarga;
     private String origen;
     private String periodo;
+    private Integer idCuentaBancaria;
+    private int formaPago;
 }

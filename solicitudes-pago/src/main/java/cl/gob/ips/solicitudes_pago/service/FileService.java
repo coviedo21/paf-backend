@@ -18,4 +18,5 @@ public interface FileService {
     public String convertirStringAUTF8(String texto, String encodingOriginal) throws UnsupportedEncodingException;
     public String detectarCodificacion(InputStream inputStream) throws IOException;
     public InputStream convertirAUTF8(InputStream inputStream, String encoding) throws IOException;
+    public int obtenerCuentaBancaria(int rutEmpleador);
 }
