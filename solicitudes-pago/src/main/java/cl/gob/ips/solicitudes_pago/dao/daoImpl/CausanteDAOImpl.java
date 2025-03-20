@@ -320,6 +320,26 @@ public class CausanteDAOImpl implements CausanteDAO{
                 if (row.get("nTotalPago") != null) 
                     detalleDTO.setTotalPago((BigDecimal) row.get("nTotalPago"));
                 
+                if (row.get("nombreFormaPagoRetenedor") != null) 
+                    detalleDTO.setGlosaFormaPagoRetenedor((String) row.get("nombreFormaPagoRetenedor"));
+                
+                if (row.get("nombreFormaPagoFinal") != null) 
+                    detalleDTO.setGlosaFormaPagoFinal((String) row.get("nombreFormaPagoFinal"));
+                
+                if (row.get("nombreBancoRetenedor") != null) 
+                    detalleDTO.setGlosaBancoRetenedor((String) row.get("nombreBancoRetenedor"));
+                
+                if (row.get("nombreBancoFinal") != null) 
+                    detalleDTO.setGlosaBancoFinal((String) row.get("nombreBancoFinal"));
+                
+                if (row.get("nombreTipoCuentaRetenedor") != null) 
+                    detalleDTO.setGlosaTipoCuentaRetenedor((String) row.get("nombreTipoCuentaRetenedor"));
+                
+                if (row.get("nombreTipoCuentaFinal") != null) 
+                    detalleDTO.setGlosaTipoCuentaFinal((String) row.get("nombreTipoCuentaFinal"));
+                
+                
+                
                 detallesCausante.add(detalleDTO);
             }
 
@@ -468,6 +488,24 @@ public class CausanteDAOImpl implements CausanteDAO{
             if (row.get("nTotalPago") != null) 
                 detalleDTO.setTotalPago((BigDecimal) row.get("nTotalPago"));
             
+            if (row.get("nombreFormaPagoRetenedor") != null) 
+                detalleDTO.setGlosaFormaPagoRetenedor((String) row.get("nombreFormaPagoRetenedor"));
+            
+            if (row.get("nombreFormaPagoFinal") != null) 
+                detalleDTO.setGlosaFormaPagoFinal((String) row.get("nombreFormaPagoFinal"));
+            
+            if (row.get("nombreBancoRetenedor") != null) 
+                detalleDTO.setGlosaBancoRetenedor((String) row.get("nombreBancoRetenedor"));
+            
+            if (row.get("nombreBancoFinal") != null) 
+                detalleDTO.setGlosaBancoFinal((String) row.get("nombreBancoFinal"));
+            
+            if (row.get("nombreTipoCuentaRetenedor") != null) 
+                detalleDTO.setGlosaTipoCuentaRetenedor((String) row.get("nombreTipoCuentaRetenedor"));
+            
+            if (row.get("nombreTipoCuentaFinal") != null) 
+                detalleDTO.setGlosaTipoCuentaFinal((String) row.get("nombreTipoCuentaFinal"));
+         
             return detalleDTO;
 
         } catch (Exception e) {
