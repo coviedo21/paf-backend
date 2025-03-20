@@ -41,10 +41,10 @@ public class DetalleCausanteDTO {
     private String nombresReteniente;
     private String apellidoPaternoReteniente;
     private String apellidoMaternoReteniente;
-    private int idFormaPago;
-    private int idBanco;
-    private int idTipoCuenta;
-    private String numeroCuenta;
+    private int idFormaPagoRetenedor;
+    private int idBancoRetenedor;
+    private int idTipoCuentaRetenedor;
+    private String numeroCuentaRetenedor;
     private String archivo;
     private int idProcesoPago;
     private int rutBeneficiarioPago;

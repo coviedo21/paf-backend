@@ -278,6 +278,18 @@ public class CausanteDAOImpl implements CausanteDAO{
                 if (row.get("vcApellidoMaternoReteniente") != null) 
                     detalleDTO.setApellidoMaternoReteniente((String) row.get("vcApellidoMaternoReteniente"));
 
+                if (row.get("iIdFormaPagoRetenedor") != null) 
+                    detalleDTO.setIdFormaPagoRetenedor((Integer) row.get("iIdFormaPagoRetenedor"));
+
+                if (row.get("iBancoRetenedor") != null) 
+                    detalleDTO.setIdBancoRetenedor((Integer) row.get("iBancoRetenedor"));
+                
+                if (row.get("iTipoCuentaRetenedor") != null) 
+                    detalleDTO.setIdTipoCuentaRetenedor((Integer) row.get("iTipoCuentaRetenedor"));
+
+                if (row.get("vcNumeroCuentaRetenedor") != null) 
+                    detalleDTO.setNumeroCuentaRetenedor((String) row.get("vcNumeroCuentaRetenedor"));
+
                 if (row.get("iFormaPagoFinal") != null) 
                     detalleDTO.setIdFormaPagoFinal((Integer) row.get("iFormaPagoFinal"));
 
@@ -414,6 +426,18 @@ public class CausanteDAOImpl implements CausanteDAO{
             if (row.get("vcApellidoMaternoReteniente") != null) 
                 detalleDTO.setApellidoMaternoReteniente((String) row.get("vcApellidoMaternoReteniente"));
 
+            if (row.get("iIdFormaPagoRetenedor") != null) 
+                detalleDTO.setIdFormaPagoRetenedor((Integer) row.get("iIdFormaPagoRetenedor"));
+
+            if (row.get("iBancoRetenedor") != null) 
+                detalleDTO.setIdBancoRetenedor((Integer) row.get("iBancoRetenedor"));
+            
+            if (row.get("iTipoCuentaRetenedor") != null) 
+                detalleDTO.setIdTipoCuentaRetenedor((Integer) row.get("iTipoCuentaRetenedor"));
+
+            if (row.get("vcNumeroCuentaRetenedor") != null) 
+                detalleDTO.setNumeroCuentaRetenedor((String) row.get("vcNumeroCuentaRetenedor"));
+
             if (row.get("iFormaPagoFinal") != null) 
                 detalleDTO.setIdFormaPagoFinal((Integer) row.get("iFormaPagoFinal"));
 
@@ -489,6 +513,10 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("vcNombresReteniente", detalleCausanteDTO.getNombresReteniente(), Types.VARCHAR)
                 .addValue("vcApellidoPaternoReteniente", detalleCausanteDTO.getApellidoPaternoReteniente(), Types.VARCHAR)
                 .addValue("vcApellidoMaternoReteniente", detalleCausanteDTO.getApellidoMaternoReteniente(), Types.VARCHAR)
+                .addValue("iIdFormaPagoRetenedor", detalleCausanteDTO.getIdFormaPagoRetenedor(), Types.INTEGER)
+                .addValue("iIdBancoRetenedor", detalleCausanteDTO.getIdBancoRetenedor(), Types.INTEGER)
+                .addValue("iIdTipoCuentaRetenedor", detalleCausanteDTO.getIdTipoCuentaRetenedor())
+                .addValue("vcNumeroCuentaRetenedor", detalleCausanteDTO.getNumeroCuentaRetenedor(), Types.VARCHAR)
                 .addValue("iIdFormaPagoFinal", detalleCausanteDTO.getIdFormaPagoFinal(), Types.INTEGER)
                 .addValue("iIdBancoFinal", detalleCausanteDTO.getIdBancoFinal(), Types.INTEGER)
                 .addValue("iIdTipoCuentaFinal", detalleCausanteDTO.getIdTipoCuentaFinal())

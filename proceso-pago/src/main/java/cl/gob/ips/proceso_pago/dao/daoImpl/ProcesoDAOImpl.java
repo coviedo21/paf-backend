@@ -432,14 +432,14 @@ public void insertarProcesoTipoSolicitante(int idProceso, List<Integer> listaTip
                 if (row.get("apellidoMaternoReteniente") != null)
                     detalleDTO.setApellidoMaternoReteniente((String) row.get("apellidoMaternoReteniente"));
 
-                if (row.get("idFormaPago") != null)
-                    detalleDTO.setIdFormaPago((Integer) row.get("idFormaPago"));
+                if (row.get("idFormaPagoRetenedor") != null)
+                    detalleDTO.setIdFormaPagoRetenedor((Integer) row.get("idFormaPagoRetenedor"));
 
-                if (row.get("banco") != null)
-                    detalleDTO.setIdBanco((Integer) row.get("banco"));
+                if (row.get("bancoRetenedor") != null)
+                    detalleDTO.setIdBancoRetenedor((Integer) row.get("bancoRetenedor"));
 
-                if (row.get("numeroCuenta") != null)
-                    detalleDTO.setNumeroCuenta((String) row.get("numeroCuenta"));
+                if (row.get("numeroCuentaRetenedor") != null)
+                    detalleDTO.setNumeroCuentaRetenedor((String) row.get("numeroCuentaRetenedor"));
 
                 if (row.get("archivo") != null)
                     detalleDTO.setArchivo((String) row.get("archivo"));
@@ -447,8 +447,8 @@ public void insertarProcesoTipoSolicitante(int idProceso, List<Integer> listaTip
                 if (row.get("idProcesoPago") != null)
                     detalleDTO.setIdProcesoPago((Integer) row.get("idProcesoPago"));
 
-                if (row.get("tipoCuenta") != null)
-                    detalleDTO.setIdTipoCuenta((Integer) row.get("tipoCuenta"));
+                if (row.get("tipoCuentaRetenedor") != null)
+                    detalleDTO.setIdTipoCuentaRetenedor((Integer) row.get("tipoCuentaRetenedor"));
 
                 if (row.get("rutBeneficiarioPago") != null)
                     detalleDTO.setRutBeneficiarioPago((Integer) row.get("rutBeneficiarioPago"));
