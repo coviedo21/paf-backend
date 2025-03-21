@@ -5,6 +5,7 @@ import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.EstadosSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.MotivoRechazoDTO;
 import cl.gob.ips.solicitudes_pago.dto.OrigenArchivoDTO;
+import cl.gob.ips.solicitudes_pago.dto.RechazoSolicitudDTO;
 //import cl.gob.ips.solicitudes_pago.dto.ProcesoDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResolucionDTO;
 import cl.gob.ips.solicitudes_pago.dto.ResponseDTO;
@@ -12,6 +13,7 @@ import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.SolicitudProcesoDTO;
 import cl.gob.ips.solicitudes_pago.dto.TipoSolicitanteDTO;
 import cl.gob.ips.solicitudes_pago.service.EmailService;
+import cl.gob.ips.solicitudes_pago.service.SolicitudPagoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,6 +36,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,6 +49,9 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Autowired
     CausanteDAO causanteDAO;
+    
+    @Autowired
+    SolicitudPagoService solicitudPagoService;
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -72,15 +78,17 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             new SqlParameter("fechaSolicitud", Types.DATE),
             new SqlOutParameter("mensajeRespuesta", Types.VARCHAR),
             new SqlOutParameter("idDetalleCausante", Types.INTEGER),
-            new SqlOutParameter("fechaSolicitudEncontrada", Types.DATE)
+            new SqlOutParameter("fechaSolicitudEncontrada", Types.DATE),
+            new SqlOutParameter("idSolicitudEncontrada", Types.INTEGER)
     );
 
     try {
         //Recorremos los causantes
         for (CausanteSolicitudDTO causante : solicitudPago.getListaCausantes()) {
             //Por cada causante recorremos sus detalles
-            for(DetalleCausanteDTO detalle : causante.getDetalle()){
-
+        	Iterator<DetalleCausanteDTO> iterator = causante.getDetalle().iterator();
+        	while (iterator.hasNext()) {
+        		DetalleCausanteDTO detalle = iterator.next();
                 MapSqlParameterSource inParams = new MapSqlParameterSource()
                     .addValue("iRutBeneficiario", causante.getRutBeneficiario())
                     .addValue("iPeriodo", detalle.getPeriodo())
@@ -91,14 +99,38 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                     int idDetalle = (int) validationResult.get("idDetalleCausante");
                     String mensajeRespuesta = (String) validationResult.get("mensajeRespuesta");
                     Date fechaSolicitudEncontrada = (Date) validationResult.get("fechaSolicitudEncontrada");
+                    int idSolicitudEncontrada = (int) validationResult.get("idSolicitudEncontrada");
                     
                     if(idDetalle>0){
                     	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                     	String fecha1 = sdf.format(solicitudPago.getFechaSolicitud());
                     	String fecha2 = sdf.format(fechaSolicitudEncontrada);
-                    	if (fecha1.compareTo(fecha2) > 0) {
-                            detalle.setEstado(3); //Periodo rechazado por duplicidad                     
+                    	if (fecha1.compareTo(fecha2) >= 0) {
+                    		if(esArchivo) {
+                    			detalle.setEstado(3); //Periodo rechazado por duplicidad
+                    		}
+                    		else {
+                    			iterator.remove();
+                    			if (causante.getDetalle().isEmpty()) {
+                    				response.setCodigoRetorno(1);
+                                    response.setGlosaRetorno("Los derechos para esta solicitud se encuentran duplicados en otra solicitud.");
+                                    response.setResultado(0);
+                                    return response; // Detener si se encuentra duplicación total
+                    			}
+                    		}
                         }
+                    	else {
+                    		DetalleCausanteDTO detalleAntiguo = causanteDAO.obtenerDetalleCausantePorIdDetalle(idDetalle);
+                    		detalleAntiguo.setEstado(3);
+                    		causanteDAO.actualizarDetalleCausante(detalleAntiguo);
+
+                            //Si en la solicitud antigua el monto a pagar es 0 se rechaza.
+                            SolicitudDTO solicitudAntigua = consultarSolicitudPago(idSolicitudEncontrada).get(0);
+                            RechazoSolicitudDTO rechazo = new RechazoSolicitudDTO();
+                            rechazo.setIdSolicitud(solicitudAntigua.getIdSolicitud());
+                            rechazo.setIdMotivoRechazo(4);
+                            solicitudPagoService.rechazarSolicitud(rechazo);
+                    	}
                     }
             }
         } //Fin For Causante   
@@ -110,6 +142,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
         return response;
     }
         
+    
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withSchemaName(esquema)
                 .withProcedureName("SP_InsertarSolicitudPago")
                 .declareParameters(
@@ -212,6 +245,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
             if (idSolicitud != null && idSolicitud > 0) {
                 System.out.println("Solicitud insertada correctamente con ID: " + idSolicitud);
+                                
                 // Si la solicitud se inserta correctamente, insertamos los causantes
                 insertarCausantesSolicitud(idSolicitud, solicitudPago.getListaCausantes());
                 response.setCodigoRetorno(0);
