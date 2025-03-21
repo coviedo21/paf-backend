@@ -83,7 +83,16 @@ public class SolicitudesPagosController {
 
             return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
         }
-            
+        else {
+        	 for (CausanteSolicitudDTO causante : solicitudPago.getListaCausantes()) {
+                 if (causante.getDetalle() == null || causante.getDetalle().isEmpty()) {
+                     responseDTO.setCodigoRetorno(-1);
+                     responseDTO.setGlosaRetorno("Error: Uno o más causantes no tienen detalle asociado.");
+                     responseDTO.setTimestamp(new Date());
+                     return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+                 }
+             }
+        }
         // Obtener la fecha actual como LocalDate en UTC
         LocalDate fechaComparacion = LocalDate.now(ZoneId.of("UTC"));
 
