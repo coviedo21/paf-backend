@@ -54,16 +54,18 @@ public class CausanteServiceImpl implements CausanteService{
                         .collect(Collectors.toList())
                 : Collections.emptyList();
 
-        // Convertir el rutEmpleador recibido a int (si no es null y es un número válido)
-        int rutEmpleadorInt = (rutEmpleador != null && !rutEmpleador.isEmpty()) ? Integer.parseInt(rutEmpleador) : 0;
-        // 🔹 Filtrar solo los registros donde el rutEmpleador de la API coincida con el rutEmpleador recibido como parámetro
-        List<DerechoCausanteDTO> derechosFiltrados = derechos.stream()
-                .filter(d -> d.getRutEmpleador() == rutEmpleadorInt)
-                .collect(Collectors.toList());
+     // 🔹 Filtrar por rutEmpleador si viene informado
+        if (rutEmpleador != null && !rutEmpleador.isEmpty()) {
+            int rutEmpleadorInt = Integer.parseInt(rutEmpleador);
+            derechos = derechos.stream()
+                    .filter(d -> d.getRutEmpleador() == rutEmpleadorInt)
+                    .collect(Collectors.toList());
+        }
 
         // 🔹 Agrupar por rutCausante y dvCausante
-        Map<String, List<DerechoCausanteDTO>> agrupados = derechosFiltrados.stream()
+        Map<String, List<DerechoCausanteDTO>> agrupados = derechos.stream()
                 .collect(Collectors.groupingBy(d -> d.getRutCausante() + "-" + d.getDvCausante()));
+
 
         // Lista de resultado
         List<CausanteCuentaCorrienteDTO> resultado = new ArrayList<>();
