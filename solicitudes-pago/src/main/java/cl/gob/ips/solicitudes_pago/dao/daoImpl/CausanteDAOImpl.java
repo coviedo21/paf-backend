@@ -338,7 +338,8 @@ public class CausanteDAOImpl implements CausanteDAO{
                 if (row.get("nombreTipoCuentaFinal") != null) 
                     detalleDTO.setGlosaTipoCuentaFinal((String) row.get("nombreTipoCuentaFinal"));
                 
-                
+                if (row.get("idProcesoPago") != null) 
+                    detalleDTO.setIdProcesoPago((Integer) row.get("idProcesoPago"));
                 
                 detallesCausante.add(detalleDTO);
             }
@@ -505,7 +506,10 @@ public class CausanteDAOImpl implements CausanteDAO{
             
             if (row.get("nombreTipoCuentaFinal") != null) 
                 detalleDTO.setGlosaTipoCuentaFinal((String) row.get("nombreTipoCuentaFinal"));
-         
+
+            if (row.get("idProcesoPago") != null) 
+                detalleDTO.setIdProcesoPago((Integer) row.get("idProcesoPago"));
+            
             return detalleDTO;
 
         } catch (Exception e) {

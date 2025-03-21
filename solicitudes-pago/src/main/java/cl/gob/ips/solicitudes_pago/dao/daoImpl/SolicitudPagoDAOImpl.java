@@ -50,9 +50,6 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
     @Autowired
     CausanteDAO causanteDAO;
     
-    @Autowired
-    SolicitudPagoService solicitudPagoService;
-
     private final JdbcTemplate jdbcTemplate;
 
     @Value("${spring.datasource.schema}")
@@ -126,10 +123,21 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
                             //Si en la solicitud antigua el monto a pagar es 0 se rechaza.
                             SolicitudDTO solicitudAntigua = consultarSolicitudPago(idSolicitudEncontrada).get(0);
-                            RechazoSolicitudDTO rechazo = new RechazoSolicitudDTO();
-                            rechazo.setIdSolicitud(solicitudAntigua.getIdSolicitud());
-                            rechazo.setIdMotivoRechazo(4);
-                            solicitudPagoService.rechazarSolicitud(rechazo);
+                            if (solicitudAntigua.getMontoHaber().compareTo(BigDecimal.ZERO) == 0) {
+	                            ResolucionDTO resolucion = new ResolucionDTO();
+	                            resolucion.setIdSolicitud(idSolicitudEncontrada);
+	                            resolucion.setAutor(1);
+	                            resolucion.setIdEstado(4);
+	                            resolucion.setVcDescripcion("Se rechaza solicitud.");
+	                            resolucion.setMotivoRechazo(4);
+	                            insertarResolucion(resolucion);
+	                            try {
+	                                emailService.enviarCorreo(solicitudAntigua.getEmail(),"Solicitud "+solicitudAntigua.getIdSolicitud()+" rechazada.","Su solicitud N° "+solicitudAntigua.getIdSolicitud()+" ha sido rechazada. Motivo de Rechazo: Solicitud Duplicada");    
+	                            } catch (Exception e) {
+	                                // Captura cualquier excepción relacionada con el envío del correo y loguea el error
+	                                System.err.println("Error enviando correo para la solicitud " + solicitudAntigua.getIdSolicitud() + ": " + e.getMessage());
+	                            }
+                            }
                     	}
                     }
             }
