@@ -64,6 +64,11 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
     public ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago, boolean esArchivo) {
         ResponseDTO response = new ResponseDTO();
         boolean rechazar = false;
+        boolean crearSolicitud = false;
+        int contadorDetalleValidoEnArchivo = 0;
+        if(esArchivo) {
+        	crearSolicitud = true;
+        }
         // Validación previa: Verificar duplicados
     SimpleJdbcCall validarDuplicadosCall = new SimpleJdbcCall(jdbcTemplate)
     .withSchemaName(esquema)
@@ -80,9 +85,10 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
     );
 
     try {
-        //Recorremos los causantes
-        for (CausanteSolicitudDTO causante : solicitudPago.getListaCausantes()) {
-            //Por cada causante recorremos sus detalles
+    	// Recorremos los causantes usando Iterator para poder eliminarlos si quedan sin detalles
+    	Iterator<CausanteSolicitudDTO> causanteIterator = solicitudPago.getListaCausantes().iterator();
+    	while (causanteIterator.hasNext()) {
+    	    CausanteSolicitudDTO causante = causanteIterator.next();
         	Iterator<DetalleCausanteDTO> iterator = causante.getDetalle().iterator();
         	while (iterator.hasNext()) {
         		DetalleCausanteDTO detalle = iterator.next();
@@ -108,12 +114,10 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                     		}
                     		else {
                     			iterator.remove();
-                    			if (causante.getDetalle().isEmpty()) {
-                    				response.setCodigoRetorno(1);
-                                    response.setGlosaRetorno("Los derechos para esta solicitud se encuentran duplicados en otra solicitud.");
-                                    response.setResultado(0);
-                                    return response; // Detener si se encuentra duplicación total
-                    			}
+                    			// Si luego de procesar los detalles, la lista quedó vacía, eliminamos el causante
+                    		    if (causante.getDetalle().isEmpty()) {
+                    		        causanteIterator.remove();
+                    		    }
                     		}
                         }
                     	else {
@@ -140,6 +144,12 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                             }
                     	}
                     }
+                    else {
+                    	if(esArchivo) {
+                    		contadorDetalleValidoEnArchivo++;
+                    	}
+                    	crearSolicitud = true;
+                    }
             }
         } //Fin For Causante   
     
@@ -150,7 +160,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
         return response;
     }
         
-    
+    if(crearSolicitud) {
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withSchemaName(esquema)
                 .withProcedureName("SP_InsertarSolicitudPago")
                 .declareParameters(
@@ -260,6 +270,16 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 response.setGlosaRetorno("Solicitud creada exitósamente. ID: "+idSolicitud);
                 response.setResultado(idSolicitud);
                 
+              //Si en la solicitud nueva no hay detalles validos se rechaza
+                if (esArchivo && contadorDetalleValidoEnArchivo==0) {
+                    ResolucionDTO resolucion = new ResolucionDTO();
+                    resolucion.setIdSolicitud(idSolicitud);
+                    resolucion.setAutor(1);
+                    resolucion.setIdEstado(4);
+                    resolucion.setVcDescripcion("Se rechaza solicitud.");
+                    resolucion.setMotivoRechazo(4);
+                    insertarResolucion(resolucion);
+                }
                 return response; // Detener si se encuentra un duplicado
                 //return idSolicitud;
             } else {
@@ -277,6 +297,13 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 response.setResultado(0);
                 return response; // Detener si se encuentra un duplicado
         }
+    	}
+    else {
+    	response.setCodigoRetorno(1);
+        response.setGlosaRetorno("Los derechos para esta solicitud se encuentran duplicados en otra solicitud.");
+        response.setResultado(0);
+        return response; // Detener si se encuentra duplicación total
+    }
     }
 
     private void insertarCausantesSolicitud(int idSolicitud, List<CausanteSolicitudDTO> listaCausante) {
