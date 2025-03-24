@@ -30,7 +30,7 @@ public class DetalleCausanteDTO {
     private String nombreEstado;
     private int rutEmpleador;
     private String dvEmpleador;
-    private int rutNis;
+    private String rutNis;
     private String dvNis;
     private int numeroDocumento;
     private String dvDocumento;

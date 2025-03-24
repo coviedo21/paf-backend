@@ -246,7 +246,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                     detalleDTO.setDvEmpleador((String) row.get("vcDvEmpleador"));
 
                 if (row.get("iNis") != null) 
-                    detalleDTO.setRutNis((Integer) row.get("iNis"));
+                    detalleDTO.setRutNis((String) row.get("iNis"));
 
                 if (row.get("vcDvNis") != null) 
                     detalleDTO.setDvNis((String) row.get("vcDvNis"));
@@ -415,7 +415,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 detalleDTO.setDvEmpleador((String) row.get("vcDvEmpleador"));
 
             if (row.get("iNis") != null) 
-                detalleDTO.setRutNis((Integer) row.get("iNis"));
+                detalleDTO.setRutNis((String) row.get("iNis"));
 
             if (row.get("vcDvNis") != null) 
                 detalleDTO.setDvNis((String) row.get("vcDvNis"));
