@@ -60,7 +60,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     }
 
     @Override
-    public boolean validarCriteriosResolucion(Integer idSolicitud, boolean esArchivo){
+    public boolean validarCriteriosResolucion(Integer idSolicitud, boolean esArchivo, boolean esBotonValidar){
         listaCriterios.clear();
         listaCriteriosCausante.clear();
         //List<SolicitudDTO> listaSolicitud = solicitudPagoDAO.consultarSolicitudPago(idSolicitud);
@@ -74,8 +74,10 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
         // 2) Validación de Comuna de Dirección de Empleador
         agregarCriterioResolucion(idSolicitud, 2, true, null,null,null);
         
-        for(CriterioSolicitudDTO criterio: listaCriterios){
-            criterioSolicitudDAO.insertarCriterioSolicitud(criterio);
+        if(!esBotonValidar) {
+	        for(CriterioSolicitudDTO criterio: listaCriterios){
+	            criterioSolicitudDAO.insertarCriterioSolicitud(criterio);
+	        }
         }
         System.out.println("Finalizó validación de Criterios de Resolución por Solicitud");
 
@@ -115,9 +117,11 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
                 if(!esArchivo) {
                 
                 }
-        for(CriterioSolicitudCausanteDTO criterio: listaCriteriosCausante){
-            criterioSolicitudDAO.insertarCriterioCausante(criterio);
-        }
+                if(!esBotonValidar) {        
+			        for(CriterioSolicitudCausanteDTO criterio: listaCriteriosCausante){
+			            criterioSolicitudDAO.insertarCriterioCausante(criterio);
+			        }
+                }
         System.out.println("Finalizó validación de Criterios de Resolución por Causante");
         }
         return solicitudAprobada;

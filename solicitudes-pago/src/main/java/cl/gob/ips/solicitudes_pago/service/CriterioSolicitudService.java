@@ -9,7 +9,7 @@ import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
 
 public interface CriterioSolicitudService {
     List<CriterioSolicitudDTO> consultarCriteriosSolicitud(Integer idSolicitud);
-    boolean validarCriteriosResolucion(Integer idSolicitud, boolean esArchivo);
+    boolean validarCriteriosResolucion(Integer idSolicitud, boolean esArchivo, boolean esBotonValidar);
     boolean validarRolUnicoTributario(String rut);
     boolean actualizarCriterioSolicitud(CriterioSolicitudDTO criterioSolicitudDTO);
     boolean actualizarCriterioCausante(CriterioSolicitudCausanteDTO criterioCausante);
