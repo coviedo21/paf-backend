@@ -149,7 +149,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         return solicitudPagoDAO.obtenerSolicitudesPorEstado(idEstado);
     }
 
-    @Scheduled(cron = "0 * * * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     public List<SolicitudDTO> enviarSolicitudesAntiguas(){
         List<SolicitudDTO> solicitudesPago = new ArrayList<>();
         

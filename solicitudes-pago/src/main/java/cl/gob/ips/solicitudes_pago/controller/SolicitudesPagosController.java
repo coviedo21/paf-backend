@@ -106,10 +106,12 @@ public class SolicitudesPagosController {
             }
 
             // Validar si la fecha es mayor a 5 años
-            if (!utilService.esFechaValida(causante.getFechaInicioRango(), fechaComparacion)) {
-                responseDTO.setCodigoRetorno(-1);
-                responseDTO.setGlosaRetorno("Error: Uno o más causantes tienen una fecha de inicio de rango inválida o mayor a 5 años.");
-                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+            if(solicitudPago.getTipoSolicitante()!=1) {
+	            if (!utilService.esFechaValida(causante.getFechaInicioRango(), fechaComparacion)) {
+	                responseDTO.setCodigoRetorno(-1);
+	                responseDTO.setGlosaRetorno("Error: Uno o más causantes tienen una fecha de inicio de rango inválida o mayor a 5 años.");
+	                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+	            }
             }
         }
         

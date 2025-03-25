@@ -96,17 +96,17 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
                 agregarCriterioCausante(causante.getIdCausanteSolicitud(), 5, true, null,null,null); 
                 
              // 7) Verificación de Relación Laboral Vigente
-                if(!esArchivo) {
+                //if(!esArchivo) {
 	                if (verificarRelacionLaboralVigente(causante.getIdCausanteSolicitud())) {
 	                    agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, true, null,null,null);
 	                } else {
 	                    solicitudAprobada = false;
 	                    agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, false, null,null,null);
 	                }
-                }
+                /*}
                 else {
                 	agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, true, null,null,null);
-                }
+                }*/
  
                 // 8) Verificación de Vigencia del Causante
                 agregarCriterioCausante(causante.getIdCausanteSolicitud(), 8, true, null,null,null);

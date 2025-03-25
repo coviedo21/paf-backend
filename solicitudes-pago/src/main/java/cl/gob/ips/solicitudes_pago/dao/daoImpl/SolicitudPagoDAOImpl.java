@@ -216,7 +216,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("iIdUsuario", solicitudPago.getIdUsuario())
                 .addValue("iIdComuna", solicitudPago.getIdComuna())
                 .addValue("iIdInstitucion", solicitudPago.getIdInstitucion())
-                .addValue("iIdHaber", solicitudPago.getIdHaber())
+                .addValue("iIdHaber", 3)
                 .addValue("iIdFormaPago", solicitudPago.getIdFormaPago()>0?solicitudPago.getIdFormaPago():null)
                 .addValue("vcPeriodo", solicitudPago.getPeriodo())
                 .addValue("vcCode", solicitudPago.getCode())

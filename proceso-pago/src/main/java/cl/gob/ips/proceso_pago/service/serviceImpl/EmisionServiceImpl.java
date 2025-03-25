@@ -55,7 +55,7 @@ public class EmisionServiceImpl implements EmisionService {
         Map<Integer, BigDecimal> detallesAgrupados = detalles.stream()
             .collect(Collectors.groupingBy(
                 DetalleCausanteDTO::getRutBeneficiarioPago, // No es necesario verificar null, es un int
-                Collectors.reducing(BigDecimal.ZERO, DetalleCausanteDTO::getMontoMovimiento, BigDecimal::add)
+                Collectors.reducing(BigDecimal.ZERO, DetalleCausanteDTO::getTotalPago, BigDecimal::add)
             ));
 
         boolean errorEncontrado = false;

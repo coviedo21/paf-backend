@@ -173,7 +173,7 @@ public class ProcesoServiceImpl implements ProcesoService {
     }
 
     //@Scheduled(cron = "0 0 0 * * ?")
-    @Scheduled(cron = "0 49 14 * * ?")
+    /*@Scheduled(cron = "0 49 14 * * ?")
     public List<ProcesoDTO> iniciarProceso() {
         List<ProcesoDTO> listaProcesos = new ArrayList<>();
         System.out.println("Inicia Daemon");
@@ -208,6 +208,6 @@ public class ProcesoServiceImpl implements ProcesoService {
             System.err.println("Error al obtener procesos");
         }
         return listaProcesos;
-    }
+    }*/
     
 }
