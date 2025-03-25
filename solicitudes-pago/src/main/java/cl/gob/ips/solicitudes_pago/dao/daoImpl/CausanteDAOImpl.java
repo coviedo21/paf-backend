@@ -580,6 +580,8 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("vcNumeroCuentaFinal", detalleCausanteDTO.getNumeroCuentaFinal(), Types.VARCHAR)
                 .addValue("vcArchivo", detalleCausanteDTO.getArchivo(), Types.VARCHAR)
                 .addValue("iEstado", detalleCausanteDTO.getEstado(), Types.VARCHAR)
+                .addValue("iDiasPago", detalleCausanteDTO.getDiasPago(), Types.INTEGER)
+                .addValue("nTotalPago", detalleCausanteDTO.getTotalPago(), Types.DECIMAL)
                 .addValue("mensajeRespuesta", Types.VARCHAR);
 
         Map<String, Object> result = jdbcCall.execute(inParams);
