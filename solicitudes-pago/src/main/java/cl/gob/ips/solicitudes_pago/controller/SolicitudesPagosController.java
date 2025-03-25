@@ -590,7 +590,7 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
             }
         } else {
             responseDTO.setCodigoRetorno(-1);
-            responseDTO.setGlosaRetorno("Error al validar solicitud de pago.");
+            responseDTO.setGlosaRetorno("Error al validar solicitud de pago. No cumple con todos los criterios de aceptación.");
             responseDTO.setTimestamp(new Date());
             return ResponseEntity.ok(responseDTO);
         }
