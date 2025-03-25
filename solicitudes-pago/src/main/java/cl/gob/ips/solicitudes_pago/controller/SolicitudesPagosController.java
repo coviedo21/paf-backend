@@ -19,6 +19,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Log4j2
 @RestController
@@ -50,6 +53,8 @@ public class SolicitudesPagosController {
 
     @Autowired
     private PersonaDAO personaDAO;
+    
+    private final Map<String, Map<String, Object>> tareas = new ConcurrentHashMap<>();
 
     @GetMapping("/obtenerCriterio/{id}")
     public ResponseEntity<List<CriterioSolicitudDTO>> consultarCriterio(@PathVariable("id") Integer id) {
@@ -76,6 +81,7 @@ public class SolicitudesPagosController {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(new Date());
 
+        // Validaciones originales (no se toca nada)
         if(solicitudPago.getListaCausantes().isEmpty()){
             responseDTO.setCodigoRetorno(-1);
             responseDTO.setGlosaRetorno("Debe ingresar al menos un causante");
@@ -84,56 +90,69 @@ public class SolicitudesPagosController {
             return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
         }
         else {
-        	 for (CausanteSolicitudDTO causante : solicitudPago.getListaCausantes()) {
-                 if (causante.getDetalle() == null || causante.getDetalle().isEmpty()) {
-                     responseDTO.setCodigoRetorno(-1);
-                     responseDTO.setGlosaRetorno("Error: Uno o más causantes no tienen detalle asociado.");
-                     responseDTO.setTimestamp(new Date());
-                     return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-                 }
-             }
+            for (CausanteSolicitudDTO causante : solicitudPago.getListaCausantes()) {
+                if (causante.getDetalle() == null || causante.getDetalle().isEmpty()) {
+                    responseDTO.setCodigoRetorno(-1);
+                    responseDTO.setGlosaRetorno("Error: Uno o más causantes no tienen detalle asociado.");
+                    responseDTO.setTimestamp(new Date());
+                    return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+                }
+            }
         }
-        // Obtener la fecha actual como LocalDate en UTC
+
         LocalDate fechaComparacion = LocalDate.now(ZoneId.of("UTC"));
 
-        // Recorrer la lista y validar la fecha de inicio de rango de cada causante
         for (CausanteSolicitudDTO causante : solicitudPago.getListaCausantes()) {
-            
             if (causante.getFechaInicioRango() == null) {
                 responseDTO.setCodigoRetorno(-1);
                 responseDTO.setGlosaRetorno("Error: Uno o más causantes tienen una fecha de inicio de rango nula.");
                 return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
 
-            // Validar si la fecha es mayor a 5 años
-            if(solicitudPago.getTipoSolicitante()!=1) {
-	            if (!utilService.esFechaValida(causante.getFechaInicioRango(), fechaComparacion)) {
-	                responseDTO.setCodigoRetorno(-1);
-	                responseDTO.setGlosaRetorno("Error: Uno o más causantes tienen una fecha de inicio de rango inválida o mayor a 5 años.");
-	                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-	            }
+            if(solicitudPago.getTipoSolicitante() != 1) {
+                if (!utilService.esFechaValida(causante.getFechaInicioRango(), fechaComparacion)) {
+                    responseDTO.setCodigoRetorno(-1);
+                    responseDTO.setGlosaRetorno("Error: Uno o más causantes tienen una fecha de inicio de rango inválida o mayor a 5 años.");
+                    return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+                }
             }
         }
-        
-        responseDTO = solicitudPagoService.insertarSolicitudPago(solicitudPago,false);
-        if ((int) responseDTO.getResultado()>0) {
-            //responseDTO.setCodigoRetorno(0);
-            responseDTO.setGlosaRetorno("Solicitud de pago insertada correctamente!");
-            //responseDTO.setResultado(resultado);
 
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+        // 🔹 Aquí empieza la modificación mínima para ejecutar en segundo plano
 
-        } else {
-            responseDTO.setCodigoRetorno(-1);
-            
-            responseDTO.setGlosaRetorno(responseDTO.getGlosaRetorno());
-        
-            
-            responseDTO.setTimestamp(new Date());
+        String taskId = UUID.randomUUID().toString();
+        Map<String, Object> datosTarea = new ConcurrentHashMap<>();
+        datosTarea.put("estado", "procesando");
+        tareas.put(taskId, datosTarea);
 
-            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
-        }
+        CompletableFuture.runAsync(() -> {
+            try {
+                ResponseDTO resultado = solicitudPagoService.insertarSolicitudPago(solicitudPago, false);
+
+                if ((int) resultado.getResultado() > 0) {
+                    datosTarea.put("estado", "completado");
+                    datosTarea.put("idSolicitud", resultado.getResultado());
+                } else {
+                    datosTarea.put("estado", "error");
+                    datosTarea.put("mensaje", resultado.getGlosaRetorno());
+                }
+            } catch (Exception e) {
+                datosTarea.put("estado", "error");
+                datosTarea.put("mensaje", e.getMessage());
+                e.printStackTrace();
+            }
+        });
+
+        // 🔹 Fin de modificación. Respuesta inmediata con taskId
+        ResponseDTO respuesta = new ResponseDTO();
+        respuesta.setCodigoRetorno(0);
+        respuesta.setGlosaRetorno("Solicitud en proceso. Puede consultar el estado con el taskId.");
+        respuesta.setResultado(Map.of("taskId", taskId));
+        respuesta.setTimestamp(new Date());
+
+        return new ResponseEntity<>(respuesta, HttpStatus.ACCEPTED);
     }
+
 
     @GetMapping("/obtenerSolicitud")
     public ResponseEntity<List<SolicitudDTO>> consultarSolicitudesPago(@RequestParam(value = "id", required = false) Integer id) {
@@ -627,5 +646,20 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         boolean vigente = criterioSolicitudService.verificarRelacionLaboralVigente(idCausanteSolicitud);
         return ResponseEntity.ok(vigente);
     }
+
+    @GetMapping("/obtenerTareaSolicitud/{taskId}")
+    public ResponseEntity<Map<String, Object>> obtenerIdSolicitud(@PathVariable String taskId) {
+        Map<String, Object> datos = tareas.get(taskId);
+
+        if (datos == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "estado", "desconocido",
+                "mensaje", "No existe ninguna tarea con ese taskId"
+            ));
+        }
+
+        return ResponseEntity.ok(datos);
+    }
+
 
 }
