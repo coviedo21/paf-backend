@@ -812,7 +812,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
         for (Map<String, Object> row : results) {
             CausanteSolicitudDTO causanteSolicitudDTO = new CausanteSolicitudDTO();
 
-            causanteSolicitudDTO.setIIdCausanteSolicitud((Integer) row.get("iIdCausanteSolicitud"));
+            causanteSolicitudDTO.setIdCausanteSolicitud((Integer) row.get("iIdCausanteSolicitud"));
             causanteSolicitudDTO.setIIdSolicitud((Integer) row.get("iIdSolicitud"));
             causanteSolicitudDTO.setRutBeneficiario((Integer) row.get("iRutBeneficiario"));
             causanteSolicitudDTO.setVcDvBeneficiario((String) row.get("vcDvBeneficiario"));
@@ -874,7 +874,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 );
 
         MapSqlParameterSource inParams = new MapSqlParameterSource()
-                .addValue("iIdCausanteSolicitud", causanteSolicitud.getIIdCausanteSolicitud())
+                .addValue("iIdCausanteSolicitud", causanteSolicitud.getIdCausanteSolicitud())
                 .addValue("iRutBeneficiario", causanteSolicitud.getRutBeneficiario())
                 .addValue("vcDvBeneficiario", causanteSolicitud.getVcDvBeneficiario())
                 .addValue("iRutCausante", causanteSolicitud.getRutCausante())

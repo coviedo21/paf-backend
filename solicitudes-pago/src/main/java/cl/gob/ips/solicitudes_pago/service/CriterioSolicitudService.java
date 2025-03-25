@@ -3,6 +3,7 @@ package cl.gob.ips.solicitudes_pago.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
 
@@ -17,4 +18,5 @@ public interface CriterioSolicitudService {
     CriterioSolicitudCausanteDTO obtenerCriterioCausantePorIdCriterio(Integer idCriterioCausante);
     boolean obtenerRelacionLaboral(Integer rutBeneficiario);
     BigDecimal obtenerMontoDescuento(Integer rutBeneficiario);
+    boolean verificarRelacionLaboralVigente(int idCausanteSolicitud);
 }

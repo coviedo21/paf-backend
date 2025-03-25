@@ -1,6 +1,7 @@
 package cl.gob.ips.solicitudes_pago.service.serviceImpl;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -28,6 +29,7 @@ import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.service.CausanteService;
 import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
 import cl.gob.ips.solicitudes_pago.service.FileService;
+import cl.gob.ips.solicitudes_pago.service.LicenciaFiniquitoService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -44,6 +46,10 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     
     @Autowired
     private CausanteService causanteService;
+    
+    @Autowired
+    private LicenciaFiniquitoService licenciaFiniquitoService;
+    
 
     List<CriterioSolicitudDTO> listaCriterios = new ArrayList<CriterioSolicitudDTO>();
     List<CriterioSolicitudCausanteDTO> listaCriteriosCausante = new ArrayList<CriterioSolicitudCausanteDTO>();
@@ -76,35 +82,35 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
         for(CausanteSolicitudDTO causante: listaCausantes){
         	listaCriteriosCausante.clear();
         // 1) Validación de Rol Único Tributario Causante
-            agregarCriterioCausante(causante.getIIdCausanteSolicitud(),1,true,null,null,null);
+            agregarCriterioCausante(causante.getIdCausanteSolicitud(),1,true,null,null,null);
            
             // 3) Validación de Período de Compensación
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 3, true, null,null,null);
+                agregarCriterioCausante(causante.getIdCausanteSolicitud(), 3, true, null,null,null);
               
             // 4) Validación de Duplicidad de Solicitud
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 4, true, null,null,null);
+                agregarCriterioCausante(causante.getIdCausanteSolicitud(), 4, true, null,null,null);
             
             // 5) Validación de Fechas Válidas
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 5, true, null,null,null); 
+                agregarCriterioCausante(causante.getIdCausanteSolicitud(), 5, true, null,null,null); 
                 
              // 7) Verificación de Relación Laboral Vigente
                 if(!esArchivo) {
-	                if (verificarRelacionLaboralVigente()) {
-	                    agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 7, true, null,null,null);
+	                if (verificarRelacionLaboralVigente(causante.getIdCausanteSolicitud())) {
+	                    agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, true, null,null,null);
 	                } else {
 	                    solicitudAprobada = false;
-	                    agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 7, false, null,null,null);
+	                    agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, false, null,null,null);
 	                }
                 }
                 else {
-                	agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 7, true, null,null,null);
+                	agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, true, null,null,null);
                 }
  
                 // 8) Verificación de Vigencia del Causante
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 8, true, null,null,null);
+                agregarCriterioCausante(causante.getIdCausanteSolicitud(), 8, true, null,null,null);
             
             // 10) Verificación de Retenciones Judiciales
-                agregarCriterioCausante(causante.getIIdCausanteSolicitud(), 10, true, null,null,null);
+                agregarCriterioCausante(causante.getIdCausanteSolicitud(), 10, true, null,null,null);
             
                 if(!esArchivo) {
                 
@@ -176,8 +182,67 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
         return false;
     }
     
-    public boolean verificarRelacionLaboralVigente() {
-        return false;
+    @Override
+    public boolean verificarRelacionLaboralVigente(int idCausanteSolicitud) {
+    	
+    	List<DetalleCausanteDTO> detalle = causanteService.obtenerDetalleCausantePorId(idCausanteSolicitud);
+    	
+    	int diasPago = 0;
+    	int contadorAprobados = 0;
+    	
+    	boolean cumpleRelacionLaboral = true;
+    	
+    	if(detalle.size()==0) {
+    		cumpleRelacionLaboral = false;
+    	} 
+    	
+    	for(DetalleCausanteDTO detalleCausante: detalle) {
+    		if(detalleCausante.getEstado()==1) {
+    			contadorAprobados++;
+    			int diasCotizaciones = causanteService.obtenerDiasCotizacion(detalleCausante.getRutBeneficiario(), detalleCausante.getRutEmpleador(), String.valueOf(detalleCausante.getPeriodo())); //Llamar a API que trae los dias trabajados
+	 
+    			Map<String, String> fechas = UtilServiceImpl.obtenerFechasDesdePeriodo(String.valueOf(detalleCausante.getPeriodo()));
+    			System.out.println("Inicio: " + fechas.get("inicio")); // 2014-01-01
+    			System.out.println("Fin: " + fechas.get("fin"));       // 2014-01-31
+    			
+	    		int diasLicenciasFiniquitos = licenciaFiniquitoService.obtenerDiasLicenciaFiniquito(detalleCausante.getRutBeneficiario(), fechas.get("inicio"), fechas.get("fin"));	
+	    		    	
+	    		int diasReconocimiento = detalleCausante.getDiasReconocimiento();
+	    		
+	    		if((diasCotizaciones+diasLicenciasFiniquitos)==0) {
+	    			cumpleRelacionLaboral = false;
+	    		}
+	    		
+	    		if(diasReconocimiento>(diasCotizaciones+diasLicenciasFiniquitos)) {
+	    			diasPago = (diasCotizaciones+diasLicenciasFiniquitos);
+	    		}
+	    		else {
+	    			diasPago = diasReconocimiento;
+	    		}
+	    		
+	    		if(diasPago>25) {
+	    			detalleCausante.setTotalPago(detalleCausante.getMontoMovimiento());
+	    			detalleCausante.setDiasPago(diasPago);
+	    		}
+	    		else {
+	    			BigDecimal dias = new BigDecimal(diasPago);
+	    			BigDecimal divisor = new BigDecimal(30);
+	    			// (monto / 30) * diasPago
+	    			BigDecimal totalPago = detalleCausante.getMontoMovimiento()
+	    			    .divide(divisor, 2, RoundingMode.HALF_UP)  // División con escala y redondeo
+	    			    .multiply(dias);                           // Multiplicación
+	
+	    			detalleCausante.setTotalPago(totalPago);
+	    			detalleCausante.setDiasPago(diasPago);
+	    		}
+	    		causanteService.actualizarDetalleCausante(detalleCausante);
+    		}
+    	}//Fin for
+    	     	
+    	if(contadorAprobados==0) {
+    		cumpleRelacionLaboral = false;
+    	}
+        return cumpleRelacionLaboral;
     }
     
     public boolean verificarVigenciaCausante() {

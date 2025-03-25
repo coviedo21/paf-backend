@@ -602,10 +602,27 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         return ResponseEntity.ok(resultado);
     }
 
-    @GetMapping("/diasLicenciaFiniquito")
+    @GetMapping("/obtenerDiasLicenciaFiniquito")
     public int obtenerDiasLicenciaFiniquito(@RequestParam int rutBeneficiario,
                                             @RequestParam String fechaInicio,
                                             @RequestParam String fechaFin) {
         return licenciaFiniquitoService.obtenerDiasLicenciaFiniquito(rutBeneficiario, fechaInicio, fechaFin);
     }
+    
+    @GetMapping("/obtenerDiasCotizacion")
+    public ResponseEntity<Integer> obtenerDiasCotizacion(
+            @RequestParam int rutBeneficiario,
+            @RequestParam int rutEmpleador,
+            @RequestParam String periodo) {
+
+        int dias = causanteService.obtenerDiasCotizacion(rutBeneficiario, rutEmpleador, periodo);
+        return ResponseEntity.ok(dias);
+    }
+    
+    @GetMapping("/verificar-relacion-laboral/{idCausanteSolicitud}")
+    public ResponseEntity<Boolean> verificarRelacionLaboralVigente(@PathVariable int idCausanteSolicitud) {
+        boolean vigente = criterioSolicitudService.verificarRelacionLaboralVigente(idCausanteSolicitud);
+        return ResponseEntity.ok(vigente);
+    }
+
 }

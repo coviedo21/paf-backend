@@ -13,4 +13,5 @@ public interface CausanteService {
     List<DetalleCausanteDTO> obtenerDetalleCausantePorId(int iIdCausanteSolicitud);
     DetalleCausanteDTO obtenerDetalleCausantePorIdDetalle(int iIdDetalleCausante);
     boolean actualizarDetalleCausante(DetalleCausanteDTO detalleCausanteDTO);
+    int obtenerDiasCotizacion(int rutBeneficiario, int rutEmpleador, String periodo);
 }

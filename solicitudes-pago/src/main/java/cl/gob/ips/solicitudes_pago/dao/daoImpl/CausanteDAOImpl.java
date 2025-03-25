@@ -30,14 +30,16 @@ public class CausanteDAOImpl implements CausanteDAO{
     
     private final JdbcTemplate jdbcTemplate;
     private final JdbcTemplate genesysPJdbc;
+    private final JdbcTemplate coredJdbc;
     
     @Value("${spring.datasource.schema}")
     private String esquema;
 
     @Autowired
-    public CausanteDAOImpl(@Qualifier("pafJdbc") JdbcTemplate jdbcTemplate,@Qualifier("genesysPJdbc") JdbcTemplate genesysPJdbc) {
+    public CausanteDAOImpl(@Qualifier("pafJdbc") JdbcTemplate jdbcTemplate,@Qualifier("genesysPJdbc") JdbcTemplate genesysPJdbc,@Qualifier("coredJdbc") JdbcTemplate coredJdbc) {
         this.jdbcTemplate = jdbcTemplate;
         this.genesysPJdbc = genesysPJdbc;
+        this.coredJdbc = coredJdbc;
     }
 
     @Override
@@ -308,6 +310,9 @@ public class CausanteDAOImpl implements CausanteDAO{
                 if (row.get("vcNombreEstado") != null) 
                     detalleDTO.setNombreEstado((String) row.get("vcNombreEstado"));
                 
+                if (row.get("estado") != null) 
+                    detalleDTO.setEstado((Integer) row.get("estado"));
+                
                 if (row.get("iDiasPago") != null) 
                     detalleDTO.setDiasPago((Integer) row.get("iDiasPago"));
                 
@@ -340,6 +345,13 @@ public class CausanteDAOImpl implements CausanteDAO{
                 
                 if (row.get("idProcesoPago") != null) 
                     detalleDTO.setIdProcesoPago((Integer) row.get("idProcesoPago"));
+                
+                if (row.get("rutBeneficiario") != null) 
+                    detalleDTO.setRutBeneficiario((Integer) row.get("rutBeneficiario"));
+
+                if (row.get("dvBeneficiario") != null) 
+                    detalleDTO.setDvBeneficiario((String) row.get("dvBeneficiario"));
+
                 
                 detallesCausante.add(detalleDTO);
             }
@@ -510,6 +522,9 @@ public class CausanteDAOImpl implements CausanteDAO{
             if (row.get("idProcesoPago") != null) 
                 detalleDTO.setIdProcesoPago((Integer) row.get("idProcesoPago"));
             
+            if (row.get("estado") != null) 
+                detalleDTO.setEstado((Integer) row.get("estado"));
+            
             return detalleDTO;
 
         } catch (Exception e) {
@@ -571,6 +586,42 @@ public class CausanteDAOImpl implements CausanteDAO{
         String mensajeRespuesta = (String) result.get("mensajeRespuesta");
 
         return "Actualización correcta".equalsIgnoreCase(mensajeRespuesta);
+    }
+    
+    @Override
+    public int obtenerDiasCotizacion(int rutBeneficiario, int rutEmpleador, String periodo) {
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(coredJdbc)
+                .withProcedureName("PRC_WS_DIAS_TRABAJADOS")
+                .withSchemaName("INPAPP")
+                .declareParameters(
+                    new SqlParameter("P_RUT_TR", Types.INTEGER),
+                    new SqlParameter("P_RUT_EM", Types.INTEGER),
+                    new SqlParameter("P_PERIODO", Types.INTEGER),
+                    new SqlOutParameter("P_DIAS_TRABAJADOS", Types.INTEGER),
+                    new SqlOutParameter("RESPUESTA", Types.INTEGER),
+                    new SqlOutParameter("MENSAJE", Types.VARCHAR),
+                    new SqlOutParameter("CODERROR", Types.INTEGER),
+                    new SqlOutParameter("DETALLEERROR", Types.VARCHAR),
+                    new SqlOutParameter("FECHAERROR", Types.VARCHAR)
+                );
+
+        int periodoInt = Integer.parseInt(periodo); // "202403" -> 202403
+
+        SqlParameterSource inParams = new MapSqlParameterSource()
+                .addValue("P_RUT_TR", rutBeneficiario)
+                .addValue("P_RUT_EM", rutEmpleador)
+                .addValue("P_PERIODO", periodoInt);
+
+        Map<String, Object> out = jdbcCall.execute(inParams);
+
+        // Validar respuesta
+        Integer respuesta = (Integer) out.get("RESPUESTA");
+        if (respuesta != null && respuesta == 1) {
+            return (Integer) out.get("P_DIAS_TRABAJADOS");
+        } else {
+            // Podrías logear el error o lanzar una excepción si lo deseas
+            return 0;
+        }
     }
 
 }

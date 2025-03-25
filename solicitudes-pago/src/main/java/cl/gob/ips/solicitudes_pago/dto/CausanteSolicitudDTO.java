@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 public class CausanteSolicitudDTO {
-    private int iIdCausanteSolicitud;
+    private int idCausanteSolicitud;
     private int iIdSolicitud;
     private int rutBeneficiario;
     private String vcDvBeneficiario;

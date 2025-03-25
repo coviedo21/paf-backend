@@ -339,7 +339,7 @@ registro.setHDmonto15(valores[86]);
 
                         EmisionDTO emision = new EmisionDTO();
                         emision.setFechaEmision(new Date());  
-                        emision.setIdProceso(idProceso); //CAMBIAR ESTO QUE ESTA EN DURO
+                        emision.setIdProceso(idProceso);
                         emision.setRutaArchivo(nombreRemoto);
                         emisionService.insertarEmision(emision);
                         

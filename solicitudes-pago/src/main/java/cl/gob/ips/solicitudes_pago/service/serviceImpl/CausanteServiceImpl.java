@@ -237,4 +237,8 @@ public class CausanteServiceImpl implements CausanteService{
         int month = periodo % 100;
         return YearMonth.of(year, month).atEndOfMonth();
     }
+    
+    public int obtenerDiasCotizacion(int rutBeneficiario, int rutEmpleador, String periodo) {
+    	return causanteDAO.obtenerDiasCotizacion(rutBeneficiario, rutEmpleador, periodo);
+    }
 }
