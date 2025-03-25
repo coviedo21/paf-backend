@@ -365,14 +365,15 @@ System.out.println("Período Inicio: " + periodoInicio); // Ejemplo: "201902"
 
 List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         try {
-            //if(request.getPeriodoDesde()!=null && request.getPeriodoHasta()!=null){
+        	if (request.getPeriodoDesde() != null && !request.getPeriodoDesde().isBlank() &&
+        		    request.getPeriodoHasta() != null && !request.getPeriodoHasta().isBlank()) {
                 derechoCausantes = causanteService.obtenerDerechoCausantes(
                     request.getRutCausante(), request.getRutBeneficiario(), request.getRutEmpleador(), request.getPeriodoDesde(), request.getPeriodoHasta(), request.getTipoCausante());    
-            //}
-            //else{
-            //    derechoCausantes = causanteService.obtenerDerechoCausantes(
-            //        request.getRutCausante(), request.getRutBeneficiario(), periodoInicio, periodoFinal, request.getTipoCausante());
-            //}    
+            }
+            else{
+                derechoCausantes = causanteService.obtenerDerechoCausantes(
+                    request.getRutCausante(), request.getRutBeneficiario(), request.getRutEmpleador(), periodoInicio, periodoFinal, request.getTipoCausante());
+            }    
             
             if (derechoCausantes != null && !derechoCausantes.isEmpty()) {
                 return ResponseEntity.ok(derechoCausantes);
