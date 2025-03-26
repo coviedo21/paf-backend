@@ -591,32 +591,50 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
     }
 
     @GetMapping("/validarSolicitud/{idSolicitud}")
-    public ResponseEntity<ResponseDTO> validarSolicitud(@PathVariable("idSolicitud") Integer idSolicitud) {
-        
-        ResponseDTO responseDTO = new ResponseDTO();
-        boolean validacionCriterios = criterioSolicitudService.validarCriteriosResolucion(idSolicitud,false,true);
-        if (validacionCriterios) {
-        	ResolucionDTO resolucion = new ResolucionDTO();
-            resolucion.setIdSolicitud(idSolicitud);
-            resolucion.setAutor(1);
-            resolucion.setIdEstado(2);
-            resolucion.setVcDescripcion("Se valida solicitud.");
-            resolucion.setMotivoRechazo(null);
-            int resolucionResponse = solicitudPagoService.insertarResolucion(resolucion);
-            if(resolucionResponse>0) {
-            	responseDTO.setCodigoRetorno(0);
-                responseDTO.setGlosaRetorno("Se validó la solicitud de pago. Puede ser asignada a un proceso de pago.");
-                responseDTO.setTimestamp(new Date());
-                return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<Map<String, Object>> validarSolicitud(@PathVariable("idSolicitud") Integer idSolicitud) {
+        String taskId = UUID.randomUUID().toString();
+
+        Map<String, Object> datosTarea = new ConcurrentHashMap<>();
+        datosTarea.put("estado", "procesando");
+        tareas.put(taskId, datosTarea);
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                boolean validacionCriterios = criterioSolicitudService.validarCriteriosResolucion(idSolicitud, false, true);
+
+                if (validacionCriterios) {
+                    ResolucionDTO resolucion = new ResolucionDTO();
+                    resolucion.setIdSolicitud(idSolicitud);
+                    resolucion.setAutor(1);
+                    resolucion.setIdEstado(2);
+                    resolucion.setVcDescripcion("Se valida solicitud.");
+                    resolucion.setMotivoRechazo(null);
+
+                    int resolucionResponse = solicitudPagoService.insertarResolucion(resolucion);
+                    if (resolucionResponse > 0) {
+                        datosTarea.put("estado", "completado");
+                        datosTarea.put("mensaje", "Se validó la solicitud de pago. Puede ser asignada a un proceso de pago.");
+                    } else {
+                        datosTarea.put("estado", "error");
+                        datosTarea.put("mensaje", "Error al insertar resolución.");
+                    }
+                } else {
+                    datosTarea.put("estado", "rechazada");
+                    datosTarea.put("mensaje", "La solicitud no cumple con todos los criterios de aceptación.");
+                }
+            } catch (Exception e) {
+                datosTarea.put("estado", "error");
+                datosTarea.put("mensaje", "Error en validación: " + e.getMessage());
+                e.printStackTrace();
             }
-        } else {
-            responseDTO.setCodigoRetorno(-1);
-            responseDTO.setGlosaRetorno("Error al validar solicitud de pago. No cumple con todos los criterios de aceptación.");
-            responseDTO.setTimestamp(new Date());
-            return ResponseEntity.ok(responseDTO);
-        }
-        return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        });
+
+        return ResponseEntity.accepted().body(Map.of(
+                "taskId", taskId,
+                "mensaje", "La validación de la solicitud se está procesando."
+        ));
     }
+
     
     @PostMapping("/actualizarDetalleCausante")
     public ResponseEntity<Boolean> actualizarDetalleCausante(@RequestBody DetalleCausanteDTO detalleCausanteDTO) {
@@ -661,5 +679,18 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         return ResponseEntity.ok(datos);
     }
 
+    @GetMapping("/obtenerTareaValidacion/{taskId}")
+    public ResponseEntity<Map<String, Object>> obtenerResultadoValidacion(@PathVariable String taskId) {
+        Map<String, Object> datos = tareas.get(taskId);
+
+        if (datos == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "estado", "desconocido",
+                    "mensaje", "No existe ninguna validación con ese taskId"
+            ));
+        }
+
+        return ResponseEntity.ok(datos);
+    }
 
 }
