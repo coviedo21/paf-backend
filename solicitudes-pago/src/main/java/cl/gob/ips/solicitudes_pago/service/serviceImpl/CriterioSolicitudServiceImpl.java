@@ -100,8 +100,14 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	                if (verificarRelacionLaboralVigente(causante.getIdCausanteSolicitud())) {
 	                    agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, true, null,null,null);
 	                } else {
-	                    solicitudAprobada = false;
-	                    agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, false, null,null,null);
+	                    if(esArchivo) {
+	                    	solicitudAprobada = true;
+	                    	agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, true, null,null,null);
+	                    }
+	                    else {
+	                    	solicitudAprobada = false;
+	                    	agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, false, null,null,null);
+	                    }
 	                }
                 /*}
                 else {
@@ -230,7 +236,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    		}
 	    		else {
 	    			BigDecimal dias = new BigDecimal(diasPago);
-	    			BigDecimal divisor = new BigDecimal(30);
+	    			BigDecimal divisor = new BigDecimal(diasReconocimiento);
 	    			// (monto / 30) * diasPago
 	    			BigDecimal totalPago = detalleCausante.getMontoMovimiento()
 	    			    .divide(divisor, 2, RoundingMode.HALF_UP)  // División con escala y redondeo
