@@ -64,6 +64,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 insertarResolucion(resolucion);
                 try {
                     if(!esArchivo){
+                    	response.setGlosaRetorno("Solicitud Nº "+(int) response.getResultado()+" creada exitósamente. Puede ser asignada a un proceso de pago ya que cumple con todos los criterios de aceptación.");
                         emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" enviada","Su solicitud N° "+(int) response.getResultado()+" cumple con todos los criterios de aceptación por lo que ha sido enviada para su resolución.");    
                     }
                 } catch (Exception e) {
@@ -77,6 +78,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                     actualizarSolicitud.setIdSolicitud((int) response.getResultado());
                     actualizarSolicitud.setCumpleCriterios("N");
                     actualizarSolicitudPago(actualizarSolicitud);
+                    response.setGlosaRetorno("Solicitud Nº "+(int) response.getResultado()+" creada. No cumple con todos los criterios de aceptación.");
                     emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" recibida con error(es)","Su solicitud N° "+(int) response.getResultado()+" NO cumple con todos los criterios de aceptación. A partir de este momento cuenta con "+diasAntiguedad+" días para subsanarla. Deberá adjuntar la documentación necesaria, de lo contrario será enviada automáticamente para su resolución");    
                 } catch (Exception e) {
                     // Captura cualquier excepción relacionada con el envío del correo y loguea el error

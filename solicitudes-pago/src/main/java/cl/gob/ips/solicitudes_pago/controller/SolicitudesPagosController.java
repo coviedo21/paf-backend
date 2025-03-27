@@ -132,6 +132,7 @@ public class SolicitudesPagosController {
                 if ((int) resultado.getResultado() > 0) {
                     datosTarea.put("estado", "completado");
                     datosTarea.put("idSolicitud", resultado.getResultado());
+                    datosTarea.put("mensaje", resultado.getGlosaRetorno());
                 } else {
                     datosTarea.put("estado", "error");
                     datosTarea.put("mensaje", resultado.getGlosaRetorno());
