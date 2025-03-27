@@ -68,11 +68,13 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
         List<CausanteSolicitudDTO> listaCausantes = solicitudPagoDAO.obtenerCausantesPorSolicitud(idSolicitud);
         boolean solicitudAprobada = true;
         
+        if(!esBotonValidar) {
         // 1) Validación de Rol Único Tributario Beneficiario
         agregarCriterioResolucion(idSolicitud,1,true,null,null,null);
         
         // 2) Validación de Comuna de Dirección de Empleador
         agregarCriterioResolucion(idSolicitud, 2, true, null,null,null);
+        }
         
         if(!esBotonValidar) {
 	        for(CriterioSolicitudDTO criterio: listaCriterios){
@@ -83,6 +85,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 
         for(CausanteSolicitudDTO causante: listaCausantes){
         	listaCriteriosCausante.clear();
+        	if(!esBotonValidar) {
         // 1) Validación de Rol Único Tributario Causante
             agregarCriterioCausante(causante.getIdCausanteSolicitud(),1,true,null,null,null);
            
@@ -94,11 +97,25 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
             
             // 5) Validación de Fechas Válidas
                 agregarCriterioCausante(causante.getIdCausanteSolicitud(), 5, true, null,null,null); 
-                
+        	}
+        	
              // 7) Verificación de Relación Laboral Vigente
                 //if(!esArchivo) {
 	                if (verificarRelacionLaboralVigente(causante.getIdCausanteSolicitud())) {
-	                    agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, true, null,null,null);
+	                	if(!esBotonValidar) {
+	                		agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, true, null,null,null);
+	                	}
+	                    if(esBotonValidar) {
+	                    	List<CriterioSolicitudCausanteDTO> criterios = consultarCriteriosCausante(causante.getIdCausanteSolicitud());
+	                    	for(CriterioSolicitudCausanteDTO criterio: criterios) {
+	                    		if(criterio.getIdCriterio()==7) {
+	                    			criterio.setCumple("S");
+	                    			actualizarCriterioCausante(criterio);
+	                    		}
+	                    	}
+	                    	
+	                    }
+	                    
 	                } else {
 	                    if(esArchivo) {
 	                    	solicitudAprobada = true;
