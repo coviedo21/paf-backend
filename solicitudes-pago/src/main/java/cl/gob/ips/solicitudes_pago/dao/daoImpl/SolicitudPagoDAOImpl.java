@@ -207,9 +207,30 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("vcCiudad", Types.VARCHAR),
                         new SqlParameter("nMontoHaber", Types.VARCHAR),
                         new SqlParameter("vcEsPortuario", Types.VARCHAR),
+                        new SqlParameter("iCodigoHaber", Types.INTEGER),
+                        new SqlParameter("iOrigenPago", Types.INTEGER),
                         new SqlOutParameter("idSolicitud", Types.INTEGER),
                         new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                 );
+        
+        int codigoHaber = 0;
+        int origenPago = 0;
+     
+        if(!esArchivo) {
+        	if(solicitudPago.getTipoSolicitante() == 1 || solicitudPago.getTipoSolicitante() == 3){
+        		codigoHaber = 16;
+            	origenPago = 1;
+        	}
+        	else {
+        		codigoHaber = 190;
+        		origenPago = 4;
+        	}
+        }
+        
+        if(esArchivo) {
+        	codigoHaber = 190;
+    		origenPago = 5;
+        }
 
         MapSqlParameterSource inParams = new MapSqlParameterSource()
                 .addValue("iIdProceso", solicitudPago.getIdProceso()>0?solicitudPago.getIdProceso():null)
@@ -254,7 +275,9 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("vcNombreRegion", solicitudPago.getNombreRegion())
                 .addValue("vcCiudad", solicitudPago.getCiudadEmpleador())
                 .addValue("nMontoHaber", solicitudPago.getMontoHaber())
-        		.addValue("vcEsPortuario", solicitudPago.getEsPortuario());
+        		.addValue("vcEsPortuario", solicitudPago.getEsPortuario())
+        		.addValue("iCodigoHaber", codigoHaber)
+        		.addValue("iOrigenPago", origenPago);
 
         try {
             Map<String, Object> result = jdbcCall.execute(inParams);

@@ -64,4 +64,8 @@ public class SolicitudDTO {
     private BigDecimal montoHaber;
     private String esPortuario;
     private BigDecimal totalPago;
+    private int codigoHaber;
+    private int origenPago;
+    private int corrProceso;
+    private int corrHaber;
 }
