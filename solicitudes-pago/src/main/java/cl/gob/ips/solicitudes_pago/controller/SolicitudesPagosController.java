@@ -601,7 +601,8 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
 
         CompletableFuture.runAsync(() -> {
             try {
-                boolean validacionCriterios = criterioSolicitudService.validarCriteriosResolucion(idSolicitud, false, true);
+            	String esPortuario = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0).getEsPortuario();
+                boolean validacionCriterios = criterioSolicitudService.validarCriteriosResolucion(idSolicitud, false, true,esPortuario);
 
                 if (validacionCriterios) {
                     ResolucionDTO resolucion = new ResolucionDTO();
@@ -662,7 +663,7 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
     
     @GetMapping("/verificar-relacion-laboral/{idCausanteSolicitud}")
     public ResponseEntity<Boolean> verificarRelacionLaboralVigente(@PathVariable int idCausanteSolicitud) {
-        boolean vigente = criterioSolicitudService.verificarRelacionLaboralVigente(idCausanteSolicitud);
+        boolean vigente = criterioSolicitudService.verificarRelacionLaboralVigente(idCausanteSolicitud,"N");
         return ResponseEntity.ok(vigente);
     }
 

@@ -47,7 +47,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         boolean enviar = false;
 
         if((int) response.getResultado()>0){
-               enviar = criterioSolicitudService.validarCriteriosResolucion((int) response.getResultado(), esArchivo,false);
+               enviar = criterioSolicitudService.validarCriteriosResolucion((int) response.getResultado(), esArchivo,false, solicitudPago.getEsPortuario());
             
                if(enviar){
                 SolicitudDTO actualizarSolicitud = new SolicitudDTO();

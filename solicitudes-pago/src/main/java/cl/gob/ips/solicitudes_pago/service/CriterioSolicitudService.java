@@ -9,7 +9,7 @@ import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
 
 public interface CriterioSolicitudService {
     List<CriterioSolicitudDTO> consultarCriteriosSolicitud(Integer idSolicitud);
-    boolean validarCriteriosResolucion(Integer idSolicitud, boolean esArchivo, boolean esBotonValidar);
+    boolean validarCriteriosResolucion(Integer idSolicitud, boolean esArchivo, boolean esBotonValidar, String esPortuario);
     boolean validarRolUnicoTributario(String rut);
     boolean actualizarCriterioSolicitud(CriterioSolicitudDTO criterioSolicitudDTO);
     boolean actualizarCriterioCausante(CriterioSolicitudCausanteDTO criterioCausante);
@@ -18,5 +18,5 @@ public interface CriterioSolicitudService {
     CriterioSolicitudCausanteDTO obtenerCriterioCausantePorIdCriterio(Integer idCriterioCausante);
     boolean obtenerRelacionLaboral(Integer rutBeneficiario);
     BigDecimal obtenerMontoDescuento(Integer rutBeneficiario);
-    boolean verificarRelacionLaboralVigente(int idCausanteSolicitud);
+    boolean verificarRelacionLaboralVigente(int idCausanteSolicitud, String esPortuario);
 }

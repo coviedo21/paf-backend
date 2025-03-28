@@ -60,7 +60,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     }
 
     @Override
-    public boolean validarCriteriosResolucion(Integer idSolicitud, boolean esArchivo, boolean esBotonValidar){
+    public boolean validarCriteriosResolucion(Integer idSolicitud, boolean esArchivo, boolean esBotonValidar, String esPortuario){
         listaCriterios.clear();
         listaCriteriosCausante.clear();
         //List<SolicitudDTO> listaSolicitud = solicitudPagoDAO.consultarSolicitudPago(idSolicitud);
@@ -101,7 +101,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
         	
              // 7) Verificación de Relación Laboral Vigente
                 //if(!esArchivo) {
-	                if (verificarRelacionLaboralVigente(causante.getIdCausanteSolicitud())) {
+	                if (verificarRelacionLaboralVigente(causante.getIdCausanteSolicitud(),esPortuario)) {
 	                	if(!esBotonValidar) {
 	                		agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, true, null,null,null);
 	                	}
@@ -210,7 +210,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     }
     
     @Override
-    public boolean verificarRelacionLaboralVigente(int idCausanteSolicitud) {
+    public boolean verificarRelacionLaboralVigente(int idCausanteSolicitud, String esPortuario) {
     	
     	List<DetalleCausanteDTO> detalle = causanteService.obtenerDetalleCausantePorId(idCausanteSolicitud);
     	
@@ -224,7 +224,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     	} 
     	
     	for(DetalleCausanteDTO detalleCausante: detalle) {
-    		if(detalleCausante.getEstado()==1) {
+    		if(detalleCausante.getEstado()==1 || detalleCausante.getEstado()==6) {
     			contadorAprobados++;
     			int diasCotizaciones = causanteService.obtenerDiasCotizacion(detalleCausante.getRutBeneficiario(), detalleCausante.getRutEmpleador(), String.valueOf(detalleCausante.getPeriodo())); //Llamar a API que trae los dias trabajados
 	 
@@ -240,11 +240,29 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    			cumpleRelacionLaboral = false;
 	    		}
 	    		
-	    		if(diasReconocimiento>(diasCotizaciones+diasLicenciasFiniquitos)) {
-	    			diasPago = (diasCotizaciones+diasLicenciasFiniquitos);
+	    		if(esPortuario.equalsIgnoreCase("S")) {
+	    			if((diasCotizaciones+diasLicenciasFiniquitos)>0) {
+	    				diasPago = diasReconocimiento;
+	    			}
+	    			else {
+	    				diasPago = 0;
+	    			}
 	    		}
 	    		else {
-	    			diasPago = diasReconocimiento;
+		    		if(diasReconocimiento>(diasCotizaciones+diasLicenciasFiniquitos)) {
+		    			diasPago = (diasCotizaciones+diasLicenciasFiniquitos);
+		    		}
+		    		else {
+		    			diasPago = diasReconocimiento;
+		    		}
+	    		}
+	    		if(diasPago==0) {
+    				detalleCausante.setEstado(6);
+    			}
+	    		else {
+	    			if(detalleCausante.getEstado()==6) {
+	    				detalleCausante.setEstado(1);
+	    			}
 	    		}
 	    		
 	    		if(diasPago>25) {
@@ -261,6 +279,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	
 	    			detalleCausante.setTotalPago(totalPago);
 	    			detalleCausante.setDiasPago(diasPago);
+	    			
 	    		}
 	    		causanteService.actualizarDetalleCausante(detalleCausante);
     		}

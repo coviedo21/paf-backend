@@ -119,8 +119,8 @@ public class ProcesoServiceImpl implements ProcesoService {
 
     public RetencionJudicialDTO obtenerRetencionJudicialUltima(int rutCausante, int rutBeneficiario, int periodo) {
         String url = String.format(
-            baseUrlRetencion + "/obtener-detalle-causante-retenedor/%s/%s/%s",
-            rutCausante, rutBeneficiario, periodo
+            baseUrlRetencion + "/obtener-detalle-causante-retenedor/%s/%s",
+            rutCausante, rutBeneficiario
         );
 
         System.out.println("Esta es la URL de la segunda API: " + url);
@@ -131,13 +131,14 @@ public class ProcesoServiceImpl implements ProcesoService {
         try {
             response = restTemplate.getForObject(url, ResponseDTO.class);
         } catch (HttpClientErrorException e) {
-            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+            /*if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 System.err.println("Segunda API retornó 404: No se encontraron datos adicionales para el causante en este periodo " + periodo + ".");
                 return null;
             } else {
                 System.err.println("Error al llamar a la segunda API: " + e.getMessage());
-                throw e;
-            }
+                return null;
+            }*/
+        	return null;
         }
 
         if (response != null && response.getResultado() != null) {
