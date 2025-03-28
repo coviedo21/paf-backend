@@ -474,6 +474,9 @@ public void insertarProcesoTipoSolicitante(int idProceso, List<Integer> listaTip
                 if (row.get("tipoSolicitante") != null)
                     detalleDTO.setTipoSolicitante((Integer) row.get("tipoSolicitante"));
 
+                if (row.get("totalPago") != null)
+                    detalleDTO.setTotalPago((BigDecimal) row.get("totalPago"));
+
                 detallesList.add(detalleDTO);
             }
 
