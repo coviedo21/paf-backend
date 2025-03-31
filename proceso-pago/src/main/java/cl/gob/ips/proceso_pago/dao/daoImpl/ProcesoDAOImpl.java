@@ -400,7 +400,7 @@ public void insertarProcesoTipoSolicitante(int idProceso, List<Integer> listaTip
                     detalleDTO.setDvEmpleador((String) row.get("dvEmpleador"));
 
                 if (row.get("nis") != null)
-                    detalleDTO.setINis((String) row.get("nis"));
+                    detalleDTO.setRutNis((String) row.get("nis"));
 
                 if (row.get("dvNis") != null)
                     detalleDTO.setDvNis((String) row.get("dvNis"));
