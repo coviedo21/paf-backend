@@ -201,7 +201,7 @@ public List<DatosProcesoPorTipoDTO> obtenerDatosProcesoPorTipo(int idProceso) {
         if (row.get("PagosTotales") != null) dto.setPagosTotales((BigDecimal) row.get("PagosTotales"));
         if (row.get("PagosAprobados") != null) dto.setPagosAprobados((BigDecimal) row.get("PagosAprobados"));
         if (row.get("PagosRechazados") != null) dto.setPagosRechazados((BigDecimal) row.get("PagosRechazados"));
-        
+        if (row.get("estadoProceso") != null) dto.setEstadoProceso((Integer) row.get("estadoProceso"));
         
         datosProceso.add(dto);
     }

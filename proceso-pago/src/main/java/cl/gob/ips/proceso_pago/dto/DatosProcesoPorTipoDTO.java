@@ -13,4 +13,5 @@ public class DatosProcesoPorTipoDTO {
     private BigDecimal pagosTotales;
     private BigDecimal pagosAprobados;
     private BigDecimal pagosRechazados;
+    private Integer estadoProceso;
 }
