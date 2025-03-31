@@ -51,12 +51,6 @@ public class EmisionServiceImpl implements EmisionService {
         // 1️ Obtener los detalles del proceso de pago
         List<DetalleCausanteDTO> detalles = procesoDAO.obtenerDetallesPorProcesoPago(idProceso);
 
-        for(DetalleCausanteDTO detalle: detalles) {
-        	if(detalle.getTotalPago()==null) {
-        		System.out.println("Hay pago en null, rut: "+detalle.getRutBeneficiario()+" rutFinal: "+detalle.getRutBeneficiarioPago()+" rutCausante: "+detalle.getRutCausante()+" periodo: "+detalle.getPeriodo());
-        	}
-        }
-        System.out.println("Sali");
         // 2️ Agrupar los detalles por rutBeneficiarioPago y sumar los montos de totalPago
         detalles.stream()
         .filter(d -> d != null && d.getTotalPago() == null)

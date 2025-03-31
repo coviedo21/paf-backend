@@ -151,10 +151,12 @@ public class ProcesoPagoController {
     }
 
     @PostMapping("/procesarEmision")
-    public List<EmisionArchivoDTO> procesarEmision(@RequestParam("file") MultipartFile file, @RequestParam("idProceso") Integer idProceso) {
+    public ResponseEntity<ResponseDTO> procesarEmision(@RequestParam("file") MultipartFile file, @RequestParam("idProceso") Integer idProceso) {
         List<EmisionArchivoDTO> registros = new ArrayList<>();
         int[] posiciones = {2, 3, 13, 1, 1, 2, 1, 1, 3, 3, 4, 1, 1, 40, 8, 40, 8, 8, 1, 8, 1, 2, 1, 8, 1, 1, 2, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7,1, 3, 5, 7, 7, 7, 7, 3, 4, 7, 1, 8, 7, 7, 7, 7, 7, 48, 15, 1, 1, 2, 2, 2, 2, 7, 8, 8, 10, 8};
-        
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setTimestamp(new Date());
+
         try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
             String linea;
             while ((linea = br.readLine()) != null) {
@@ -343,15 +345,37 @@ registro.setHDmonto15(valores[86]);
                         emision.setRutaArchivo(nombreRemoto);
                         emisionService.insertarEmision(emision);
                         
-                        boolean resultado = procesoService.actualizarEstadoProceso(idProceso, 2);                                        
+                        boolean resultado = procesoService.actualizarEstadoProceso(idProceso, 2);
+                        responseDTO.setCodigoRetorno(0);
+                        responseDTO.setGlosaRetorno("Emisión procesada exitósamente.");
+                        responseDTO.setTimestamp(new Date());
+
+                        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
                 } catch (Exception e) {
-                    return registros;
+                	responseDTO.setCodigoRetorno(-1);
+                    responseDTO.setGlosaRetorno("Ocurrió un error al procesar la emisión: "+e.getMessage());
+                    responseDTO.setTimestamp(new Date());
+
+                    return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
                 }
+            }
+            else {
+            	responseDTO.setCodigoRetorno(-1);
+                responseDTO.setGlosaRetorno("Solicitud procesada con errores.");
+                responseDTO.setTimestamp(new Date());
+
+                return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
             }
         } catch (Exception e) {
             e.printStackTrace();
+            responseDTO.setCodigoRetorno(-1);
+            responseDTO.setGlosaRetorno("Ocurrió un error al leer archivo de emisión: "+e.getMessage());
+            responseDTO.setTimestamp(new Date());
+
+            return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+
         }
-        return registros;
+
     }
 
     @GetMapping("/obtenerEmisiones")
