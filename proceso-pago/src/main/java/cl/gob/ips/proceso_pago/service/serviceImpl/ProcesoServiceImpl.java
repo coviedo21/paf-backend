@@ -65,10 +65,10 @@ public class ProcesoServiceImpl implements ProcesoService {
 		            	
 		            	RetencionJudicialDTO ultimaRetencion = obtenerRetencionJudicialUltima(detalle.getRutCausante(),detalle.getRutBeneficiario(), detalle.getPeriodo());
 		            	if(ultimaRetencion!=null) {
-			            	detalle.setIdFormaPagoFinal(retencion.getIdFormaPago());
-			            	detalle.setIdBancoFinal(retencion.getCodBanco());
-			            	detalle.setIdTipoCuentaFinal(retencion.getCodTipoCuenta());
-			            	detalle.setNumeroCuentaFinal(retencion.getNumeroCuenta());
+			            	detalle.setIdFormaPagoFinal(ultimaRetencion.getIdFormaPago());
+			            	detalle.setIdBancoFinal(ultimaRetencion.getCodBanco());
+			            	detalle.setIdTipoCuentaFinal(ultimaRetencion.getCodTipoCuenta());
+			            	detalle.setNumeroCuentaFinal(ultimaRetencion.getNumeroCuenta());
 		            	}
 		            	// Llamar a la API para actualizar detalle causante
 	                    String urlActualizar = baseUrl + "/actualizarDetalleCausante";
