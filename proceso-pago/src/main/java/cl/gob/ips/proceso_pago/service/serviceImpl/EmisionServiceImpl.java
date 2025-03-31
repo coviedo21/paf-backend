@@ -85,7 +85,7 @@ public class EmisionServiceImpl implements EmisionService {
 
             for (DetalleCausanteDTO detalle : detallesDelGrupo) {
                 if (archivoEncontrado != null) {
-                    detalle.setINis(Integer.parseInt(archivoEncontrado.getNis()));
+                	detalle.setINis(String.valueOf(Long.parseLong(archivoEncontrado.getNis())));
                     detalle.setDvNis(archivoEncontrado.getDvNis());
                     detalle.setNumeroDocumento(Integer.parseInt(archivoEncontrado.getNroDocto()));
                     detalle.setDvDocumento(archivoEncontrado.getDvNroDocto());

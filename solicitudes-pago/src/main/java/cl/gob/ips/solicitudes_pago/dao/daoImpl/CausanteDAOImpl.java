@@ -559,7 +559,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("dFechaInicioVigencia", detalleCausanteDTO.getFechaInicioVigencia(), Types.DATE)
                 .addValue("iRutEmpleador", detalleCausanteDTO.getRutEmpleador(), Types.INTEGER)
                 .addValue("vcDvEmpleador", detalleCausanteDTO.getDvEmpleador(), Types.VARCHAR)
-                .addValue("iNis", detalleCausanteDTO.getRutNis(), Types.INTEGER)
+                .addValue("iNis", detalleCausanteDTO.getRutNis(), Types.VARCHAR)
                 .addValue("vcDvNis", detalleCausanteDTO.getDvNis(), Types.VARCHAR)
                 .addValue("iNumeroDocumento", detalleCausanteDTO.getNumeroDocumento(), Types.INTEGER)
                 .addValue("vcDvNumeroDocumento", detalleCausanteDTO.getDvDocumento(), Types.VARCHAR)
