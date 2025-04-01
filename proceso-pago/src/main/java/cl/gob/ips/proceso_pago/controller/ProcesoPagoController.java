@@ -15,6 +15,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import cl.gob.ips.proceso_pago.dto.*;
+import cl.gob.ips.proceso_pago.service.CtaCtePafService;
 import cl.gob.ips.proceso_pago.service.NominaPagoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ContentDisposition;
@@ -35,12 +37,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.azure.storage.file.share.ShareFileClient;
 import com.azure.storage.file.share.ShareFileClientBuilder;
 
-import cl.gob.ips.proceso_pago.dto.DatosProcesoPorTipoDTO;
-import cl.gob.ips.proceso_pago.dto.DetalleCausanteDTO;
-import cl.gob.ips.proceso_pago.dto.EmisionArchivoDTO;
-import cl.gob.ips.proceso_pago.dto.EmisionDTO;
-import cl.gob.ips.proceso_pago.dto.ProcesoDTO;
-import cl.gob.ips.proceso_pago.dto.ResponseDTO;
 import cl.gob.ips.proceso_pago.service.EmisionService;
 import cl.gob.ips.proceso_pago.service.ProcesoService;
 
@@ -59,6 +55,9 @@ public class ProcesoPagoController {
 
     @Autowired
     private NominaPagoService nominaPagoService;
+
+    @Autowired
+    CtaCtePafService ctaCtePafService;
 
     @PostMapping("/crear-proceso")
     public ResponseEntity<ResponseDTO> crearProceso(
@@ -452,5 +451,10 @@ registro.setHDmonto15(valores[86]);
         response.setHeader("Content-Disposition", "attachment; filename=\"nomina_pago.csv\"");
 
         nominaPagoService.generateCsvResponse(response, iIdProcesoIN, fecPago);
+    }
+
+    @PostMapping("/procesar/{idProceso}")
+    public ProcesoResponse procesarPago(@PathVariable Integer idProceso) {
+        return ctaCtePafService.procesarYGuardarDatos(idProceso);
     }
 }
