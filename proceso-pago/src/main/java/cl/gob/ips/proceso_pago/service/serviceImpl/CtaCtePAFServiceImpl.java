@@ -8,19 +8,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class CtaCtePAFServiceImpl implements CtaCtePAFService {
 
-    private final CtaCtePAFDAO ctaCteDAO;
-
     @Autowired
-    public CtaCtePAFServiceImpl(CtaCtePAFDAO ctaCteDAO) {
-        this.ctaCteDAO = ctaCteDAO;
-    }
+    private CtaCtePAFDAO ctaCtePAFDAO;
+
+//    private final CtaCtePAFDAO ctaCteDAO;
+//
+//    @Autowired
+//    public CtaCtePAFServiceImpl(CtaCtePAFDAO ctaCteDAO) {
+//        this.ctaCteDAO = ctaCteDAO;
+//    }
+
+//    @Transactional
+//    public SpResponse copiaCteCtePAF(int iIdProcesoPago) {
+//        // Lógica transaccional: Si hay error, se hace rollback
+//        return ctaCteDAO.procesarYInsertar(iIdProcesoPago);
+//    }
 
     @Transactional
-    public SpResponse copiaCteCtePAF(int iIdProcesoPago) {
-        // Lógica transaccional: Si hay error, se hace rollback
-        return ctaCteDAO.procesarYInsertar(iIdProcesoPago);
+    public SpResponse procesarDatosCtaCtePAF(int IdProceso) {
+        // Obtener datos desde la capa DAO
+        List<CtaCtePAFDTO> datosList = ctaCtePAFDAO.obtenerDatosCtaCtePAF(IdProceso);
+
+        // Insertar los datos obtenidos
+        return ctaCtePAFDAO.insertarDatosCtaCtePAF(datosList);
     }
 }
