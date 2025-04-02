@@ -30,7 +30,7 @@ import java.util.UUID;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/procesoPago")
+    @RequestMapping("/procesoPago")
 public class ProcesoPagoController {
 
     @Autowired
@@ -450,7 +450,7 @@ registro.setHDmonto15(valores[86]);
     }
 
     @PostMapping("/procesar/{idProceso}")
-    public SpResponse copiaCteCtePAF(int iIdProcesoPago) {
-        return ctaCtePAFService.copiaCteCtePAF(iIdProcesoPago);
+    public SpResponse copiaCteCtePAF(@PathVariable int idProceso) {
+        return ctaCtePAFService.procesarDatosCtaCtePAF(idProceso);
     }
 }

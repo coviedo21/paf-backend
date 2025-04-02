@@ -11,7 +11,7 @@ import java.sql.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CtaCtePAFDTO {
-    private BigDecimal nPagoPAFID;
+//    private BigDecimal nPagoPAFID;
     private BigDecimal nMesRemuneracion;
     private BigDecimal nRUTCausante;
     private String cdvCausante;
@@ -28,7 +28,7 @@ public class CtaCtePAFDTO {
     private BigDecimal nMontoBeneficio;
     private BigDecimal nMontoDocumento;
     private String vcNumeroDocumento;
-    private BigDecimal nFechaEmisionDocumento;
+    private Date dFechaEmisionDocumento;
     private BigDecimal nCodigoBanco;
     private BigDecimal nCodigoInstitucion;
     private String vcOrigen;

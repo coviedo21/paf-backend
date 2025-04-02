@@ -8,6 +8,9 @@ import java.util.Map;
 public interface CtaCtePAFDAO {
 //    List<CtaCtePAFDTO> obtenerDatosDesdeFuncion(int iIdProcesoPago);
 //    SpResponse insertarConSP(CtaCtePAFDTO datos);
-    SpResponse procesarYInsertar(int iIdProcesoPago);
+//    SpResponse procesarYInsertar(int iIdProcesoPago);
 //    SpResponse insertarDesdeVistaConSP();
+
+    List<CtaCtePAFDTO> obtenerDatosCtaCtePAF(int IdProceso);
+    SpResponse insertarDatosCtaCtePAF(List<CtaCtePAFDTO> datosList);
 }
