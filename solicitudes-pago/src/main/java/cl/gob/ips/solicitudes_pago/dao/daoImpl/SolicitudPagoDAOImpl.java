@@ -134,6 +134,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 	                            resolucion.setIdEstado(4);
 	                            resolucion.setVcDescripcion("Se rechaza solicitud.");
 	                            resolucion.setMotivoRechazo(4);
+	                            resolucion.setUsuario(solicitudPago.getUsuarioModificacion());
 	                            insertarResolucion(resolucion);
 	                            try {
 	                                emailService.enviarCorreo(solicitudAntigua.getEmail(),"Solicitud "+solicitudAntigua.getIdSolicitud()+" rechazada.","Su solicitud N° "+solicitudAntigua.getIdSolicitud()+" ha sido rechazada. Motivo de Rechazo: Solicitud Duplicada");    
@@ -209,6 +210,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("vcEsPortuario", Types.VARCHAR),
                         new SqlParameter("iCodigoHaber", Types.INTEGER),
                         new SqlParameter("iOrigenPago", Types.INTEGER),
+                        new SqlParameter("vcUsuarioCreacion", Types.VARCHAR),
                         new SqlOutParameter("idSolicitud", Types.INTEGER),
                         new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                 );
@@ -277,7 +279,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("nMontoHaber", solicitudPago.getMontoHaber())
         		.addValue("vcEsPortuario", solicitudPago.getEsPortuario())
         		.addValue("iCodigoHaber", codigoHaber)
-        		.addValue("iOrigenPago", origenPago);
+        		.addValue("iOrigenPago", origenPago)
+        		.addValue("vcUsuarioCreacion", solicitudPago.getUsuarioCreacion());
 
         try {
             Map<String, Object> result = jdbcCall.execute(inParams);
@@ -448,6 +451,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
             if (row.get("esPortuario") != null) solicitudPagoDTO.setEsPortuario((String) row.get("esPortuario"));
             if (row.get("totalPago") != null) solicitudPagoDTO.setTotalPago((BigDecimal) row.get("totalPago"));
+            if (row.get("usuarioCreacion") != null) solicitudPagoDTO.setUsuarioCreacion((String) row.get("usuarioCreacion"));
+            if (row.get("vcUsuarioModificacion") != null) solicitudPagoDTO.setUsuarioModificacion((String) row.get("vcUsuarioModificacion"));
             solicitudesPago.add(solicitudPagoDTO);
 
             // Consulta los causantes de la solicitud actual 
@@ -523,6 +528,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("nombreComuna", Types.VARCHAR),
                         new SqlParameter("cumpleCriterios", Types.VARCHAR),
                         new SqlParameter("nombreRegion", Types.VARCHAR),
+                        new SqlParameter("vcUsuarioModificacion", Types.VARCHAR),
                         new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                 );
 
@@ -568,7 +574,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("folio", solicitudPago.getFolio())
                 .addValue("nombreComuna", solicitudPago.getNombreComuna())
                 .addValue("cumpleCriterios", solicitudPago.getCumpleCriterios())
-                .addValue("nombreRegion", solicitudPago.getNombreRegion());
+                .addValue("nombreRegion", solicitudPago.getNombreRegion())
+        		.addValue("vcUsuarioModificacion", solicitudPago.getUsuarioModificacion());
 
         try {
             Map<String, Object> result = jdbcCall.execute(inParams);
@@ -757,6 +764,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                             new SqlParameter("dFechaAval", Types.DATE),
                             new SqlParameter("dFechaApelacion", Types.DATE),
                             new SqlParameter("iMotivoRechazo", Types.INTEGER),
+                            new SqlParameter("vcUsuario", Types.VARCHAR),
                             new SqlOutParameter("idResolucion", Types.INTEGER),
                             new SqlOutParameter("mensajeRespuesta", Types.VARCHAR),
                             new SqlOutParameter("codigoRespuesta", Types.INTEGER)
@@ -770,7 +778,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                     .addValue("iAutor", resolucionDTO.getAutor())
                     .addValue("dFechaAval", resolucionDTO.getDFechaAval())
                     .addValue("dFechaApelacion", resolucionDTO.getDFechaApelacion())
-                    .addValue("iMotivoRechazo", resolucionDTO.getMotivoRechazo());
+                    .addValue("iMotivoRechazo", resolucionDTO.getMotivoRechazo())
+            		.addValue("vcUsuario", resolucionDTO.getUsuario());
 
             try {
             	Map<String, Object> result = jdbcCall.execute(inParams);
@@ -976,6 +985,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 if (row.get("ciudad") != null) solicitudPagoDTO.setCiudadEmpleador((String) row.get("ciudad"));
                 if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
                 if (row.get("totalPago") != null) solicitudPagoDTO.setTotalPago((BigDecimal) row.get("totalPago"));
+                if (row.get("usuarioCreacion") != null) solicitudPagoDTO.setUsuarioCreacion((String) row.get("usuarioCreacion"));
+                if (row.get("vcUsuarioModificacion") != null) solicitudPagoDTO.setUsuarioModificacion((String) row.get("vcUsuarioModificacion"));
                 solicitudesPago.add(solicitudPagoDTO);
             }
 
@@ -1076,6 +1087,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
             if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
             if (row.get("totalPago") != null) solicitudPagoDTO.setTotalPago((BigDecimal) row.get("totalPago"));
+            if (row.get("usuarioCreacion") != null) solicitudPagoDTO.setUsuarioCreacion((String) row.get("usuarioCreacion"));
+            if (row.get("vcUsuarioModificacion") != null) solicitudPagoDTO.setUsuarioModificacion((String) row.get("vcUsuarioModificacion"));
             solicitudes.add(solicitudPagoDTO);
         }
         
@@ -1121,6 +1134,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
             if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
             if (row.get("totalPago") != null) solicitudPagoDTO.setTotalPago((BigDecimal) row.get("totalPago"));
+            if (row.get("usuarioCreacion") != null) solicitudPagoDTO.setUsuarioCreacion((String) row.get("usuarioCreacion"));
+            if (row.get("vcUsuarioModificacion") != null) solicitudPagoDTO.setUsuarioModificacion((String) row.get("vcUsuarioModificacion"));
             solicitudes.add(solicitudPagoDTO);
         }
         
@@ -1166,6 +1181,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("fechaSolicitud") != null) solicitudPagoDTO.setFechaSolicitud(new Date(((java.sql.Timestamp) row.get("fechaSolicitud")).getTime()));
             if (row.get("montoHaber") != null) solicitudPagoDTO.setMontoHaber((BigDecimal) row.get("montoHaber"));
             if (row.get("totalPago") != null) solicitudPagoDTO.setTotalPago((BigDecimal) row.get("totalPago"));
+            if (row.get("usuarioCreacion") != null) solicitudPagoDTO.setUsuarioCreacion((String) row.get("usuarioCreacion"));
+            if (row.get("vcUsuarioModificacion") != null) solicitudPagoDTO.setUsuarioModificacion((String) row.get("vcUsuarioModificacion"));
             solicitudes.add(solicitudPagoDTO);
         }
         

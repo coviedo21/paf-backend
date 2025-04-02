@@ -10,4 +10,5 @@ public class EmisionDTO {
     private Date fechaEmision;
     private int idProceso;
     private String rutaArchivo;
+    private String usuario;
 }

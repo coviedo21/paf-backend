@@ -15,4 +15,5 @@ public class AuditoriaSolicitudDTO {
     private Date dFechaFin;
     private int iCantidadRegistros;
     private int iTipoActualizacion;
+    private String usuarioCreacion;
 }
