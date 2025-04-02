@@ -77,6 +77,7 @@ private final JdbcTemplate jdbcTemplate;
                         new SqlParameter("dFecha", Types.DATE),
                         new SqlParameter("iIdProceso", Types.INTEGER),
                         new SqlParameter("vcRutaArchivo", Types.VARCHAR),
+                        new SqlParameter("vcUsuario", Types.VARCHAR),
                         new SqlOutParameter("idCriterioCausante", Types.INTEGER),
                         new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                 );
@@ -85,6 +86,7 @@ private final JdbcTemplate jdbcTemplate;
                 .addValue("dFecha", emision.getFechaEmision())
                 .addValue("iIdProceso", emision.getIdProceso())
                 .addValue("vcRutaArchivo", emision.getRutaArchivo())
+                .addValue("vcUsuario", emision.getUsuario())
                 .addValue("mensajeRespuesta", Types.VARCHAR)
                 .addValue("iIdEmision", Types.INTEGER);
 

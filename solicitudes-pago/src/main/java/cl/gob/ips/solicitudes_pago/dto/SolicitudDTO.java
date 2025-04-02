@@ -68,4 +68,6 @@ public class SolicitudDTO {
     private int origenPago;
     private int corrProceso;
     private int corrHaber;
+    private String usuarioCreacion;
+    private String usuarioModificacion;
 }

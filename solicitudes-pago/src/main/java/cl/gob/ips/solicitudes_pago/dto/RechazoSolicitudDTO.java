@@ -6,4 +6,5 @@ import lombok.Data;
 public class RechazoSolicitudDTO {
     private int idSolicitud;
     private int idMotivoRechazo;
+    private String usuario;
 }

@@ -65,6 +65,7 @@ public class ProcesoDAOImpl implements ProcesoDAO {
                             new SqlParameter("dFechaCreacion", Types.DATE),
                             new SqlParameter("dFechaEjecucion", Types.DATE),
                             new SqlParameter("vcPeriodo", Types.VARCHAR),
+                            new SqlParameter("vcUsuario", Types.VARCHAR),
                             new SqlOutParameter("mensajeRespuesta", Types.VARCHAR),
                             new SqlOutParameter("idProceso", Types.INTEGER));
 
@@ -76,7 +77,8 @@ public class ProcesoDAOImpl implements ProcesoDAO {
                     .addValue("iIdEstadoProceso", insertarProcesoDTO.getIdEstado())
                     .addValue("dFechaCreacion", insertarProcesoDTO.getFechaCreacion())
                     .addValue("dFechaEjecucion", insertarProcesoDTO.getFechaEjecucion())
-                    .addValue("vcPeriodo", insertarProcesoDTO.getPeriodo());
+                    .addValue("vcPeriodo", insertarProcesoDTO.getPeriodo())
+                    .addValue("vcUsuario", insertarProcesoDTO.getNombreUsuario());
 
             try {
                 Map<String, Object> result = jdbcCall.execute(inParams);
@@ -132,7 +134,6 @@ public List<ProcesoDTO> consultarProceso(Long idProceso) {
         ProcesoDTO procesoDTO = new ProcesoDTO();
         if (u.get("IdProceso") != null) procesoDTO.setIdProceso((Integer) u.get("IdProceso"));
         if (u.get("IdUsuario") != null) procesoDTO.setIdUsuario((Integer) u.get("IdUsuario"));
-        if (u.get("nombreUsuario") != null) procesoDTO.setNombreUsuario((String) u.get("nombreUsuario"));
         if (u.get("PagosTotales") != null) procesoDTO.setPagosTotales((BigDecimal) u.get("PagosTotales"));
         if (u.get("Aprobados") != null) procesoDTO.setAprobados((BigDecimal) u.get("Aprobados"));
         if (u.get("Rechazados") != null) procesoDTO.setRechazados((BigDecimal) u.get("Rechazados"));
@@ -142,6 +143,7 @@ public List<ProcesoDTO> consultarProceso(Long idProceso) {
         if (u.get("fechaEjecucion") != null) procesoDTO.setFechaEjecucion((Date) u.get("fechaEjecucion"));
         if (u.get("periodo") != null) procesoDTO.setPeriodo((String) u.get("periodo"));
         if (u.get("TiposSolicitante") != null) procesoDTO.setNombresTiposSolicitantes((String) u.get("TiposSolicitante"));
+        if (u.get("usuarioCreacion") != null) procesoDTO.setNombreUsuario((String) u.get("usuarioCreacion"));
         procesos.add(procesoDTO);
     }
 
@@ -172,6 +174,7 @@ public List<ProcesoDTO> filtrarProcesos(String texto) {
             if (row.get("fechaEjecucion") != null) procesoDTO.setFechaEjecucion((Date) row.get("fechaEjecucion"));
             if (row.get("periodo") != null) procesoDTO.setPeriodo((String) row.get("periodo"));
             if (row.get("TiposSolicitante") != null) procesoDTO.setNombresTiposSolicitantes((String) row.get("TiposSolicitante"));
+            if (row.get("usuarioCreacion") != null) procesoDTO.setNombreUsuario((String) row.get("usuarioCreacion"));
             procesos.add(procesoDTO);
         }
     } catch (Exception e) {

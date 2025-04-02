@@ -1,5 +1,18 @@
 package cl.gob.ips.proceso_pago.controller;
 
+import cl.gob.ips.proceso_pago.dto.*;
+import cl.gob.ips.proceso_pago.service.CtaCtePAFService;
+import cl.gob.ips.proceso_pago.service.EmisionService;
+import cl.gob.ips.proceso_pago.service.NominaPagoService;
+import cl.gob.ips.proceso_pago.service.ProcesoService;
+import com.azure.storage.file.share.ShareFileClient;
+import com.azure.storage.file.share.ShareFileClientBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,36 +28,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import cl.gob.ips.proceso_pago.dto.*;
-import cl.gob.ips.proceso_pago.service.CtaCtePafService;
-import cl.gob.ips.proceso_pago.service.NominaPagoService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.azure.storage.file.share.ShareFileClient;
-import com.azure.storage.file.share.ShareFileClientBuilder;
-
-import cl.gob.ips.proceso_pago.service.EmisionService;
-import cl.gob.ips.proceso_pago.service.ProcesoService;
-
-import javax.servlet.http.HttpServletResponse;
-
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/procesoPago")
+    @RequestMapping("/procesoPago")
 public class ProcesoPagoController {
 
     @Autowired
@@ -57,7 +43,7 @@ public class ProcesoPagoController {
     private NominaPagoService nominaPagoService;
 
     @Autowired
-    CtaCtePafService ctaCtePafService;
+    CtaCtePAFService ctaCtePAFService;
 
     @PostMapping("/crear-proceso")
     public ResponseEntity<ResponseDTO> crearProceso(
@@ -349,6 +335,16 @@ registro.setHDmonto15(valores[86]);
                         responseDTO.setGlosaRetorno("Emisión procesada exitósamente.");
                         responseDTO.setTimestamp(new Date());
 
+                        try {
+                        	SpResponse responseCtaCte = ctaCtePAFService.procesarDatosCtaCtePAF(idProceso);
+	                        /*if(responseCtaCte.getResultado()>0) {
+	                        	ctaCtePAFService.(idProceso);
+	                        }*/
+                        }
+                        catch(Exception e) {
+                        	System.out.println("Hubo un error al insertar datos en cuenta corriente");
+                        }
+                        
                         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
                 } catch (Exception e) {
                 	responseDTO.setCodigoRetorno(-1);
@@ -454,7 +450,7 @@ registro.setHDmonto15(valores[86]);
     }
 
     @PostMapping("/procesar/{idProceso}")
-    public ProcesoResponse procesarPago(@PathVariable Integer idProceso) {
-        return ctaCtePafService.procesarYGuardarDatos(idProceso);
+    public SpResponse copiaCteCtePAF(@PathVariable int idProceso) {
+        return ctaCtePAFService.procesarDatosCtaCtePAF(idProceso);
     }
 }
