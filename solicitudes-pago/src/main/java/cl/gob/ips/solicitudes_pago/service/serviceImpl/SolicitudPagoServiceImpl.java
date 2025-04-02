@@ -61,6 +61,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 resolucion.setIdEstado(2);
                 resolucion.setVcDescripcion("Solicitud cumple criterios y es enviada automáticamente.");
                 resolucion.setMotivoRechazo(null);
+                resolucion.setUsuario("Sistema");
                 insertarResolucion(resolucion);
                 try {
                     if(!esArchivo){
@@ -166,6 +167,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 resolucion.setIdEstado(7);
                 resolucion.setVcDescripcion("Termina plazo para subsanar, solicitud no es enviada y debe ser revisada");
                 resolucion.setMotivoRechazo(null);
+                resolucion.setUsuario("Sistema");
                 insertarResolucion(resolucion);
                 try {
                     emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" enviada","Terminó plazo de "+diasAntiguedad+" días para subsanar su solicitud N° "+solicitud.getIdSolicitud()+". Será revisada.");    
@@ -209,6 +211,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         resolucion.setIdEstado(4);
         resolucion.setVcDescripcion("Se rechaza solicitud.");
         resolucion.setMotivoRechazo(rechazoSolicitudDTO.getIdMotivoRechazo());
+        resolucion.setUsuario(rechazoSolicitudDTO.getUsuario());
         insertarResolucion(resolucion);
         try {
             emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" rechazada.","Su solicitud N° "+solicitud.getIdSolicitud()+" ha sido rechazada. Motivo de Rechazo:  "+rechazo.getNombre());    

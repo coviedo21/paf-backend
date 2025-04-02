@@ -591,8 +591,8 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         }
     }
 
-    @GetMapping("/validarSolicitud/{idSolicitud}")
-    public ResponseEntity<Map<String, Object>> validarSolicitud(@PathVariable("idSolicitud") Integer idSolicitud) {
+    @GetMapping("/validarSolicitud/{idSolicitud}/{usuario}")
+    public ResponseEntity<Map<String, Object>> validarSolicitud(@PathVariable("idSolicitud") Integer idSolicitud,@PathVariable("usuario") String usuario) {
         String taskId = UUID.randomUUID().toString();
 
         Map<String, Object> datosTarea = new ConcurrentHashMap<>();
@@ -611,6 +611,7 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
                     resolucion.setIdEstado(2);
                     resolucion.setVcDescripcion("Se valida solicitud.");
                     resolucion.setMotivoRechazo(null);
+                    resolucion.setUsuario(usuario);
 
                     int resolucionResponse = solicitudPagoService.insertarResolucion(resolucion);
                     if (resolucionResponse > 0) {

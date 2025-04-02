@@ -335,6 +335,16 @@ registro.setHDmonto15(valores[86]);
                         responseDTO.setGlosaRetorno("Emisión procesada exitósamente.");
                         responseDTO.setTimestamp(new Date());
 
+                        try {
+                        	SpResponse responseCtaCte = ctaCtePAFService.copiaCteCtePAF(idProceso);
+	                        if(responseCtaCte.getResultado()>0) {
+	                        	//ctaCtePAFService.procesarYGuardarDatos(idProceso);
+	                        }
+                        }
+                        catch(Exception e) {
+                        	System.out.println("Hubo un error al insertar datos en cuenta corriente");
+                        }
+                        
                         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
                 } catch (Exception e) {
                 	responseDTO.setCodigoRetorno(-1);

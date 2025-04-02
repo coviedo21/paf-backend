@@ -15,4 +15,5 @@ public class ResolucionDTO {
     private Date dFechaApelacion;
     private String vcVigente;
     private Integer motivoRechazo;
+    private String usuario;
 }
