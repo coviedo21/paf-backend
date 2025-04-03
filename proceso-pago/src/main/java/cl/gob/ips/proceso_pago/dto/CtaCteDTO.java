@@ -44,4 +44,5 @@ public class CtaCteDTO {
     private Date dFechaActualizacion;
     private String vcUsuarioActualizacion;
     private Integer nidProceso;
+    private String vcEstado;
 }

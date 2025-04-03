@@ -46,11 +46,12 @@ public class CtaCtePAFMapper implements RowMapper<CtaCteDTO> {
         dto.setDFechaActualizacion(rs.getDate("DFECHAACTUALIZACION"));
         dto.setVcUsuarioActualizacion(rs.getString("VCUSUARIOACTUALIZACION"));
         dto.setNidProceso(rs.getInt("NIDPROCESO"));
+        dto.setVcEstado(rs.getString("VCESTADO"));
 
         return dto;
     }
 
-    // Método auxiliar para manejar NULLs en BigDecimal
+    // Metodo auxiliar para manejar NULLs en BigDecimal
     private BigDecimal getBigDecimalOrNull(ResultSet rs, String column) throws SQLException {
         BigDecimal value = rs.getBigDecimal(column);
         return rs.wasNull() ? null : value;
