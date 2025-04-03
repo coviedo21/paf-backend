@@ -343,7 +343,7 @@ registro.setHDmonto15(valores[86]);
 	                        }*/
                         }
                         catch(Exception e) {
-                        	System.out.println("Hubo un error al insertar datos en cuenta corriente");
+                        	System.out.println("Hubo un error al insertar datos en tabla temporal");
                         }
                         
                         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
