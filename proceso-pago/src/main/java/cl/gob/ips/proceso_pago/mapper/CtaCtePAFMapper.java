@@ -1,17 +1,17 @@
 package cl.gob.ips.proceso_pago.mapper;
 
-import cl.gob.ips.proceso_pago.dto.CtaCtePAFDTO;
+import cl.gob.ips.proceso_pago.dto.CtaCteDTO;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class CtaCtePAFMapper implements RowMapper<CtaCtePAFDTO> {
+public class CtaCtePAFMapper implements RowMapper<CtaCteDTO> {
 
     @Override
-    public CtaCtePAFDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
-        CtaCtePAFDTO dto = new CtaCtePAFDTO();
+    public CtaCteDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+        CtaCteDTO dto = new CtaCteDTO();
 
         // Mapeo explícito con manejo de NULLs y nombres exactos de columnas
         dto.setNMesRemuneracion(getBigDecimalOrNull(rs, "NMESREMUNERACION"));
@@ -45,6 +45,7 @@ public class CtaCtePAFMapper implements RowMapper<CtaCtePAFDTO> {
         dto.setDFechaCreacion(rs.getDate("DFECHACREACION"));
         dto.setDFechaActualizacion(rs.getDate("DFECHAACTUALIZACION"));
         dto.setVcUsuarioActualizacion(rs.getString("VCUSUARIOACTUALIZACION"));
+        dto.setNidProceso(rs.getInt("NIDPROCESO"));
 
         return dto;
     }

@@ -449,8 +449,13 @@ registro.setHDmonto15(valores[86]);
         nominaPagoService.generateCsvResponse(response, iIdProcesoIN, fecPago);
     }
 
-    @PostMapping("/procesar/{idProceso}")
-    public SpResponse copiaCteCtePAF(@PathVariable int idProceso) {
+    @PostMapping("/procesarPAF/{idProceso}")
+    public SpResponse copiaCteCtePAF(@PathVariable int idProceso) { //TODO: retornar ResponseEntity
         return ctaCtePAFService.procesarDatosCtaCtePAF(idProceso);
+    }
+
+    @PostMapping("/procesar/{idProceso}")
+    public SpResponse copiaCteCte(@PathVariable int idProceso) { //TODO: retornar ResponseEntity
+        return ctaCtePAFService.procesarDatosCtaCte(idProceso);
     }
 }

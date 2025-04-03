@@ -10,7 +10,7 @@ import java.sql.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CtaCtePAFDTO {
+public class CtaCteDTO {
 //    private BigDecimal nPagoPAFID;
     private BigDecimal nMesRemuneracion;
     private BigDecimal nRUTCausante;
@@ -43,4 +43,5 @@ public class CtaCtePAFDTO {
     private Date dFechaCreacion;
     private Date dFechaActualizacion;
     private String vcUsuarioActualizacion;
+    private Integer nidProceso;
 }

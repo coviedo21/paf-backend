@@ -1,16 +1,14 @@
 package cl.gob.ips.proceso_pago.dao;
 
-import cl.gob.ips.proceso_pago.dto.*;
+import cl.gob.ips.proceso_pago.dto.CtaCteDTO;
+import cl.gob.ips.proceso_pago.dto.SpResponse;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CtaCtePAFDAO {
-//    List<CtaCtePAFDTO> obtenerDatosDesdeFuncion(int iIdProcesoPago);
-//    SpResponse insertarConSP(CtaCtePAFDTO datos);
-//    SpResponse procesarYInsertar(int iIdProcesoPago);
-//    SpResponse insertarDesdeVistaConSP();
-
-    List<CtaCtePAFDTO> obtenerDatosCtaCtePAF(int IdProceso);
-    SpResponse insertarDatosCtaCtePAF(List<CtaCtePAFDTO> datosList);
+    List<CtaCteDTO> obtenerDatosCtaCtePAF(int IdProceso);
+    SpResponse insertTBLCTACTEPAF(List<CtaCteDTO> dtoPAFList);
+    List<CtaCteDTO> selectTBLCTACTEPAF(int nidProceso);
+    SpResponse insertarTBLCTACTEPAF(List<CtaCteDTO> dtoPAFList);
+    SpResponse eliminarRegistrosTBLCTACTEPAF(int nidProceso);
 }
