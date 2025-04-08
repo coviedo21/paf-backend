@@ -305,10 +305,10 @@ registro.setHDmonto15(valores[86]);
 
                 if(emisionService.validarSolicitudesEmitidas(registros,idProceso)){
                     try {
-                    	String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
-                    	//String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
-                        String fileShareName = System.getenv("paf_fileShareName");
-                        //String fileShareName = "pagosafqa";
+                    	//String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
+                    	String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
+                        //String fileShareName = System.getenv("paf_fileShareName");
+                        String fileShareName = "pagosafqa";
                         String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
             
                         // Guardar temporalmente el archivo
@@ -338,12 +338,12 @@ registro.setHDmonto15(valores[86]);
 
                         try {
                         	SpResponse responseCtaCte = ctaCtePAFService.procesarDatosCtaCtePAF(idProceso);
-	                        /*if(responseCtaCte.getResultado()>0) {
-	                        	ctaCtePAFService.(idProceso);
-	                        }*/
+	                        if(responseCtaCte.getResultado()>0) {
+	                        	ctaCtePAFService.procesarDatosCtaCte(idProceso);
+	                        }
                         }
                         catch(Exception e) {
-                        	System.out.println("Hubo un error al insertar datos en tabla temporal");
+                        	System.out.println("Hubo un error al insertar datos en cuenta corriente");
                         }
                         
                         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
@@ -413,10 +413,10 @@ registro.setHDmonto15(valores[86]);
 
     @GetMapping("/descargarEvidenciaEmision/{idEmision}")
     public ResponseEntity<byte[]> descargarEvidenciaEmision(@PathVariable int idEmision) {
-    	String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
-    	//String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
-        String fileShareName = System.getenv("paf_fileShareName");
-        //String fileShareName = "pagosafqa";
+    	//String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
+    	String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
+        //String fileShareName = System.getenv("paf_fileShareName");
+        String fileShareName = "pagosafqa";
 
         try {
             String rutaArchivo = emisionService.obtenerEmision(idEmision).getRutaArchivo();
