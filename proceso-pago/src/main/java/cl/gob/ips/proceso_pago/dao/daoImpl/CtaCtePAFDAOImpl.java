@@ -16,7 +16,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
-import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
@@ -34,105 +33,6 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
                             @Qualifier("ctaCteJdbc") JdbcTemplate ctaCteJdbc) {
         this.jdbcTemplate = jdbcTemplate;
         this.ctaCteJdbc = ctaCteJdbc;
-    }
-
-    public List<CtaCteDTO> obtenerDatosCtaCtePAF(int IdProceso) {
-        String sql = "SELECT * FROM paf.fn_ObtenerDatosCCPAF(?)";
-        return jdbcTemplate.query(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setInt(1, IdProceso);
-            return ps;
-        }, new CtaCtePAFMapper());
-    }
-
-    public SpResponse insertTBLCTACTEPAF(List<CtaCteDTO> dtoPAFList) {
-        SpResponse response = new SpResponse();
-        for (CtaCteDTO dtoPAF : dtoPAFList) {
-            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
-                    .withProcedureName("SP_InsertarTBLCTACTEPAF")
-                    .withSchemaName("paf")
-                    .declareParameters(
-                            new SqlParameter("p_nMesRemuneracion", Types.DECIMAL),
-                            new SqlParameter("p_nRUTCausante", Types.DECIMAL),
-                            new SqlParameter("p_cDVCausante", Types.CHAR),
-                            new SqlParameter("p_nRUTBeneficiario", Types.DECIMAL),
-                            new SqlParameter("p_nDVRUTBeneficiario", Types.CHAR),
-                            new SqlParameter("p_nIDBeneficio", Types.DECIMAL),
-                            new SqlParameter("p_nMontoBeneficio", Types.DECIMAL),
-                            new SqlParameter("p_nRUTEmpleador", Types.DECIMAL),
-                            new SqlParameter("p_nDVRUTEmpleador", Types.CHAR),
-                            new SqlParameter("p_nIDTipoBeneficio", Types.DECIMAL),
-                            new SqlParameter("p_nIDTipoBeneficiario", Types.DECIMAL),
-                            new SqlParameter("p_nTipoCausanteID", Types.DECIMAL),
-                            new SqlParameter("p_nNumDiasAsigFam", Types.DECIMAL),
-                            new SqlParameter("p_nCodTramo", Types.DECIMAL),
-                            new SqlParameter("p_nMontoDocumento", Types.DECIMAL),
-                            new SqlParameter("p_vcNumeroDocumento", Types.VARCHAR),
-                            new SqlParameter("p_dFechaEmisionDocumento", Types.DATE),
-                            new SqlParameter("p_nCodigoBanco", Types.DECIMAL),
-                            new SqlParameter("p_nCodigoInstitucion", Types.DECIMAL),
-                            new SqlParameter("p_vcOrigen", Types.CHAR),
-                            new SqlParameter("p_nTipoEmision", Types.DECIMAL),
-                            new SqlParameter("p_nTipoDeclaracion", Types.DECIMAL),
-                            new SqlParameter("p_vcNumeroSerie", Types.DECIMAL),
-                            new SqlParameter("p_vcNumeroPlanilla", Types.DECIMAL),
-                            new SqlParameter("p_nCodigoCausalReliquidacion", Types.DECIMAL),
-                            new SqlParameter("p_nCodigoTipoEgreso", Types.DECIMAL),
-                            new SqlParameter("p_nTipoMovimientoID", Types.DECIMAL),
-                            new SqlParameter("p_vcUsuarioCreacion", Types.VARCHAR),
-                            new SqlParameter("p_dFechaCreacion", Types.DATE),
-                            new SqlParameter("p_dFechaActualizacion", Types.DATE),
-                            new SqlParameter("p_vcUsuarioActualizacion", Types.VARCHAR),
-                            new SqlParameter("p_nIDProceso", Types.INTEGER),
-                            new SqlOutParameter("p_nResultado", Types.INTEGER),
-                            new SqlOutParameter("p_vcMensaje", Types.VARCHAR)
-                    );
-
-            Map<String, Object> params = new HashMap<>();
-            params.put("p_nMesRemuneracion", dtoPAF.getNMesRemuneracion());
-            params.put("p_nRUTCausante", dtoPAF.getNRUTCausante());
-            params.put("p_cDVCausante", dtoPAF.getCdvCausante());
-            params.put("p_nRUTBeneficiario", dtoPAF.getNRUTBeneficiario());
-            params.put("p_nDVRUTBeneficiario", dtoPAF.getNdvRUTBeneficiario());
-            params.put("p_nIDBeneficio", dtoPAF.getNIDBeneficio());
-            params.put("p_nMontoBeneficio", dtoPAF.getNMontoBeneficio());
-            params.put("p_nRUTEmpleador", dtoPAF.getNRUTEmpleador());
-            params.put("p_nDVRUTEmpleador", dtoPAF.getNdvRUTEmpleador());
-            params.put("p_nIDTipoBeneficio", dtoPAF.getNIDTipoBeneficio());
-            params.put("p_nIDTipoBeneficiario", dtoPAF.getNIDTipoBeneficiario());
-            params.put("p_nTipoCausanteID", dtoPAF.getNTipoCausanteID());
-            params.put("p_nNumDiasAsigFam", dtoPAF.getNNumDiasAsigFam());
-            params.put("p_nCodTramo", dtoPAF.getNCodTramo());
-            params.put("p_nMontoDocumento", dtoPAF.getNMontoDocumento());
-            params.put("p_vcNumeroDocumento", dtoPAF.getVcNumeroDocumento());
-            params.put("p_dFechaEmisionDocumento", dtoPAF.getDFechaEmisionDocumento());
-            params.put("p_nCodigoBanco", dtoPAF.getNCodigoBanco());
-            params.put("p_nCodigoInstitucion", dtoPAF.getNCodigoInstitucion());
-            params.put("p_vcOrigen", dtoPAF.getVcOrigen());
-            params.put("p_nTipoEmision", dtoPAF.getNTipoEmision());
-            params.put("p_nTipoDeclaracion", dtoPAF.getNTipoDeclaracion());
-            params.put("p_vcNumeroSerie", dtoPAF.getVcNumeroSerie());
-            params.put("p_vcNumeroPlanilla", dtoPAF.getVcNumeroPlanilla());
-            params.put("p_nCodigoCausalReliquidacion", dtoPAF.getNCodigoCausalReliquidacion());
-            params.put("p_nCodigoTipoEgreso", dtoPAF.getNCodigoTipoEgreso());
-            params.put("p_nTipoMovimientoID", dtoPAF.getNTipoMovimientoID());
-            params.put("p_vcUsuarioCreacion", dtoPAF.getVcUsuarioCreacion());
-            params.put("p_dFechaCreacion", dtoPAF.getDFechaCreacion());
-            params.put("p_dFechaActualizacion", dtoPAF.getDFechaActualizacion());
-            params.put("p_vcUsuarioActualizacion", dtoPAF.getVcUsuarioActualizacion());
-            params.put("p_nIDProceso", dtoPAF.getNidProceso());
-
-            try {
-                Map<String, Object> result = jdbcCall.execute(params);
-                response.setResultado((Integer) result.get("p_nResultado"));
-                response.setMensaje((String) result.get("p_vcMensaje"));
-            } catch (DataAccessException e) {
-                response.setResultado(0);
-                response.setMensaje(e.getMostSpecificCause().getMessage());
-                break;
-            }
-        }
-        return response;
     }
 
     public List<CtaCteDTO> selectTBLCTACTEPAF(int nidProceso) {
@@ -297,7 +197,7 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
                 .withSchemaName("paf")
                 .declareParameters(
                         new SqlParameter("iIdProcesoPago", Types.INTEGER),
-                        new SqlOutParameter("NoDataCopied", Types.BIT) // Match the SP's output param
+                        new SqlOutParameter("NoDataCopied", Types.BIT)
                 );
 
         Map<String, Object> params = new HashMap<>();
@@ -305,7 +205,7 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
 
         try {
             Map<String, Object> result = jdbcCall.execute(params);
-            boolean noDataCopied = (Boolean) result.get("NoDataCopied"); // Get the output value
+            boolean noDataCopied = (Boolean) result.get("NoDataCopied");
 
             if (noDataCopied) {
                 response.setResultado(0);
