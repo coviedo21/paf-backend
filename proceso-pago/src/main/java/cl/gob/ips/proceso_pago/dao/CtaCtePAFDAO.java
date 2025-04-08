@@ -6,9 +6,9 @@ import cl.gob.ips.proceso_pago.dto.SpResponse;
 import java.util.List;
 
 public interface CtaCtePAFDAO {
-    List<CtaCteDTO> obtenerDatosCtaCtePAF(int IdProceso);
-    SpResponse insertTBLCTACTEPAF(List<CtaCteDTO> dtoPAFList);
+    SpResponse copyDataToTBLCTACTEPAF(int iIdProcesoPago);
     List<CtaCteDTO> selectTBLCTACTEPAF(int nidProceso);
     SpResponse insertarTBLCTACTEPAF(List<CtaCteDTO> dtoPAFList);
+    SpResponse actualizarEstadoTBLCTACTEPAF(int nidProceso);
     SpResponse eliminarRegistrosTBLCTACTEPAF(int nidProceso);
 }

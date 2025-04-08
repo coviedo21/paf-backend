@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.HashMap;
@@ -36,7 +37,6 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
     }
 
     public List<CtaCteDTO> obtenerDatosCtaCtePAF(int IdProceso) {
-        log.info("********************* obtenerDatosCtaCtePAF *********************");
         String sql = "SELECT * FROM paf.fn_ObtenerDatosCCPAF(?)";
         return jdbcTemplate.query(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql);
@@ -46,7 +46,6 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
     }
 
     public SpResponse insertTBLCTACTEPAF(List<CtaCteDTO> dtoPAFList) {
-        log.info("********************* insertTBLCTACTEPAF *********************");
         SpResponse response = new SpResponse();
         for (CtaCteDTO dtoPAF : dtoPAFList) {
             SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
@@ -137,7 +136,6 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
     }
 
     public List<CtaCteDTO> selectTBLCTACTEPAF(int nidProceso) {
-        log.info("********************* obtenerDatosTBLCTACTEPAF *********************");
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("SP_ObtenerDatosTBLCTACTEPAF")
                 .withSchemaName("paf")
@@ -152,7 +150,6 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
 
     //ADM_CTACTE
     public SpResponse insertarTBLCTACTEPAF(List<CtaCteDTO> dtoPAFList) {
-        log.info("********************* insertarDatosTBLCTACTEPAF *********************");
         SpResponse response = new SpResponse();
         for (CtaCteDTO dtoPAF : dtoPAFList) {
             SimpleJdbcCall jdbcCall = new SimpleJdbcCall(ctaCteJdbc)
@@ -195,6 +192,7 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
                     );
 
             Map<String, Object> params = new HashMap<>();
+            params.put("p_NPAGOPAFID", null);
             params.put("p_NMESREMUNERACION", dtoPAF.getNMesRemuneracion());
             params.put("p_NRUTCAUSANTE", dtoPAF.getNRUTCausante());
             params.put("p_CDVCAUSANTE", dtoPAF.getCdvCausante());
@@ -229,20 +227,18 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
 
             try {
                 Map<String, Object> result = jdbcCall.execute(params);
-                response.setResultado((Integer) result.get("p_nResultado"));
+                response.setResultado(((BigDecimal) result.get("p_nResultado")).intValue());
                 response.setMensaje((String) result.get("p_vcMensaje"));
             } catch (DataAccessException e) {
                 response.setResultado(0);
                 response.setMensaje(e.getMostSpecificCause().getMessage());
                 break;
             }
-            actualizarEstadoTBLCTACTEPAF(dtoPAF.getNidProceso());
         }
         return response;
     }
 
     public SpResponse eliminarRegistrosTBLCTACTEPAF(int nidProceso) {
-        log.info("********************* eliminarRegistrosTBLCTACTEPAF *********************");
         SpResponse response = new SpResponse();
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("SP_DeleteTBLCTACTEPAF")
@@ -270,7 +266,6 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
     }
 
     public SpResponse actualizarEstadoTBLCTACTEPAF(int nidProceso) {
-        log.info("********************* actualizarEstadoTBLCTACTEPAF *********************");
         SpResponse response = new SpResponse();
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("SP_UpdateEstadoTBLCTACTEPAF")
@@ -288,6 +283,37 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
             Map<String, Object> result = jdbcCall.execute(params);
             response.setResultado((Integer) result.get("p_nResultado"));
             response.setMensaje((String) result.get("p_vcMensaje"));
+        } catch (DataAccessException e) {
+            response.setResultado(0);
+            response.setMensaje(e.getMostSpecificCause().getMessage());
+        }
+        return response;
+    }
+
+    public SpResponse copyDataToTBLCTACTEPAF(int iIdProcesoPago) {
+        SpResponse response = new SpResponse();
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("SP_CopyDataToTBLCTACTEPAF")
+                .withSchemaName("paf")
+                .declareParameters(
+                        new SqlParameter("iIdProcesoPago", Types.INTEGER),
+                        new SqlOutParameter("NoDataCopied", Types.BIT) // Match the SP's output param
+                );
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("iIdProcesoPago", iIdProcesoPago);
+
+        try {
+            Map<String, Object> result = jdbcCall.execute(params);
+            boolean noDataCopied = (Boolean) result.get("NoDataCopied"); // Get the output value
+
+            if (noDataCopied) {
+                response.setResultado(0);
+                response.setMensaje("No data to copy.");
+            } else {
+                response.setResultado(1);
+                response.setMensaje("Data copied successfully.");
+            }
         } catch (DataAccessException e) {
             response.setResultado(0);
             response.setMensaje(e.getMostSpecificCause().getMessage());
