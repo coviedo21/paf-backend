@@ -18,10 +18,7 @@ public class CtaCtePAFServiceImpl implements CtaCtePAFService {
 
     @Transactional
     public SpResponse procesarDatosCtaCtePAF(int IdProceso) {
-        // Obtener datos desde la capa DAO
-        List<CtaCteDTO> datosList = ctaCtePAFDAO.obtenerDatosCtaCtePAF(IdProceso);
-        // Insertar los datos obtenidos
-        return ctaCtePAFDAO.insertTBLCTACTEPAF(datosList);
+        return ctaCtePAFDAO.copyDataToTBLCTACTEPAF(IdProceso);
     }
 
     @Override
@@ -30,6 +27,7 @@ public class CtaCtePAFServiceImpl implements CtaCtePAFService {
 
         List<CtaCteDTO> datosList = ctaCtePAFDAO.selectTBLCTACTEPAF(IdProceso);
         response = ctaCtePAFDAO.insertarTBLCTACTEPAF(datosList);
+        ctaCtePAFDAO.actualizarEstadoTBLCTACTEPAF(IdProceso);
         ctaCtePAFDAO.eliminarRegistrosTBLCTACTEPAF(IdProceso);
         return response;
     }
