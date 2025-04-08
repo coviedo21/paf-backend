@@ -8,6 +8,7 @@ import cl.gob.ips.proceso_pago.service.ProcesoService;
 import com.azure.storage.file.share.ShareFileClient;
 import com.azure.storage.file.share.ShareFileClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,6 +46,12 @@ public class ProcesoPagoController {
     @Autowired
     CtaCtePAFService ctaCtePAFService;
 
+    @Value("${app.connectionString}")
+    private String connectionString;
+    
+    @Value("${app.fileShareName}")
+    private String fileShareName;
+    
     @PostMapping("/crear-proceso")
     public ResponseEntity<ResponseDTO> crearProceso(
             @RequestBody ProcesoDTO insertarProcesoDTO) {
@@ -305,10 +312,7 @@ registro.setHDmonto15(valores[86]);
 
                 if(emisionService.validarSolicitudesEmitidas(registros,idProceso)){
                     try {
-                    	//String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
-                    	String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
-                        //String fileShareName = System.getenv("paf_fileShareName");
-                        String fileShareName = "pagosafqa";
+                    	
                         String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
             
                         // Guardar temporalmente el archivo
@@ -413,11 +417,7 @@ registro.setHDmonto15(valores[86]);
 
     @GetMapping("/descargarEvidenciaEmision/{idEmision}")
     public ResponseEntity<byte[]> descargarEvidenciaEmision(@PathVariable int idEmision) {
-    	//String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
-    	String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
-        //String fileShareName = System.getenv("paf_fileShareName");
-        String fileShareName = "pagosafqa";
-
+    	
         try {
             String rutaArchivo = emisionService.obtenerEmision(idEmision).getRutaArchivo();
             ShareFileClient fileClient = new ShareFileClientBuilder()

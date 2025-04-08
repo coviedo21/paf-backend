@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -80,6 +81,12 @@ public class FileController {
 
     @Autowired
     private CausanteService causanteService;
+    
+    @Value("${app.connectionString}")
+    private String connectionString;
+    
+    @Value("${app.fileShareName}")
+    private String fileShareName;
     
     private final Map<String, String> estadoTareas = new ConcurrentHashMap<>();
     private final Map<String, String> mensajesTareas = new ConcurrentHashMap<>(); // Guarda la glosa de respuesta
@@ -427,10 +434,6 @@ public class FileController {
     @PostMapping("/subirEvidenciaSolicitud")
     public ResponseEntity<String> subirEvidenciaSolicitud(@RequestParam("file") MultipartFile file, int idCriterioSolicitud) {
         try {
-            String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
-        	//String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
-            String fileShareName = System.getenv("paf_fileShareName");
-            //String fileShareName = "pagosafqa";
             String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
 
             // Guardar temporalmente el archivo
@@ -460,11 +463,7 @@ public class FileController {
     @PostMapping("/subirEvidenciaCausante")
     public ResponseEntity<String> subirEvidenciaCausante(@RequestParam("file") MultipartFile file, int idDetalleCausante) {
         try {
-        	String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
-        	//String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
-            String fileShareName = System.getenv("paf_fileShareName");
-            //String fileShareName = "pagosafqa";
-            String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        	String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
 
             // Guardar temporalmente el archivo
             Path tempFile = Files.createTempFile("upload-", nombreRemoto);
@@ -492,11 +491,7 @@ public class FileController {
 
     @GetMapping("/descargarEvidenciaSolicitud/{idCriterioSoliciud}")
     public ResponseEntity<byte[]> descargarEvidenciaSolicitud(@PathVariable int idCriterioSoliciud) {
-    	String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
-    	//String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
-        String fileShareName = System.getenv("paf_fileShareName");
-        //String fileShareName = "pagosafqa";
-            
+    	    
         try {
             String rutaArchivo = criterioSolicitudService.obtenerCriteriosPorIdCriterio(idCriterioSoliciud).getArchivo();
             ShareFileClient fileClient = new ShareFileClientBuilder()
@@ -521,11 +516,7 @@ public class FileController {
 
     @GetMapping("/descargarEvidenciaCausante/{idDetalleCausante}")
     public ResponseEntity<byte[]> descargarEvidenciaCausante(@PathVariable int idDetalleCausante) {
-    	String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
-    	//String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
-        String fileShareName = System.getenv("paf_fileShareName");
-        //String fileShareName = "pagosafqa";
-            
+    	    
         try {
             String rutaArchivo = causanteService.obtenerDetalleCausantePorIdDetalle(idDetalleCausante).getArchivo();
             ShareFileClient fileClient = new ShareFileClientBuilder()
@@ -551,11 +542,7 @@ public class FileController {
     @PostMapping("/subirEvidenciaFiniquitado")
     public ResponseEntity<String> subirEvidenciaFiniquitado(@RequestParam("file") MultipartFile file) {
         try {
-        	String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
-        	//String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
-            String fileShareName = System.getenv("paf_fileShareName");
-            //String fileShareName = "pagosafqa";
-            String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        	String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
 
             // Guardar temporalmente el archivo
             Path tempFile = Files.createTempFile("upload-", nombreRemoto);
@@ -579,11 +566,7 @@ public class FileController {
 
     @GetMapping("/descargarEvidenciaFiniquitado/{idSolicitud}")
     public ResponseEntity<byte[]> descargarEvidenciaFiniquitado(@PathVariable int idSolicitud) {
-    	String connectionString = System.getenv("AZURE_STORAGE_CONNECTION");
-    	//String connectionString = "DefaultEndpointsProtocol=https;AccountName=almacenpagosafqa;AccountKey=+Hxoz3RIALz6dkerrOakHJcJ0T+U5Q/H0wdyS0dAM60S5afSBF/es8bLx78x7gDVQmUmE+WOoD40+AStsOXEHg==;EndpointSuffix=core.windows.net";
-        String fileShareName = System.getenv("paf_fileShareName");
-        //String fileShareName = "pagosafqa";
-            
+    	    
         try {
             String rutaArchivo = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0).getFiniquito();
             ShareFileClient fileClient = new ShareFileClientBuilder()
