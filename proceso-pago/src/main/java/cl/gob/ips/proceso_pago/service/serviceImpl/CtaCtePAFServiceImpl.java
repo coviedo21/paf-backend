@@ -26,8 +26,14 @@ public class CtaCtePAFServiceImpl implements CtaCtePAFService {
         SpResponse response = new SpResponse();
 
         List<CtaCteDTO> datosList = ctaCtePAFDAO.selectTBLCTACTEPAF(IdProceso);
-        response = ctaCtePAFDAO.insertarTBLCTACTEPAF(datosList);
-        ctaCtePAFDAO.actualizarEstadoTBLCTACTEPAF(IdProceso);
+
+            response = ctaCtePAFDAO.insertarTBLCTACTEPAF(datosList);
+            if (response.getResultado() == 1) {
+                ctaCtePAFDAO.actualizarEstadoTBLCTACTEPAF(IdProceso);
+            } else {
+                response.setResultado(0);
+                response.setMensaje("Error al insertar datos en TBLCTACTEPAF : " + response.getMensaje());
+            }
         ctaCtePAFDAO.eliminarRegistrosTBLCTACTEPAF(IdProceso);
         return response;
     }
