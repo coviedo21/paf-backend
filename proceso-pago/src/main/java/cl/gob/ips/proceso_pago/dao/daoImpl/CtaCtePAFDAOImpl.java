@@ -54,7 +54,11 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
         Map<String, Object> params = new HashMap<>();
         params.put("p_nIDProceso", nidProceso);
 
+        log.info("jdbcCall : {}", jdbcCall.toString());
+        log.info("params : {}", params.toString());
+
         Map<String, Object> result = jdbcCall.execute(params);
+        log.info("result : {}", result.toString());
         return (List<CtaCteDTO>) result.get("result");
     }
 
