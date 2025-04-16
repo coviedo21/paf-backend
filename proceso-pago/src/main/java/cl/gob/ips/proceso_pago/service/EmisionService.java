@@ -4,6 +4,7 @@ import java.util.List;
 
 import cl.gob.ips.proceso_pago.dto.EmisionArchivoDTO;
 import cl.gob.ips.proceso_pago.dto.EmisionDTO;
+import cl.gob.ips.proceso_pago.dto.PagoRetencionDTO;
 import cl.gob.ips.proceso_pago.dto.ProcesoDTO;
 
 public interface EmisionService {
@@ -12,4 +13,5 @@ public interface EmisionService {
     int insertarEmision(EmisionDTO emision);
     ProcesoDTO obtenerProcesoPorPeriodo(String periodo);
     EmisionDTO obtenerEmision(int idEmision);
+    boolean insertarPagoRetencion(PagoRetencionDTO dto);
 }

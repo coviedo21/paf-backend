@@ -11,7 +11,14 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import cl.gob.ips.proceso_pago.dao.EmisionDAO;
@@ -20,6 +27,7 @@ import cl.gob.ips.proceso_pago.dto.CausanteSolicitudDTO;
 import cl.gob.ips.proceso_pago.dto.DetalleCausanteDTO;
 import cl.gob.ips.proceso_pago.dto.EmisionArchivoDTO;
 import cl.gob.ips.proceso_pago.dto.EmisionDTO;
+import cl.gob.ips.proceso_pago.dto.PagoRetencionDTO;
 import cl.gob.ips.proceso_pago.dto.ProcesoDTO;
 import cl.gob.ips.proceso_pago.dto.ResolucionDTO;
 import cl.gob.ips.proceso_pago.dto.ResponseDTO;
@@ -37,9 +45,12 @@ public class EmisionServiceImpl implements EmisionService {
 
     @Autowired
     private EmisionDAO emisionDAO;
-
+    
     @Value("${app.base.url}")
     private String baseUrl; 
+
+    @Value("${app.base.urlRetencionPagos}")
+    private String baseUrlRetencionPagos; 
 
     @Override
     public Boolean validarSolicitudesEmitidas(List<EmisionArchivoDTO> emision, int idProceso) {
@@ -100,12 +111,33 @@ public class EmisionServiceImpl implements EmisionService {
                     }
                     
                 }
+                
+                
                 detalle.setEstado(montosCoinciden ? 4 : 5); // 4 si coincide, 5 si no
 
                 // Llamar a la API para actualizar detalle causante
                 String urlActualizar = baseUrl + "/actualizarDetalleCausante";
                 restTemplate.postForObject(urlActualizar, detalle, Boolean.class);
                 System.out.println("Se actualizó el detalle");
+                
+                if(detalle.getRutBeneficiarioPago()==detalle.getRutReteniente()) {
+                	if(montosCoinciden) {
+                		try {
+	                		PagoRetencionDTO pagoRetencion = new PagoRetencionDTO();
+	                		pagoRetencion.setEstadoPago(1);
+	                		pagoRetencion.setFechaPago(detalle.getFechaPago());
+	                		pagoRetencion.setIdRetencion(detalle.getIdRetencion());
+	                		pagoRetencion.setMontoPagado(detalle.getTotalPago());
+	                		pagoRetencion.setTipoPago(5);
+	                		insertarPagoRetencion(pagoRetencion);
+                		}
+                		catch(Exception e) {
+                			System.out.println("Error al insertar pago en Retención Judicial");
+                		}
+                	//Llamar a API de Retencion Judicial para reflejar el pago
+                	}	
+                }
+                
             }
         }
 
@@ -158,4 +190,37 @@ public class EmisionServiceImpl implements EmisionService {
     public EmisionDTO obtenerEmision(int idEmision) {
     	return emisionDAO.obtenerEmision(idEmision);
     }
+    
+    @Override
+    public boolean insertarPagoRetencion(PagoRetencionDTO dto) {
+        String url = baseUrlRetencionPagos + "/insertar-pago-retencion";
+        System.out.println("Insertando pago en: " + url);
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<PagoRetencionDTO> request = new HttpEntity<>(dto, headers);
+
+        try {
+            ResponseEntity<ResponseDTO> response = restTemplate.postForEntity(url, request, ResponseDTO.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                System.out.println("Respuesta: " + response.getBody().getGlosaRetorno());
+                return true;
+            }
+
+            System.err.println("No se insertó el pago. Código: " + response.getStatusCode());
+            return false;
+
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            System.err.println("Error al insertar pago: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error inesperado al insertar pago: " + e.getMessage());
+            return false;
+        }
+    }
+
+
 }
