@@ -11,6 +11,8 @@ public class NominaPagoDTO {
     private int rutB;
     private String dvB;
     private String apPat;
+    private String apMat;
+    private String nombres;
     private double montoPago;
     private String direccion;
     private int comuna;
@@ -40,7 +42,9 @@ public class NominaPagoDTO {
                 String.valueOf(rutB),
                 escapeCsv(dvB),
                 escapeCsv(apPat),
-                "", "", "0", "0", // apMat, nombres, sexo, fecNac
+                escapeCsv(apMat),
+                escapeCsv(nombres),
+                "0", "0", // apMat, nombres, sexo, fecNac
                 String.valueOf(montoPago),
                 escapeCsv(direccion),
                 String.valueOf(comuna),

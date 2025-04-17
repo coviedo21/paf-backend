@@ -21,6 +21,8 @@ public class NominaPagoRowMapper implements RowMapper<NominaPagoDTO> {
         dto.setRutB(rs.getInt("rutB"));
         dto.setDvB(rs.getString("dvB"));
         dto.setApPat(rs.getString("apPat"));
+        dto.setApMat(rs.getString("apMat"));
+        dto.setNombres(rs.getString("nombres"));
         dto.setMontoPago(rs.getDouble("montoPago"));
         dto.setDireccion(rs.getString("direccion"));
         dto.setComuna(rs.getInt("comuna"));
