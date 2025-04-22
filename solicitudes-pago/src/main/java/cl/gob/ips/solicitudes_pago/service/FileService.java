@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,7 +12,7 @@ import cl.gob.ips.solicitudes_pago.dto.ArchivoResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
 
 public interface FileService {
-    public ArchivoResponseDTO insertarSolicitudes(List<ArchivoSolicitudDTO> listaSolicitudes, String periodo);
+    public ArchivoResponseDTO insertarSolicitudes(List<ArchivoSolicitudDTO> listaSolicitudes, String periodo, Consumer<Integer> progresoCallback);
     public Boolean uploadFileAzure(String connectStr, String shareName,
     String dirName, String fileName, byte[] file);
     byte[] downloadFile(String connectStr, String shareName, String dirName, String fileName);

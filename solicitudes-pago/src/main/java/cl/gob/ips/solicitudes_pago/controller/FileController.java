@@ -90,7 +90,9 @@ public class FileController {
     
     private final Map<String, String> estadoTareas = new ConcurrentHashMap<>();
     private final Map<String, String> mensajesTareas = new ConcurrentHashMap<>(); // Guarda la glosa de respuesta
-
+    private final Map<String, Integer> totalSolicitudes = new ConcurrentHashMap<>();
+    private final Map<String, Integer> solicitudesProcesadas = new ConcurrentHashMap<>();
+    
     @PostMapping("/cargar-archivo-previred")
     public ResponseDTO cargarArchivoPrevired(@RequestParam("file") MultipartFile file,
                                              @RequestParam("origen") String origen,
@@ -98,15 +100,40 @@ public class FileController {
         ResponseDTO response = new ResponseDTO();
         String taskId = UUID.randomUUID().toString();
         estadoTareas.put(taskId, "procesando");
-
+        
         try {
             Path tempFile = Files.createTempFile("previred_", ".csv");
             file.transferTo(tempFile.toFile());
 
+         // ✅ Contar líneas antes de procesar
+            try (InputStream originalInputStream = new FileInputStream(tempFile.toString());
+                 BufferedInputStream bufferedInputStream = new BufferedInputStream(originalInputStream)) {
+
+                String encoding = fileService.detectarCodificacion(bufferedInputStream);
+                bufferedInputStream.reset();
+
+                InputStream inputStream = encoding.equalsIgnoreCase("UTF-8")
+                        ? bufferedInputStream
+                        : fileService.convertirAUTF8(bufferedInputStream, encoding);
+
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                    long total = reader.lines()
+                            .skip(1)
+                            .filter(line -> !line.trim().isEmpty())
+                            .count();
+                    totalSolicitudes.put(taskId, (int) total);
+                }
+            } catch (Exception e) {
+                totalSolicitudes.put(taskId, 0); // si falla el conteo
+                System.err.println("Error contando líneas del archivo: " + e.getMessage());
+            }
+
+            solicitudesProcesadas.put(taskId, 0); // inicializar
+            
             CompletableFuture.runAsync(() -> {
                 List<ArchivoSolicitudDTO> listaSolicitudes = new ArrayList<>();
                 ArchivoResponseDTO respuesta = new ArchivoResponseDTO(); // ✅ Definida correctamente
-
+                
                 try (InputStream originalInputStream = new FileInputStream(tempFile.toString());
                      BufferedInputStream bufferedInputStream = new BufferedInputStream(originalInputStream)) {
 
@@ -122,7 +149,8 @@ public class FileController {
                     try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                         String line;
                         boolean isFirstLine = true;
-
+                        
+                        
                         while ((line = br.readLine()) != null) {
                             if (isFirstLine) {
                                 isFirstLine = false;
@@ -177,8 +205,14 @@ public class FileController {
                             }
                         }
 
-                        // ✅ Insertamos en la base de datos y guardamos la glosa
-                        respuesta = fileService.insertarSolicitudes(listaSolicitudes, periodo);
+                        
+                     //	Guardar total para seguimiento
+                        solicitudesProcesadas.put(taskId, 0); // Inicializar en 0
+                     // Se inserta en la base de datos y guardamos la glosa
+                     // ✅ Llamar al servicio con callback para progreso
+                        respuesta = fileService.insertarSolicitudes(listaSolicitudes, periodo, procesados -> {
+                            solicitudesProcesadas.put(taskId, procesados);
+                        });
                         if (respuesta.getRegistrosFallidos() == 0) {
                             mensajesTareas.put(taskId, "Se leyeron " + respuesta.getRegistrosEnArchivo() + " solicitudes y se importaron " + respuesta.getRegistrosImportados() + " solicitudes.");
                         } else {
@@ -217,6 +251,12 @@ public class FileController {
         if ("completado".equals(estado) && mensajesTareas.containsKey(taskId)) {
             response.put("mensaje", mensajesTareas.get(taskId));
         }
+        else if ("procesando".equals(estado)) {
+            int total = totalSolicitudes.getOrDefault(taskId, 0);
+            int procesadas = solicitudesProcesadas.getOrDefault(taskId, 0);
+            response.put("total", String.valueOf(total));
+            response.put("procesadas", String.valueOf(procesadas));
+        }
 
         return ResponseEntity.ok(response);
     }
@@ -231,7 +271,11 @@ public class FileController {
         try {
             Path tempFile = Files.createTempFile("previred_", ".csv");
             file.transferTo(tempFile.toFile());
-
+            long total = Files.lines(tempFile, StandardCharsets.UTF_8)
+            	    .skip(1) // para ignorar la cabecera
+            	    .filter(line -> !line.trim().isEmpty()) // opcional, por si hay líneas vacías
+            	    .count();
+            totalSolicitudes.put(taskId, (int) total);
             CompletableFuture.runAsync(() -> {
                 List<ArchivoSolicitudDTO> listaSolicitudes = new ArrayList<>();
                 ArchivoResponseDTO respuesta = new ArchivoResponseDTO(); // ✅ Definida correctamente
@@ -306,8 +350,13 @@ public class FileController {
                             }
                         }
 
-                        // ✅ Insertamos en la base de datos y guardamos la glosa
-                        respuesta = fileService.insertarSolicitudes(listaSolicitudes, periodo);
+//                    	Guardar total para seguimiento
+                        solicitudesProcesadas.put(taskId, 0); // Inicializar en 0
+                     // Se inserta en la base de datos y guardamos la glosa
+                     // ✅ Llamar al servicio con callback para progreso
+                        respuesta = fileService.insertarSolicitudes(listaSolicitudes, periodo, procesados -> {
+                            solicitudesProcesadas.put(taskId, procesados);
+                        });
                         if (respuesta.getRegistrosFallidos() == 0) {
                             mensajesTareas.put(taskId, "Se leyeron " + respuesta.getRegistrosEnArchivo() + " solicitudes y se importaron " + respuesta.getRegistrosImportados() + " solicitudes.");
                         } else {

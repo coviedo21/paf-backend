@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +74,7 @@ public class FileServiceImpl implements FileService {
     @Value("${app.base.urlCuentaBancaria}")
     private String baseUrlCuentaBancaria;  
     
-    public ArchivoResponseDTO insertarSolicitudes(List<ArchivoSolicitudDTO> listaSolicitudes, String periodo) {
+    public ArchivoResponseDTO insertarSolicitudes(List<ArchivoSolicitudDTO> listaSolicitudes, String periodo, Consumer<Integer> progresoCallback) {
         Map<String, ListaComunaDTO> comunaCache = new HashMap<>();
         Map<String, ResultadoRegionDTO> regionCache = new HashMap<>();
         periodo = periodo.replace("/", "-");
@@ -204,6 +205,7 @@ public class FileServiceImpl implements FileService {
                     bw.write(insertado);
                     bw.newLine();
                 }
+                progresoCallback.accept(contadorRegistros);
             }
             contadorErrores = contadorRegistros-contadorExitos;
             respuesta.setRegistrosEnArchivo(contadorRegistros);
