@@ -147,7 +147,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("iTipoMovimiento", causanteDTO.getTipoMovimiento())
                 .addValue("dFechaMovimiento", causanteDTO.getFechaMovimiento())
                 .addValue("vcEntradaSalida", causanteDTO.getEntradaSalida())
-                .addValue("nMontoMovimiento", causanteDTO.getMontoMovimiento())
+                .addValue("nMontoMovimiento", causanteDTO.getDiferencia())
                 .addValue("iTipoCausante", causanteDTO.getTipoCausante())
                 .addValue("iIdBeneficio", causanteDTO.getIdBeneficio())
                 .addValue("nRentaPromedio", causanteDTO.getRentaPromedio())

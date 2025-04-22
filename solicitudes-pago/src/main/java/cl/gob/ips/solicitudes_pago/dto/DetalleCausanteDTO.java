@@ -19,6 +19,7 @@ public class DetalleCausanteDTO {
     private Date fechaMovimiento;
     private String entradaSalida;
     private BigDecimal montoMovimiento;
+    private BigDecimal diferencia;
     private int tipoCausante;
     private int idBeneficio;
     private BigDecimal rentaPromedio;

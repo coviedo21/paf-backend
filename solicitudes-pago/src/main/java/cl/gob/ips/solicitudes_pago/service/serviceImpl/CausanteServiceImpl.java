@@ -98,7 +98,7 @@ public class CausanteServiceImpl implements CausanteService{
             dto.setFechaFinPeriodo(fechaFin);
             
             // Calcular monto total a pagar sumando `montoMovimiento`
-            int montoTotal = listaDerechos.stream().mapToInt(DerechoCausanteDTO::getMontoMovimiento).sum();
+            int montoTotal = listaDerechos.stream().mapToInt(DerechoCausanteDTO::getDiferencia).sum();
             dto.setMontoPagar(BigDecimal.valueOf(montoTotal));
 
             // Construir periodos aprobados como una lista separada por comas
