@@ -176,6 +176,7 @@ public class FileDAOImpl implements FileDAO{
                 solicitud.setPeriodo(archivo.getPeriodo());
                 solicitud.setIdCuentaBancaria(archivo.getIdCuentaBancaria());
                 solicitud.setIdFormaPago(archivo.getFormaPago());
+                solicitud.setUsuarioCreacion(archivo.getUsuario());
                 if(tieneDerecho){
                     ResponseDTO respuesta = solicitudPagoService.insertarSolicitudPago(solicitud,true);
                     if((int) respuesta.getResultado()>0){

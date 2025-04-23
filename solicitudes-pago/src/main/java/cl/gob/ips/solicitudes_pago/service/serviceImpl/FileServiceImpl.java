@@ -242,8 +242,7 @@ public class FileServiceImpl implements FileService {
             archivo.getNombresCarga() + ";" +
             archivo.getTipoCarga() + ";" +
             archivo.getFechaInicioCompensacion() + ";" +
-            archivo.getFechaFinCompensacion() + ";" +
-            archivo.getEstadoCarga();
+            archivo.getFechaFinCompensacion() + ";";
     }
 
     public Boolean uploadFileAzure(String connectStr, String shareName,

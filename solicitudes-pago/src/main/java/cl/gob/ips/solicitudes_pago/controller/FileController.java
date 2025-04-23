@@ -96,7 +96,8 @@ public class FileController {
     @PostMapping("/cargar-archivo-previred")
     public ResponseDTO cargarArchivoPrevired(@RequestParam("file") MultipartFile file,
                                              @RequestParam("origen") String origen,
-                                             @RequestParam("periodo") String periodo) {
+                                             @RequestParam("periodo") String periodo,
+                                             @RequestParam("usuario") String usuario) {
         ResponseDTO response = new ResponseDTO();
         String taskId = UUID.randomUUID().toString();
         estadoTareas.put(taskId, "procesando");
@@ -188,7 +189,7 @@ public class FileController {
                                 carga.setEstadoCarga(fields.length > 23 && !fields[23].trim().isEmpty() ? fields[23].trim() : null);
                                 carga.setOrigen(origen);
                                 carga.setPeriodo(periodo);
-                                int idCuentaBancaria = fileService.obtenerCuentaBancaria(Integer.valueOf(carga.getRutEmpleador()));
+                                carga.setUsuario(usuario);                                int idCuentaBancaria = fileService.obtenerCuentaBancaria(Integer.valueOf(carga.getRutEmpleador()));
                                                                 
                                 if(idCuentaBancaria==0) {
                                 	carga.setIdCuentaBancaria(null);
@@ -263,7 +264,7 @@ public class FileController {
 
     @PostMapping("/cargar-archivo-especiales")
     public ResponseDTO cargarArchivoEspeciales( @RequestParam("file") MultipartFile file,
-            @RequestParam("origen") String origen, @RequestParam("periodo") String periodo) {
+            @RequestParam("origen") String origen, @RequestParam("periodo") String periodo,@RequestParam("usuario") String usuario) {
                 ResponseDTO response = new ResponseDTO();
         String taskId = UUID.randomUUID().toString();
         estadoTareas.put(taskId, "procesando");
@@ -333,6 +334,7 @@ public class FileController {
                                 carga.setEstadoCarga(fields.length > 23 && !fields[23].trim().isEmpty() ? fields[23].trim() : null);
                                 carga.setOrigen(origen);
                                 carga.setPeriodo(periodo);
+                                carga.setUsuario(usuario);
                                 int idCuentaBancaria = fileService.obtenerCuentaBancaria(Integer.valueOf(carga.getRutEmpleador()));
                                 
                                 if(idCuentaBancaria==0) {
