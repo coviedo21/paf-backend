@@ -3,6 +3,8 @@ package cl.gob.ips.proceso_pago.service;
 import java.util.List;
 import cl.gob.ips.proceso_pago.dto.ProcesoDTO;
 import cl.gob.ips.proceso_pago.dto.DatosProcesoPorTipoDTO;
+import cl.gob.ips.proceso_pago.dto.DetalleCausanteDTO;
+import cl.gob.ips.proceso_pago.dto.PagoRetencionDTO;
 
 public interface ProcesoService {
     public int crearProceso(ProcesoDTO insertarProcesoDTO);
@@ -14,4 +16,5 @@ public interface ProcesoService {
     List<DatosProcesoPorTipoDTO> obtenerDatosProcesoPorTipo(int idProceso);
 
     public boolean actualizarEstadoProceso(int idProceso, int idEstadoProceso);
+    
 }

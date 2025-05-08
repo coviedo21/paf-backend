@@ -105,7 +105,7 @@ public class ProcesoDAOImpl implements ProcesoDAO {
     }
 
     public boolean existeSolicitudPendiente(Integer idTipoSolicitante) {
-        String sql = "SELECT paf.fn_ExisteSolicitudPendiente(?) AS existeSolicitud";
+        String sql = "SELECT " + esquema + ".fn_ExisteSolicitudPendiente(?) AS existeSolicitud";
     
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{idTipoSolicitante});
     
@@ -125,7 +125,7 @@ public class ProcesoDAOImpl implements ProcesoDAO {
 
 @Override
 public List<ProcesoDTO> consultarProceso(Long idProceso) {
-    String sql = "SELECT * FROM paf.fn_ObtenerProcesos(?)";
+    String sql = "SELECT * FROM " + esquema + ".fn_ObtenerProcesos(?)";
 
     List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{idProceso});
 
@@ -155,7 +155,7 @@ public List<ProcesoDTO> filtrarProcesos(String texto) {
     if (texto.equalsIgnoreCase("null")) {
         texto = null;
     }
-    String sql = "EXEC paf.SP_FiltrarProcesos ?";
+    String sql = "EXEC " + esquema + ".SP_FiltrarProcesos ?";
     List<ProcesoDTO> procesos = new ArrayList<>();
     try {
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{texto});
@@ -190,7 +190,7 @@ public List<DatosProcesoPorTipoDTO> obtenerDatosProcesoPorTipo(int idProceso) {
     
 
     //comuna.obtenerRegiones();
-    String sql = "SELECT * FROM paf.fn_ObtenerDatosProcesoPorTipo(?)";
+    String sql = "SELECT * FROM " + esquema + ".fn_ObtenerDatosProcesoPorTipo(?)";
 
     List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, idProceso);
 
@@ -269,7 +269,7 @@ public void insertarProcesoTipoSolicitante(int idProceso, List<Integer> listaTip
 
     @Override
     public List<SolicitudDTO> obtenerSolicitudesPorProceso(int idProceso) {
-        String sql = "SELECT * FROM paf.fn_ListarSolicitudesPorProceso(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ListarSolicitudesPorProceso(?)";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, idProceso);
 
@@ -330,7 +330,7 @@ public void insertarProcesoTipoSolicitante(int idProceso, List<Integer> listaTip
     
     @Override
     public List<DetalleCausanteDTO> obtenerDetallesPorProcesoPago(int idProcesoPago) {
-        String sql = "SELECT * FROM paf.fn_ObtenerDetallesPorProcesoPago(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerDetallesPorProcesoPago(?)";
 
         try {
             List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, idProcesoPago);

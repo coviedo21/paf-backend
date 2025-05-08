@@ -41,7 +41,7 @@ private final JdbcTemplate jdbcTemplate;
 
    @Override
     public List<EmisionDTO> obtenerEmisiones() {
-        String sql = "SELECT * FROM paf.fn_ObtenerEmisiones()"; // Llamada a la función
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerEmisiones()"; // Llamada a la función
 
         try {
             List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
@@ -98,7 +98,7 @@ private final JdbcTemplate jdbcTemplate;
 
     @Override
     public ProcesoDTO obtenerProcesoPorPeriodo(String periodo) {
-        String sql = "SELECT * FROM paf.fn_ObtenerProcesoPorPeriodo(?)"; // Llamada a la función con parámetro
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerProcesoPorPeriodo(?)"; // Llamada a la función con parámetro
 
         try {
             Map<String, Object> row = jdbcTemplate.queryForMap(sql, new Object[]{periodo});
@@ -136,7 +136,7 @@ private final JdbcTemplate jdbcTemplate;
 
     @Override
     public EmisionDTO obtenerEmision(int idEmision) {
-        String sql = "SELECT * FROM paf.fn_ObtenerEmision(?)"; // Llamada a la función con parámetro
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerEmision(?)"; // Llamada a la función con parámetro
 
         try {
             Map<String, Object> row = jdbcTemplate.queryForMap(sql, new Object[]{idEmision});

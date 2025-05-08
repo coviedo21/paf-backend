@@ -8,10 +8,15 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +27,7 @@ import cl.gob.ips.proceso_pago.dto.ResponseDTO;
 import cl.gob.ips.proceso_pago.dto.RetencionJudicialDTO;
 import cl.gob.ips.proceso_pago.dto.DatosProcesoPorTipoDTO;
 import cl.gob.ips.proceso_pago.dto.DetalleCausanteDTO;
+import cl.gob.ips.proceso_pago.dto.PagoRetencionDTO;
 import cl.gob.ips.proceso_pago.service.ProcesoService;
 import lombok.RequiredArgsConstructor;
 
@@ -38,6 +44,7 @@ public class ProcesoServiceImpl implements ProcesoService {
 
     @Value("${app.base.urlRetencion}")
     private String baseUrlRetencion; 
+       
 
     @Override
     public int crearProceso(ProcesoDTO insertarProcesoDTO) {
@@ -173,7 +180,7 @@ public class ProcesoServiceImpl implements ProcesoService {
         return procesoDAO.actualizarEstadoProceso(idProceso, idEstadoProceso);
     }
 
-    //@Scheduled(cron = "0 0 0 * * ?")
+        //@Scheduled(cron = "0 0 0 * * ?")
     /*@Scheduled(cron = "0 49 14 * * ?")
     public List<ProcesoDTO> iniciarProceso() {
         List<ProcesoDTO> listaProcesos = new ArrayList<>();

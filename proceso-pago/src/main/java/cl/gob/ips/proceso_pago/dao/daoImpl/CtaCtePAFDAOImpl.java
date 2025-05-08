@@ -4,12 +4,15 @@ import cl.gob.ips.proceso_pago.dao.CtaCtePAFDAO;
 import cl.gob.ips.proceso_pago.dto.CtaCteDTO;
 import cl.gob.ips.proceso_pago.dto.SpResponse;
 import cl.gob.ips.proceso_pago.mapper.CtaCtePAFMapper;
+import cl.gob.ips.proceso_pago.service.serviceImpl.CtaCtePAFServiceImpl;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
@@ -28,6 +31,8 @@ import java.util.Map;
 @Repository
 public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
 
+	private static final Logger logger = LoggerFactory.getLogger(CtaCtePAFDAOImpl.class);
+	
     @Value("${spring.datasource.schema}")
     private String schema;
 
@@ -65,13 +70,22 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
     //ADM_CTACTE
     public SpResponse insertarTBLCTACTEPAF(List<CtaCteDTO> dtoPAFList) {
         SpResponse response = new SpResponse();
-
+        logger.error("3 - Se verificará la conexion con BD cuenta corriente.");
+        // Verificar conexión a la base de datos
+        if (!verificarConexion()) {
+        	response.setResultado(0);
+            response.setMensaje("No hay conexión a la base de datos");
+            return response;
+        }
+        
+        logger.error("4 - Se procede a la inserción");
         // Verificar si hay datos para procesar
         if (dtoPAFList == null || dtoPAFList.isEmpty()) {
             response.setResultado(0);
             response.setMensaje("No hay datos que procesar");
             return response;
         }
+
 
         // Utilizar TransactionTemplate para manejar la transacción
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
@@ -159,10 +173,12 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
                     params.put("p_VCUSUARIOACTUALIZACION", dtoPAF.getVcUsuarioActualizacion());
 
                     try {
+                    	logger.error("2 - Se ejecutará el SP de insertar");
                         Map<String, Object> result = jdbcCall.execute(params);
                         int resultadoSp = ((BigDecimal) result.get("p_nResultado")).intValue();
 
                         if (resultadoSp != 1) {
+                        	logger.error("3 - Error al ejecutar SP");
                             mensajeError = (String) result.get("p_vcMensaje");
                             // Marcar la transacción para rollback
                             status.setRollbackOnly();
@@ -171,7 +187,8 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
 
                         procesados++;
                     } catch (DataAccessException e) {
-                        log.error("Error al insertar en TBLCTACTEPAF: {}", e.getMostSpecificCause().getMessage());
+                    	logger.error("Error al insertar en TBLCTACTEPAF: {}", e.getMostSpecificCause().getMessage());
+                        //log.error("Error al insertar en TBLCTACTEPAF: {}", e.getMostSpecificCause().getMessage());
                         mensajeError = e.getMostSpecificCause().getMessage();
                         // Marcar la transacción para rollback
                         status.setRollbackOnly();
@@ -282,5 +299,17 @@ public class CtaCtePAFDAOImpl implements CtaCtePAFDAO {
             response.setMensaje(e.getMostSpecificCause().getMessage());
         }
         return response;
+    }
+    
+    private boolean verificarConexion() {
+        try {
+            ctaCteJdbc.queryForObject("SELECT 1 FROM DUAL", Integer.class);
+            logger.error("Conexión lograda con BD");
+            return true;
+        } catch (CannotGetJdbcConnectionException e) {
+            logger.error("No se pudo conectar a la base de datos: {}", e.getMessage());
+            System.err.println("No se pudo conectar a la base de datos: " + e.getMessage());
+            return false;
+        }
     }
 }

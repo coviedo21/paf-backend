@@ -9,6 +9,8 @@ import com.azure.storage.file.share.ShareFileClient;
 import com.azure.storage.file.share.ShareFileClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +18,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -143,7 +147,7 @@ public class ProcesoPagoController {
     }
 
     @PostMapping("/procesarEmision")
-    public ResponseEntity<ResponseDTO> procesarEmision(@RequestParam("file") MultipartFile file, @RequestParam("idProceso") Integer idProceso) {
+    public ResponseEntity<ResponseDTO> procesarEmision(@RequestParam("file") MultipartFile file, @RequestParam("idProceso") Integer idProceso, @RequestParam("usuario") String usuario) {
         List<EmisionArchivoDTO> registros = new ArrayList<>();
         int[] posiciones = {2, 3, 13, 1, 1, 2, 1, 1, 3, 3, 4, 1, 1, 40, 8, 40, 8, 8, 1, 8, 1, 2, 1, 8, 1, 1, 2, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7,1, 3, 5, 7, 7, 7, 7, 3, 4, 7, 1, 8, 7, 7, 7, 7, 7, 48, 15, 1, 1, 2, 2, 2, 2, 7, 8, 8, 10, 8};
         ResponseDTO responseDTO = new ResponseDTO();
@@ -333,6 +337,7 @@ registro.setHDmonto15(valores[86]);
                         emision.setFechaEmision(new Date());  
                         emision.setIdProceso(idProceso);
                         emision.setRutaArchivo(nombreRemoto);
+                        emision.setUsuario(usuario);
                         emisionService.insertarEmision(emision);
                         
                         boolean resultado = procesoService.actualizarEstadoProceso(idProceso, 2);
@@ -459,5 +464,25 @@ registro.setHDmonto15(valores[86]);
     @PostMapping("/copia-cc/{idProceso}")
     public SpResponse copiaCteCte(@PathVariable int idProceso) { //TODO: retornar ResponseEntity
         return ctaCtePAFService.procesarDatosCtaCte(idProceso);
+    }
+    
+    @GetMapping("/descargar-log")
+    public ResponseEntity<Resource> downloadLog() throws IOException {
+        String logFilePath = "../../LogFiles/pagos-asignacion-familiar-ms-v1/log-ms-v1.log";
+        File logFile = new File(logFilePath);
+ 
+        if (!logFile.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+ 
+        File tempFile = new File(logFilePath + ".temp");
+        Files.copy(logFile.toPath(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+ 
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(tempFile));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + tempFile.getName())
+                .contentLength(tempFile.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
     }
 }
