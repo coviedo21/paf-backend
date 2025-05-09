@@ -392,8 +392,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
     //Obtener solicitudes de pago por id o todas
     @Override
     public List<SolicitudDTO> consultarSolicitudPago(Integer idSolicitud) {
-        String sql = "SELECT * FROM paf.fn_ObtenerSolicitudesPago(?)";
-        ///String sqlCausantes = "SELECT * FROM paf.fn_ObtenerCausanteSolicitud(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerSolicitudesPago(?)";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{idSolicitud});
 
@@ -452,7 +451,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("esPortuario") != null) solicitudPagoDTO.setEsPortuario((String) row.get("esPortuario"));
             if (row.get("totalPago") != null) solicitudPagoDTO.setTotalPago((BigDecimal) row.get("totalPago"));
             if (row.get("usuarioCreacion") != null) solicitudPagoDTO.setUsuarioCreacion((String) row.get("usuarioCreacion"));
-            if (row.get("vcUsuarioModificacion") != null) solicitudPagoDTO.setUsuarioModificacion((String) row.get("vcUsuarioModificacion"));
+            if (row.get("usuarioModificacion") != null) solicitudPagoDTO.setUsuarioModificacion((String) row.get("usuarioModificacion"));
             solicitudesPago.add(solicitudPagoDTO);
 
             // Consulta los causantes de la solicitud actual 
@@ -593,7 +592,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
         if(texto.equalsIgnoreCase("null")){
             texto = null;
         }
-        String sql = "SELECT * FROM paf.fn_FiltrarSolicitudesPago(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_FiltrarSolicitudesPago(?)";
         List<SolicitudDTO> solicitudesPago = new ArrayList<>();
         try{
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{texto});
@@ -656,7 +655,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Override
     public List<SolicitudProcesoDTO> obtenerSolicitudesPorProceso(int idProceso, int tipoSolicitante, Integer idEstado) {
-        String sql = "SELECT * FROM paf.fn_ObtenerSolicitudesPorProceso(?, ?, ?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerSolicitudesPorProceso(?, ?, ?)";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, idProceso, tipoSolicitante, idEstado);
 
@@ -800,7 +799,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Override
     public List<TipoSolicitanteDTO> obtenerTiposSolicitante() {
-        String sql = "SELECT idTipoSolicitante, nombre FROM paf.vw_TipoSolicitante";
+        String sql = "SELECT idTipoSolicitante, nombre FROM " + esquema + ".vw_TipoSolicitante";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
 
@@ -817,7 +816,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Override
     public List<EstadosSolicitudDTO> obtenerEstadosSolicitud() {
-        String sql = "SELECT idEstadoResolucion, nombre FROM paf.vw_EstadoResolucion";
+        String sql = "SELECT idEstadoResolucion, nombre FROM " + esquema + ".vw_EstadoResolucion";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
 
@@ -835,7 +834,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Override
     public List<CausanteSolicitudDTO> obtenerCausantesPorSolicitud(int idSolicitud) {
-        String sql = "SELECT * FROM paf.fn_ObtenerCausanteSolicitud(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerCausanteSolicitud(?)";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, idSolicitud);
 
@@ -931,7 +930,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Override
     public List<SolicitudDTO> obtenerSolicitudesPorEstado(int idEstado) {
-        String sql = "SELECT * FROM paf.fn_ObtenerSolicitudesPorEstado(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerSolicitudesPorEstado(?)";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, idEstado);
 
@@ -995,7 +994,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Override
     public List<SolicitudDTO> obtenerSolicitudesAntiguas(int dias) {
-        String sql = "SELECT * FROM paf.fn_ObtenerSolicitudesAntiguas(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerSolicitudesAntiguas(?)";
         
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, dias);
         
@@ -1050,7 +1049,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Override
     public List<SolicitudDTO> obtenerSolicitudesPorBeneficiario(Integer rutBeneficiario) {
-        String sql = "SELECT * FROM paf.fn_ObtenerSolicitudesPorBeneficiario(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerSolicitudesPorBeneficiario(?)";
         
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{rutBeneficiario});
         
@@ -1097,7 +1096,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Override
     public List<SolicitudDTO> obtenerSolicitudesPorEmpleador(Integer rutEmpleador) {
-        String sql = "SELECT * FROM paf.fn_ObtenerSolicitudesPorEmpleador(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerSolicitudesPorEmpleador(?)";
         
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{rutEmpleador});
         
@@ -1144,7 +1143,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Override
     public List<SolicitudDTO> obtenerSolicitudesPorOrigen(Integer origen, Integer proceso, Integer estado) {
-        String sql = "SELECT * FROM paf.fn_ObtenerSolicitudesPorOrigen(?, ?, ?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerSolicitudesPorOrigen(?, ?, ?)";
         
         // Ejecutar la consulta con los tres parámetros
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{origen, proceso, estado});
@@ -1191,7 +1190,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Override
     public List<MotivoRechazoDTO> obtenerMotivosRechazo() {
-        String sql = "SELECT * FROM paf.vw_MotivoRechazo";
+        String sql = "SELECT * FROM " + esquema + ".vw_MotivoRechazo";
 
         try {
             List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
@@ -1218,7 +1217,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 
     @Override
     public MotivoRechazoDTO obtenerMotivoRechazoPorId(int idMotivoRechazo) {
-        String sql = "SELECT * FROM paf.fn_ObtenerMotivosRechazo(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerMotivosRechazo(?)";
 
         try {
             // Ejecutar la consulta con el parámetro idMotivoRechazo

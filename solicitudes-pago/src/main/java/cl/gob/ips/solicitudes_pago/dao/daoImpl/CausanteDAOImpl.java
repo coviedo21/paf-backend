@@ -147,7 +147,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("iTipoMovimiento", causanteDTO.getTipoMovimiento())
                 .addValue("dFechaMovimiento", causanteDTO.getFechaMovimiento())
                 .addValue("vcEntradaSalida", causanteDTO.getEntradaSalida())
-                .addValue("nMontoMovimiento", causanteDTO.getDiferencia())
+                .addValue("nMontoMovimiento", causanteDTO.getDiferenciaDerecho())
                 .addValue("iTipoCausante", causanteDTO.getTipoCausante())
                 .addValue("iIdBeneficio", causanteDTO.getIdBeneficio())
                 .addValue("nRentaPromedio", causanteDTO.getRentaPromedio())
@@ -184,7 +184,7 @@ public class CausanteDAOImpl implements CausanteDAO{
 
     @Override
     public List<DetalleCausanteDTO> obtenerDetalleCausantePorId(int iIdCausanteSolicitud) {
-        String sql = "SELECT * FROM paf.fn_ObtenerDetalleCausante(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerDetalleCausante(?)";
 
         try {
             List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{iIdCausanteSolicitud});
@@ -366,7 +366,7 @@ public class CausanteDAOImpl implements CausanteDAO{
 
     @Override
     public DetalleCausanteDTO obtenerDetalleCausantePorIdDetalle(int iIdDetalleCausante) {
-        String sql = "SELECT * FROM paf.fn_ObtenerDetalleCausantePorId(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerDetalleCausantePorId(?)";
 
         try {
             Map<String, Object> row = jdbcTemplate.queryForMap(sql, iIdDetalleCausante);

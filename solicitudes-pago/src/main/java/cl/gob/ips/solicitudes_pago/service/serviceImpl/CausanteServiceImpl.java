@@ -19,6 +19,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import cl.gob.ips.solicitudes_pago.dao.CausanteDAO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteCuentaCorrienteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteDTO;
+import cl.gob.ips.solicitudes_pago.dto.CuentaCorrienteListaDTO;
+import cl.gob.ips.solicitudes_pago.dto.CuentaCorrienteResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.DerechoCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.DetalleCausanteDTO;
 import cl.gob.ips.solicitudes_pago.service.CausanteService;
@@ -45,16 +47,18 @@ public class CausanteServiceImpl implements CausanteService{
                 .queryParam("tipoCausante", tipoCausante);
 
         // Llamada al endpoint usando RestTemplate
-        DerechoCausanteDTO[] responseArray = restTemplate.getForObject(builder.toUriString(), DerechoCausanteDTO[].class);
+        CuentaCorrienteResponseDTO cuentaCorrienteResponse = restTemplate.getForObject(builder.toUriString(), CuentaCorrienteResponseDTO.class);
 
-     // Convertir el array en lista y filtrar los registros donde rutEmpleador sea 0 o negativo
-        List<DerechoCausanteDTO> derechos = (responseArray != null)
-                ? Arrays.stream(responseArray)
-                        .filter(d -> d.getRutEmpleador() > 0) // Excluir si rutEmpleador es 0 o negativo
-                        .collect(Collectors.toList())
+        // Obtener lista desde el wrapper del JSON
+        List<DerechoCausanteDTO> derechos = (cuentaCorrienteResponse != null &&
+                                             cuentaCorrienteResponse.getResultado() != null &&
+                                             cuentaCorrienteResponse.getResultado().getLista() != null)
+                ? cuentaCorrienteResponse.getResultado().getLista().stream()
+                    .filter(d -> d.getRutEmpleador() > 0) // Excluir si rutEmpleador es 0 o negativo
+                    .collect(Collectors.toList())
                 : Collections.emptyList();
 
-     // 🔹 Filtrar por rutEmpleador si viene informado
+        // 🔹 Filtrar por rutEmpleador si viene informado
         if (rutEmpleador != null && !rutEmpleador.isEmpty()) {
             int rutEmpleadorInt = Integer.parseInt(rutEmpleador);
             derechos = derechos.stream()
@@ -66,13 +70,12 @@ public class CausanteServiceImpl implements CausanteService{
         Map<String, List<DerechoCausanteDTO>> agrupados = derechos.stream()
                 .collect(Collectors.groupingBy(d -> d.getRutCausante() + "-" + d.getDvCausante()));
 
-
         // Lista de resultado
         List<CausanteCuentaCorrienteDTO> resultado = new ArrayList<>();
 
         for (Map.Entry<String, List<DerechoCausanteDTO>> entry : agrupados.entrySet()) {
             List<DerechoCausanteDTO> listaDerechos = entry.getValue();
-            
+
             // Tomar el primer elemento para la cabecera
             DerechoCausanteDTO primerRegistro = listaDerechos.get(0);
 
@@ -86,7 +89,7 @@ public class CausanteServiceImpl implements CausanteService{
                     .map(DerechoCausanteDTO::getPeriodo)
                     .sorted()
                     .collect(Collectors.toList());
-            
+
             int periodoInicio = periodos.get(0);
             int periodoFin = periodos.get(periodos.size() - 1);
 
@@ -96,9 +99,9 @@ public class CausanteServiceImpl implements CausanteService{
 
             dto.setFechaInicioPeriodo(fechaInicio);
             dto.setFechaFinPeriodo(fechaFin);
-            
-            // Calcular monto total a pagar sumando `montoMovimiento`
-            int montoTotal = listaDerechos.stream().mapToInt(DerechoCausanteDTO::getDiferencia).sum();
+
+            // Calcular monto total a pagar sumando `diferencia`
+            int montoTotal = listaDerechos.stream().mapToInt(DerechoCausanteDTO::getDiferenciaDerecho).sum();
             dto.setMontoPagar(BigDecimal.valueOf(montoTotal));
 
             // Construir periodos aprobados como una lista separada por comas

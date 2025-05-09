@@ -20,6 +20,7 @@ public class DetalleCausanteDTO {
     private String entradaSalida;
     private BigDecimal montoMovimiento;
     private BigDecimal diferencia;
+    private BigDecimal diferenciaDerecho;
     private int tipoCausante;
     private int idBeneficio;
     private BigDecimal rentaPromedio;

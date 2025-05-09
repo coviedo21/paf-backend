@@ -27,7 +27,7 @@ private final JdbcTemplate jdbcTemplate;
 
     @Override
     public List<OrigenDTO> obtenerOrigenes(int iTipo) {
-        String sql = "SELECT * FROM paf.fn_ObtenerOrigenes(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerOrigenes(?)";
         
         // Ejecuta la consulta pasando el parámetro
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, iTipo);

@@ -35,7 +35,7 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
 
     @Override
     public List<CriterioSolicitudDTO> consultarCriteriosSolicitud(Integer idSolicitud) {
-        String sql = "SELECT * FROM paf.fn_ObtenerCriteriosSolicitud(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerCriteriosSolicitud(?)";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{idSolicitud});
 
@@ -61,7 +61,7 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
 
     @Override
     public List<CriterioSolicitudCausanteDTO> consultarCriterioCausante(Integer idCausanteSolicitud) {
-        String sql = "SELECT * FROM paf.fn_ObtenerCriteriosCausante(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerCriteriosCausante(?)";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{idCausanteSolicitud});
 
@@ -224,7 +224,7 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
 
     @Override
     public CriterioSolicitudDTO obtenerCriteriosPorIdCriterio(Integer idCriterioSolicitud) {
-        String sql = "SELECT * FROM paf.fn_ObtenerCriteriosSolicitudPorIdCriterio(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerCriteriosSolicitudPorIdCriterio(?)";
 
         try {
             Map<String, Object> result = jdbcTemplate.queryForMap(sql, idCriterioSolicitud);
@@ -246,7 +246,7 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
 
     @Override
     public CriterioSolicitudCausanteDTO obtenerCriterioCausantePorIdCriterio(Integer idCriterioCausante) {
-        String sql = "SELECT * FROM paf.fn_ObtenerCriteriosCausantePorIdCriterio(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerCriteriosCausantePorIdCriterio(?)";
 
         try {
             Map<String, Object> result = jdbcTemplate.queryForMap(sql, idCriterioCausante);
