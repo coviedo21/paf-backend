@@ -288,6 +288,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     	if(contadorAprobados==0) {
     		cumpleRelacionLaboral = false;
     	}
+    	System.out.println("Se terminó de validar si hay relacion laboral");
         return cumpleRelacionLaboral;
     }
     
