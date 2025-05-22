@@ -20,14 +20,12 @@ public class DerechoCausanteDTO {
     private int rentaPromedio;
     private int codigoTramo;
     private int diasReconocimiento;
+    private int diasTrabajados;
+    private int diasPagados;
     private int rutEmpleador;
     private String dvEmpleador;
-    private Integer diasTrabajados;
-    private Integer diasPagados;
-    private int montoProporcional;
-    private String numeroDocumento;
     private int cantidadPagos;
     private int montoPagos;
-    private int diferenciaDerecho;
+    private int valorTramo30;
     private int diferencia;
 }

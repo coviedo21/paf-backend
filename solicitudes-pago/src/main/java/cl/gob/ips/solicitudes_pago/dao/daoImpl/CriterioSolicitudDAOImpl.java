@@ -3,18 +3,29 @@ package cl.gob.ips.solicitudes_pago.dao.daoImpl;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import org.springframework.jdbc.support.SqlValue;
+
+import com.microsoft.sqlserver.jdbc.SQLServerDataTable;
+import com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement;
 
 import cl.gob.ips.solicitudes_pago.dao.CriterioSolicitudDAO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
+import cl.gob.ips.solicitudes_pago.service.serviceImpl.CriterioSolicitudServiceImpl;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +33,11 @@ import java.util.Map;
 
 @Repository
 public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
-
+	private static final Logger logger = LoggerFactory.getLogger(CriterioSolicitudDAOImpl.class);
     private final JdbcTemplate jdbcTemplate;
+    
+    private SimpleJdbcCall jdbcCallInsertarCriterioCausante;
+
 
     @Value("${spring.datasource.schema}")
     private String esquema;
@@ -117,10 +131,64 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
     }
 
     @Override
+    public String insertarCriteriosCausanteMasivo(List<CriterioSolicitudCausanteDTO> lista) {
+        try {
+            SQLServerDataTable tvp = new SQLServerDataTable();
+            tvp.addColumnMetadata("iIdCausanteSolicitud", Types.INTEGER);
+            tvp.addColumnMetadata("iIdCriterio", Types.INTEGER);
+            tvp.addColumnMetadata("vcCumple", Types.VARCHAR);
+            tvp.addColumnMetadata("vcArchivo", Types.VARCHAR);
+            tvp.addColumnMetadata("dFechaDesde", Types.DATE);
+            tvp.addColumnMetadata("dFechaHasta", Types.DATE);
+
+            for (CriterioSolicitudCausanteDTO c : lista) {
+                tvp.addRow(
+                    c.getIdCausanteSolicitud(),
+                    c.getIdCriterio(),
+                    c.getCumple(),
+                    c.getArchivo(),
+                    c.getFechaDesde(),
+                    c.getFechaHasta()
+                );
+            }
+
+            SimpleJdbcCall call = new SimpleJdbcCall(jdbcTemplate)
+                .withSchemaName(esquema)
+                .withProcedureName("SP_InsertarCriteriosCausante_Masivo")
+                .withoutProcedureColumnMetaDataAccess()
+                .declareParameters(
+                    new SqlParameter("criterios", Types.STRUCT),
+                    new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
+                );
+
+            MapSqlParameterSource parametros = new MapSqlParameterSource()
+                .addValue("criterios", new SqlValue() {
+                    @Override
+                    public void setValue(PreparedStatement ps, int paramIndex) throws SQLException {
+                        ((SQLServerPreparedStatement) ps).setStructured(paramIndex, "paf.TVP_CriterioCausante", tvp);
+                    }
+
+                    @Override
+                    public void cleanup() {}
+                });
+
+            Map<String, Object> result = call.execute(parametros);
+            return (String) result.get("mensajeRespuesta");
+
+        } catch (Exception e) {
+            System.out.println("Error final: " + e.getMessage());
+            return "Error al insertar criterios masivamente: " + e.getMessage();
+        }
+    }
+
+
+    @Override
     public String insertarCriterioCausante(CriterioSolicitudCausanteDTO criterioCausante) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
+    	if (jdbcCallInsertarCriterioCausante == null) {
+    		jdbcCallInsertarCriterioCausante = new SimpleJdbcCall(jdbcTemplate)
                 .withSchemaName(esquema)
                 .withProcedureName("SP_InsertarCriterioCausante")
+                .withoutProcedureColumnMetaDataAccess()
                 .declareParameters(
                         new SqlParameter("iIdCausanteSolicitud", Types.INTEGER),
                         new SqlParameter("iIdCriterio", Types.INTEGER),
@@ -131,7 +199,8 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
                         new SqlOutParameter("idCriterioCausante", Types.INTEGER),
                         new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                 );
-
+    	}
+    	
         MapSqlParameterSource inParams = new MapSqlParameterSource()
                 .addValue("iIdCausanteSolicitud", criterioCausante.getIdCausanteSolicitud())
                 .addValue("iIdCriterio", criterioCausante.getIdCriterio())
@@ -141,7 +210,7 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
                 .addValue("dFechaHasta", criterioCausante.getFechaHasta());
 
         try {
-            Map<String, Object> result = jdbcCall.execute(inParams);
+            Map<String, Object> result = jdbcCallInsertarCriterioCausante.execute(inParams);
             Integer idCriterio = (Integer) result.get("idCriterioCausante");
             String mensajeRespuesta = (String) result.get("mensajeRespuesta");
             return "ID Criterio: " + idCriterio + ", Mensaje: " + mensajeRespuesta;
@@ -189,7 +258,8 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
 
     @Override
     public boolean actualizarCriterioCausante(CriterioSolicitudCausanteDTO criterioCausante) {
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
+    	long tiempoInicio = System.currentTimeMillis();
+    	SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
                 .withSchemaName(esquema)
                 .withProcedureName("SP_ActualizarCriterioCausante")
                 .declareParameters(
@@ -215,11 +285,14 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
         try {
             Map<String, Object> result = jdbcCall.execute(inParams);
             String mensajeRespuesta = (String) result.get("mensajeRespuesta");
+            long tiempoFin = System.currentTimeMillis();
+            logger.error("Actualizar Criterio demoró: "+(tiempoInicio-tiempoFin));
             return true;
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
             return false;
         }
+        
     }
 
     @Override

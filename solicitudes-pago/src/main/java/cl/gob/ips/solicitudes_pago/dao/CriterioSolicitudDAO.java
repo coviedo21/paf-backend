@@ -17,4 +17,5 @@ public interface CriterioSolicitudDAO {
     CriterioSolicitudCausanteDTO obtenerCriterioCausantePorIdCriterio(Integer idCriterioCausante);
     boolean obtenerRelacionLaboral(Integer rutBeneficiario);
     BigDecimal obtenerMontoDescuento(Integer rutBeneficiario);
+    String insertarCriteriosCausanteMasivo(List<CriterioSolicitudCausanteDTO> lista);
 }

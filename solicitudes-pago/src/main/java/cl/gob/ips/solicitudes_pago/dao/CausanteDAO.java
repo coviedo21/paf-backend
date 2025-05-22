@@ -12,4 +12,5 @@ public interface CausanteDAO {
     DetalleCausanteDTO obtenerDetalleCausantePorIdDetalle(int iIdDetalleCausante);
     boolean actualizarDetalleCausante(DetalleCausanteDTO detalleCausanteDTO);
     int obtenerDiasCotizacion(int rutBeneficiario, int rutEmpleador, String periodo);
+    String insertarDetalleCausanteMasivo(List<DetalleCausanteDTO> lista);
 }

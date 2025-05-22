@@ -87,7 +87,7 @@ public class CuentaBancariaDAOImpl implements CuentaBancariaDAO {
 
     @Override
     public List<CuentaBancariaDTO> obtenerCuentasBancariasPorRut(int rutTitular) {
-        String sql = "SELECT * FROM paf.fn_ObtenerCuentasBancariasPorRut(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerCuentasBancariasPorRut(?)";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{rutTitular});
         
@@ -112,7 +112,7 @@ public class CuentaBancariaDAOImpl implements CuentaBancariaDAO {
 
     @Override
     public List<CuentaBancariaDTO> obtenerCuentasBancariasPorID(int idCuenta) {
-        String sql = "SELECT * FROM paf.fn_ObtenerCuentasBancariasPorID(?)";
+        String sql = "SELECT * FROM " + esquema + ".fn_ObtenerCuentasBancariasPorID(?)";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{idCuenta});
         
@@ -137,7 +137,7 @@ public class CuentaBancariaDAOImpl implements CuentaBancariaDAO {
 
     @Override
     public List<BancoDTO> obtenerBancos() {
-        String sql = "SELECT iIdBanco, iCodigoBanco, vcNombreBanco FROM paf.vw_Bancos";
+        String sql = "SELECT iIdBanco, iCodigoBanco, vcNombreBanco FROM " + esquema + ".vw_Bancos";
 
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
 
@@ -155,7 +155,7 @@ public class CuentaBancariaDAOImpl implements CuentaBancariaDAO {
 
     @Override
 public List<BancoTipoCuentaDTO> obtenerBancoTipoCuenta(int idBanco) {
-    String sql = "SELECT * FROM paf.fn_ObtenerBancoTipoCuenta(?)";
+    String sql = "SELECT * FROM " + esquema + ".fn_ObtenerBancoTipoCuenta(?)";
 
     List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, idBanco);
 
@@ -174,7 +174,7 @@ public List<BancoTipoCuentaDTO> obtenerBancoTipoCuenta(int idBanco) {
 
 @Override
 public List<FormaPagoDTO> obtenerFormasPago(int idSistema) {
-    String sql = "SELECT * FROM paf.fn_ObtenerFormasPagoPorSistema(?)";
+    String sql = "SELECT * FROM " + esquema + ".fn_ObtenerFormasPagoPorSistema(?)";
 
     List<Map<String, Object>> results = jdbcTemplate.queryForList(sql,idSistema);
 
@@ -190,7 +190,7 @@ public List<FormaPagoDTO> obtenerFormasPago(int idSistema) {
 }
 
 public Integer obtenerIdTipoCuentaPorCodigo(int codigo) {
-    String sql = "SELECT paf.fn_ObtenerIdTipoCuentaPorCodigo(?) AS IdTipoCuenta";
+    String sql = "SELECT " + esquema + ".fn_ObtenerIdTipoCuentaPorCodigo(?) AS IdTipoCuenta";
 
     Map<String, Object> result = jdbcTemplate.queryForMap(sql, codigo);
     

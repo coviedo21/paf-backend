@@ -3,12 +3,15 @@ package cl.gob.ips.solicitudes_pago.service.serviceImpl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import cl.gob.ips.solicitudes_pago.dao.SolicitudPagoDAO;
+import cl.gob.ips.solicitudes_pago.dao.daoImpl.FileDAOImpl;
 import cl.gob.ips.solicitudes_pago.dto.CausanteSolicitudDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudCausanteDTO;
 import cl.gob.ips.solicitudes_pago.dto.CriterioSolicitudDTO;
@@ -27,7 +30,7 @@ import cl.gob.ips.solicitudes_pago.service.SolicitudPagoService;
 
 @Service
 public class SolicitudPagoServiceImpl implements SolicitudPagoService {
-
+	private static final Logger logger = LoggerFactory.getLogger(SolicitudPagoServiceImpl.class);
     @Autowired
     private SolicitudPagoDAO solicitudPagoDAO;
 
@@ -43,17 +46,29 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
     @Override
     public ResponseDTO insertarSolicitudPago(SolicitudDTO solicitudPago,boolean esArchivo) {
         ResponseDTO response = new ResponseDTO();
+        long tiempoInicioInsertarSolicitud = System.currentTimeMillis();
+        
         response = solicitudPagoDAO.insertarSolicitudPago(solicitudPago,esArchivo);
+        long tiempoFinInsertarSolicitud = System.currentTimeMillis();
+        logger.error("Insertar solicitud demoró: "+(tiempoInicioInsertarSolicitud-tiempoFinInsertarSolicitud));
         boolean enviar = false;
 
         if((int) response.getResultado()>0){
-               enviar = criterioSolicitudService.validarCriteriosResolucion((int) response.getResultado(), esArchivo,false, solicitudPago.getEsPortuario());
+        	long tiempoInicioValidarCriterios = System.currentTimeMillis();
             
+        		enviar = criterioSolicitudService.validarCriteriosResolucion((int) response.getResultado(), esArchivo,false, solicitudPago.getEsPortuario());
+               long tiempoFinValidarCriterios = System.currentTimeMillis();
+               logger.error("Validar criterios demoró: "+(tiempoInicioValidarCriterios-tiempoFinValidarCriterios));
                if(enviar){
                 SolicitudDTO actualizarSolicitud = new SolicitudDTO();
                 actualizarSolicitud.setIdSolicitud((int) response.getResultado());
                 actualizarSolicitud.setCumpleCriterios("S");
+                
+                long tiempoInicioActualizarSolicitud = System.currentTimeMillis();
+                
                 actualizarSolicitudPago(actualizarSolicitud);
+                long tiempoFinActualizarSolicitud = System.currentTimeMillis();
+                logger.error("Actualizar solicitud demoró: "+(tiempoInicioActualizarSolicitud-tiempoFinActualizarSolicitud));
                 
                 ResolucionDTO resolucion = new ResolucionDTO();
                 resolucion.setIdSolicitud((int) response.getResultado());

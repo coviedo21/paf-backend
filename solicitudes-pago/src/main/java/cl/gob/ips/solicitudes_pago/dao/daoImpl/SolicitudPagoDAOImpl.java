@@ -377,11 +377,19 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 // Obtener el ID del causante insertado
                 Integer idCausanteSolicitud = (Integer) resultCausante.get("iIdCausanteSolicitud");
 
-                for (DetalleCausanteDTO detalle : causante.getDetalle()) {
+                /*for (DetalleCausanteDTO detalle : causante.getDetalle()) {
                     detalle.setIdCausanteSolicitud(idCausanteSolicitud);
                     String insertarCausante = causanteDAO.insertarDetalleCausante(detalle);
                     System.out.println(insertarCausante);
+                }*/
+                List<DetalleCausanteDTO> detalle = causante.getDetalle();
+
+                for (DetalleCausanteDTO d : detalle) {
+                    d.setIdCausanteSolicitud(idCausanteSolicitud);
                 }
+
+                String insertarCausante = causanteDAO.insertarDetalleCausanteMasivo(detalle);
+                System.out.println(insertarCausante);
             } catch (Exception e) {
                 System.out.println("ERROR al insertar causante: " + e.getMessage());
             }

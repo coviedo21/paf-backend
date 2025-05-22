@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlOutParameter;
@@ -26,14 +27,16 @@ import cl.gob.ips.mantenedor_comunas.dto.ResultadoRegionDTO;
 public class ComunaDAOImpl implements ComunaDAO{
     private final JdbcTemplate jdbcTemplate;
     
-
+    @Value("${spring.datasource.schema}")
+    private String esquema;
+    
     @Autowired
     public ComunaDAOImpl(@Qualifier("pafJdbc") JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public ListaComunaDTO obtenerIdComunaPorNombre(String nombreComuna){
-        String sql = "SELECT idComuna,vcNombre FROM paf.fn_ObtenerComunaPorNombre(?)";
+        String sql = "SELECT idComuna,vcNombre FROM " + esquema + ".fn_ObtenerComunaPorNombre(?)";
         ListaComunaDTO comuna = new ListaComunaDTO();
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{nombreComuna});
         //List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, inParams);
@@ -53,7 +56,7 @@ public class ComunaDAOImpl implements ComunaDAO{
     public String insertarComunaMantenedor(ComunaMantenedorDTO comuna) {
         try {
             SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
-                    .withSchemaName("paf")  // Esquema, cámbialo si es diferente
+                    .withSchemaName(esquema)  // Esquema, cámbialo si es diferente
                     .withProcedureName("SP_InsertarComunaMantenedor")
                     .declareParameters(
                             new SqlParameter("ComunaIngresada", Types.VARCHAR),
@@ -89,7 +92,7 @@ public class ComunaDAOImpl implements ComunaDAO{
 
 
     public ResultadoRegionDTO obtenerIdRegionPorNombre(String nombreRegion){
-        String sql = "SELECT idRegion,vcNombre FROM paf.fn_ObtenerRegionPorNombre(?)";
+        String sql = "SELECT idRegion,vcNombre FROM " + esquema + ".fn_ObtenerRegionPorNombre(?)";
         ResultadoRegionDTO region = new ResultadoRegionDTO();
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{nombreRegion});
         //List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, inParams);
@@ -108,7 +111,7 @@ public class ComunaDAOImpl implements ComunaDAO{
 
     public int insertarRegionMantenedor(String regionIngresada, Integer idRegionOriginal, String nombreRegionOriginal, String esCoincidencia) {
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
-                .withSchemaName("paf")  // Asumiendo que el esquema es 'paf', cámbialo si es necesario
+                .withSchemaName(esquema)
                 .withProcedureName("SP_InsertarRegionMantenedor")
                 .declareParameters(
                         new SqlParameter("RegionIngresada", Types.VARCHAR),
@@ -131,7 +134,7 @@ public class ComunaDAOImpl implements ComunaDAO{
     // Método parComunaMantenedorDTOa obtener comunas basado en iIdCoincidencia
     public ComunaMantenedorDTO obtenerComunaPorIdCoincidencia(Integer iIdCoincidencia) {
         String sql = "SELECT iIdCoincidencia, vcComunaIngresada, iIdComunaOriginal, vcNombreComunaOriginal, cEsCoincidencia " +
-                     "FROM paf.fn_ObtenerComunaMantenedor(?)";
+                     "FROM " + esquema + ".fn_ObtenerComunaMantenedor(?)";
         ComunaMantenedorDTO comuna = new ComunaMantenedorDTO();
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{iIdCoincidencia});
 
@@ -152,7 +155,7 @@ public class ComunaDAOImpl implements ComunaDAO{
 
     public String actualizarComunaMantenedor(ComunaMantenedorDTO comuna) {
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
-                .withSchemaName("paf")
+                .withSchemaName(esquema)
                 .withProcedureName("SP_ActualizarComunaMantenedor")
                 .declareParameters(
                         new SqlParameter("iIdCoincidencia", Types.INTEGER),
@@ -179,14 +182,14 @@ public class ComunaDAOImpl implements ComunaDAO{
 
     // Método para eliminar registros de la tabla ComunaMantenedor
     public int eliminarComunaPorIdCoincidencia(Integer iIdCoincidencia) {
-        String sql = "EXEC paf.SP_EliminarComunaMantenedor ?";
+        String sql = "EXEC " + esquema + ".SP_EliminarComunaMantenedor ?";
         return jdbcTemplate.update(sql, iIdCoincidencia);
     }
 
     // Método para obtener registros por iIdComunaOriginal
     public List<ComunaMantenedorDTO> obtenerRegistrosPorComunaOriginal(Integer iIdComunaOriginal) {
         String sql = "SELECT iIdCoincidencia, vcComunaIngresada, iIdComunaOriginal, vcNombreComunaOriginal, cEsCoincidencia, dFechaInsercion " +
-                    "FROM paf.fn_ObtenerRegistrosPorComunaOriginal(?)";
+                    "FROM " + esquema + ".fn_ObtenerRegistrosPorComunaOriginal(?)";
         
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, new Object[]{iIdComunaOriginal});
         

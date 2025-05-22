@@ -6,9 +6,13 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -23,10 +27,12 @@ import cl.gob.ips.solicitudes_pago.dto.SolicitudDTO;
 import cl.gob.ips.solicitudes_pago.service.CausanteService;
 import cl.gob.ips.solicitudes_pago.service.CriterioSolicitudService;
 import cl.gob.ips.solicitudes_pago.service.SolicitudPagoService;
+import cl.gob.ips.solicitudes_pago.service.serviceImpl.CriterioSolicitudServiceImpl;
 
 @Repository
 public class FileDAOImpl implements FileDAO{
-    @Autowired
+	private static final Logger logger = LoggerFactory.getLogger(FileDAOImpl.class);
+	@Autowired
     SolicitudPagoService solicitudPagoService;
 
     @Autowired
@@ -83,88 +89,112 @@ public class FileDAOImpl implements FileDAO{
                 CausanteCuentaCorrienteDTO derechoCausante;
                 List<CausanteCuentaCorrienteDTO> detalle = new ArrayList<>();
                 List<DetalleCausanteDTO> listaDetalle  = new ArrayList<>();
+                long tiempoInicioObtenerPeriodos = System.currentTimeMillis();
                 List<String> periodosCausante = obtenerPeriodos(causante.getFechaInicioRango(),causante.getFechaFinRango());
-                 boolean tieneDerecho = false;
-                String primerPeriodo = null;
-                String ultimoPeriodo = null;
+                String periodoInicio = obtenerPeriodo(causante.getFechaInicioRango());
+                String periodoFin = obtenerPeriodo(causante.getFechaFinRango());
+                long tiempoFinObtenerPeriodos = System.currentTimeMillis();
+                logger.error("Obtener periodos demoró: "+(tiempoInicioObtenerPeriodos-tiempoFinObtenerPeriodos));
+                boolean tieneDerecho = false;
+                long tiempoInicioObtenerDerecho = System.currentTimeMillis();
+                detalle = causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), archivo.getRutEmpleador(), periodoInicio,periodoFin, null);
+                long tiempoFinObtenerDerecho = System.currentTimeMillis();
+                logger.error("Obtener derecho demoró: "+(tiempoInicioObtenerDerecho-tiempoFinObtenerDerecho));
+                
                 try {
-                for(String periodo: periodosCausante){
+                	for (String periodo : periodosCausante) {
+                	    boolean encontrado = false;
+                	    DetalleCausanteDTO derecho = new DetalleCausanteDTO();
 
-                    detalle = causanteService.obtenerDerechoCausantes(archivo.getRutCargaFamiliar(), archivo.getRutTrabajador(), archivo.getRutEmpleador(), periodo, periodo, null);
+                	    for (CausanteCuentaCorrienteDTO dto : detalle) {
+                	        String aprobados = dto.getPeriodosAprobados();
 
-                    derechoCausante = (detalle != null && 
-                   !detalle.isEmpty()) 
-                   ? detalle.get(0) 
-                   : null;
+                	        if (aprobados != null && !aprobados.isEmpty()) {
+                	            List<String> listaAprobados = Arrays.stream(aprobados.split(","))
+                	                .map(String::trim)
+                	                .collect(Collectors.toList());
 
-                    if (primerPeriodo == null) { 
-                        primerPeriodo = periodo; // Guarda el primer periodo
-                    }
-                    ultimoPeriodo = periodo; // Siempre actualiza al último periodo
-                    if(derechoCausante!=null){
-                        tieneDerecho = true;
-                        DetalleCausanteDTO derecho = new DetalleCausanteDTO();
-                        derecho.setRutCausante(derechoCausante.getDetalle().get(0).getRutCausante());
-                        derecho.setDvCausante(derechoCausante.getDetalle().get(0).getDvCausante());
-                        derecho.setRutBeneficiario(derechoCausante.getDetalle().get(0).getRutBeneficiario());
-                        derecho.setDvBeneficiario(derechoCausante.getDetalle().get(0).getDvBeneficiario());
-                        derecho.setPeriodo(derechoCausante.getDetalle().get(0).getPeriodo());
-                        derecho.setTipoMovimiento(derechoCausante.getDetalle().get(0).getTipoMovimientoId());
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                        String fechaMovimientoStr = derechoCausante.getDetalle().get(0).getFechaMovimiento();
+                	            if (listaAprobados.contains(periodo)) {
+                	                encontrado = true;
 
-	                     // Verificar si la fecha no es null ni vacía antes de convertirla
-	                     if (fechaMovimientoStr != null && !fechaMovimientoStr.isEmpty()) {
-	                         Date fechaMovimiento = dateFormat.parse(fechaMovimientoStr);
-	                         derecho.setFechaMovimiento(fechaMovimiento);
-	                     } else {
-	                         derecho.setFechaMovimiento(null); // O cualquier valor por defecto si lo necesitas
-	                     }
-	                     
-                        derecho.setEntradaSalida(derechoCausante.getDetalle().get(0).getEntradaSalida());
-                        derecho.setMontoMovimiento(new BigDecimal(derechoCausante.getDetalle().get(0).getMontoMovimiento()));
-                        derecho.setTipoCausante(derechoCausante.getDetalle().get(0).getTipoCausante());
-                        derecho.setIdBeneficio(derechoCausante.getDetalle().get(0).getIdBeneficio());
-                        derecho.setRentaPromedio(new BigDecimal(derechoCausante.getDetalle().get(0).getRentaPromedio()));
-                        derecho.setCodigoTramo(derechoCausante.getDetalle().get(0).getCodigoTramo());
-                        derecho.setDiasReconocimiento(derechoCausante.getDetalle().get(0).getDiasReconocimiento());
-                        derecho.setRutEmpleador(derechoCausante.getDetalle().get(0).getRutEmpleador());
-                        derecho.setDvEmpleador(derechoCausante.getDetalle().get(0).getDvEmpleador());
-                        derecho.setEstado(1);
-                        derecho.setDiferenciaDerecho(new BigDecimal(derechoCausante.getDetalle().get(0).getDiferenciaDerecho()));
-                        derecho.setDiferencia(new BigDecimal(derechoCausante.getDetalle().get(0).getDiferencia()));
-                        //periodosAprobados = periodosAprobados + derecho.getPeriodo()+","; 
-                        //totalPagar = totalPagar.add(derecho.getMontoMovimiento());
-                        listaDetalle.add(derecho);
-                    }
-                    else{
-                        DetalleCausanteDTO derecho = new DetalleCausanteDTO();
-                        derecho.setRutCausante(causante.getRutCausante());
-                        derecho.setDvCausante(causante.getVcDvCausante());
-                        derecho.setRutBeneficiario(causante.getRutBeneficiario());
-                        derecho.setDvBeneficiario(causante.getVcDvBeneficiario());
-                        derecho.setPeriodo(Integer.valueOf(periodo));
-                        derecho.setTipoMovimiento(0);
-                        derecho.setFechaMovimiento(null);
-                        derecho.setEntradaSalida(null);
-                        derecho.setMontoMovimiento(BigDecimal.ZERO);
-                        derecho.setDiferencia(BigDecimal.ZERO);
-                        derecho.setTipoCausante(0);
-                        derecho.setIdBeneficio(0);
-                        derecho.setRentaPromedio(BigDecimal.ZERO);
-                        derecho.setCodigoTramo(0);
-                        derecho.setDiasReconocimiento(0);
-                        derecho.setRutEmpleador(0);
-                        derecho.setDvEmpleador(null);
-                        derecho.setEstado(2);
-                        listaDetalle.add(derecho);    
-                    }
-                }
+                	                if (dto.getDetalle() != null && !dto.getDetalle().isEmpty()) {
+                	                    var origen = dto.getDetalle().get(0);
+
+                	                    derecho.setRutCausante(origen.getRutCausante());
+                	                    derecho.setDvCausante(origen.getDvCausante());
+                	                    derecho.setRutBeneficiario(origen.getRutBeneficiario());
+                	                    derecho.setDvBeneficiario(origen.getDvBeneficiario());
+                	                    derecho.setPeriodo(Integer.parseInt(periodo));
+                	                    derecho.setTipoMovimiento(origen.getTipoMovimientoId());
+
+                	                    String fechaMovimientoStr = origen.getFechaMovimiento();
+                	                    if (fechaMovimientoStr != null && !fechaMovimientoStr.trim().isEmpty()) {
+                	                        try {
+                	                        	Date parsedDate = new SimpleDateFormat("yyyy-MM-dd").parse(fechaMovimientoStr);
+                	                            java.sql.Date fechaSQL = new java.sql.Date(parsedDate.getTime());
+                	                            derecho.setFechaMovimiento(fechaSQL);
+                	                        } catch (ParseException e) {
+                	                            derecho.setFechaMovimiento(null);
+                	                            System.out.println("Error parseando fecha: " + fechaMovimientoStr);
+                	                        }
+                	                    } else {
+                	                        derecho.setFechaMovimiento(null);
+                	                    }
+
+                	                    if(origen.getEntradaSalida().equalsIgnoreCase("Entrada")){
+                	                    	derecho.setEntradaSalida("E");
+                	                    }
+                	                    else {
+                	                    	derecho.setEntradaSalida("S");
+                	                    }	
+                	                    derecho.setMontoMovimiento(new BigDecimal(origen.getMontoMovimiento()));
+                	                    derecho.setTipoCausante(origen.getTipoCausante());
+                	                    derecho.setIdBeneficio(origen.getIdBeneficio());
+                	                    derecho.setRentaPromedio(new BigDecimal(origen.getRentaPromedio()));
+                	                    derecho.setCodigoTramo(origen.getCodigoTramo());
+                	                    derecho.setDiasReconocimiento(origen.getDiasReconocimiento());
+                	                    derecho.setRutEmpleador(origen.getRutEmpleador());
+                	                    derecho.setDvEmpleador(origen.getDvEmpleador());
+                	                    derecho.setDiferencia(new BigDecimal(origen.getDiferencia()));
+                	                    derecho.setEstado(1);
+                	                    tieneDerecho = true;
+                	                }
+
+                	                break; // ya lo conseguimos, salimos del for
+                	            }
+                	        }
+                	    }
+
+                	    if (!encontrado) {
+                	        derecho.setRutCausante(causante.getRutCausante());
+                	        derecho.setDvCausante(causante.getVcDvCausante());
+                	        derecho.setRutBeneficiario(causante.getRutBeneficiario());
+                	        derecho.setDvBeneficiario(causante.getVcDvBeneficiario());
+                	        derecho.setPeriodo(Integer.parseInt(periodo));
+                	        derecho.setTipoMovimiento(0);
+                	        derecho.setFechaMovimiento(null);
+                	        derecho.setEntradaSalida(null);
+                	        derecho.setMontoMovimiento(BigDecimal.ZERO);
+                	        derecho.setDiferencia(BigDecimal.ZERO);
+                	        derecho.setTipoCausante(0);
+                	        derecho.setIdBeneficio(0);
+                	        derecho.setRentaPromedio(BigDecimal.ZERO);
+                	        derecho.setCodigoTramo(0);
+                	        derecho.setDiasReconocimiento(0);
+                	        derecho.setRutEmpleador(0);
+                	        derecho.setDvEmpleador(null);
+                	        derecho.setEstado(2);
+                	    }
+
+                	    listaDetalle.add(derecho);
+                	}
+
+
                 }catch(Exception e) {
                 	return "Error al obtener derecho causante Folio: "+archivo.getFolio()+" Rut Beneficiario: "+archivo.getRutTrabajador()+"-"+archivo.getDvTrabajador()+", Rut Causante: "+archivo.getRutCargaFamiliar()+"-"+archivo.getDvCargaFamiliar()+" Periodo: "+archivo.getPeriodo()+" Fecha Inicio Compensación: "+archivo.getFechaInicioCompensacion()+" Fecha Fin Compensación: "+archivo.getFechaFinCompensacion();
                 }
                 causante.setDetalle(listaDetalle);
-                causante.setVcPeriodosAprobados(primerPeriodo+" a "+ultimoPeriodo);
+                //causante.setVcPeriodosAprobados(primerPeriodo+" a "+ultimoPeriodo);
                 //causante.setTotalReconocimiento(0);
                 //causante.setTotalPago(causante.getTotalReconocimiento().subtract(criterioSolicitudService.obtenerMontoDescuento(causante.getRutBeneficiario())));
                 listaCausantes.add(causante);
@@ -210,5 +240,11 @@ public class FileDAOImpl implements FileDAO{
 
         return periodos;
     }
+    
+    public String obtenerPeriodo(LocalDate fecha) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+        return fecha.format(formatter);
+    }
+
 
 }

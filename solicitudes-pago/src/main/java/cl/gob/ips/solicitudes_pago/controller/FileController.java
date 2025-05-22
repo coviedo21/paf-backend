@@ -30,6 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPSClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
@@ -70,6 +72,7 @@ import cl.gob.ips.solicitudes_pago.service.SolicitudPagoService;
 @RequestMapping("/archivos")
 public class FileController {
 
+	private static final Logger logger = LoggerFactory.getLogger(FileController.class);
     @Autowired
     private FileService fileService;
 
@@ -103,6 +106,8 @@ public class FileController {
         estadoTareas.put(taskId, "procesando");
         
         try {
+
+            long tiempoLecturaArchivo = System.currentTimeMillis();
             Path tempFile = Files.createTempFile("previred_", ".csv");
             file.transferTo(tempFile.toFile());
 
@@ -129,12 +134,15 @@ public class FileController {
                 System.err.println("Error contando líneas del archivo: " + e.getMessage());
             }
 
+            long tiempoFinalLecturaArchivo = System.currentTimeMillis();
+            logger.error("La cuenta de lineas de archivo demoró: "+(tiempoLecturaArchivo-tiempoFinalLecturaArchivo));
+            
             solicitudesProcesadas.put(taskId, 0); // inicializar
             
             CompletableFuture.runAsync(() -> {
                 List<ArchivoSolicitudDTO> listaSolicitudes = new ArrayList<>();
                 ArchivoResponseDTO respuesta = new ArchivoResponseDTO(); // ✅ Definida correctamente
-                
+                long tiempoInicioLecturaArchivo = System.currentTimeMillis();
                 try (InputStream originalInputStream = new FileInputStream(tempFile.toString());
                      BufferedInputStream bufferedInputStream = new BufferedInputStream(originalInputStream)) {
 
@@ -206,6 +214,8 @@ public class FileController {
                             }
                         }
 
+                        long tiempoFLecturaArchivo = System.currentTimeMillis();
+                        logger.error("La lectura del archivo demoró: "+(tiempoInicioLecturaArchivo-tiempoFLecturaArchivo));
                         
                      //	Guardar total para seguimiento
                         solicitudesProcesadas.put(taskId, 0); // Inicializar en 0

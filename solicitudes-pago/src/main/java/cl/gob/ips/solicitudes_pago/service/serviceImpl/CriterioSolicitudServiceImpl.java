@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -36,6 +38,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 
+	private static final Logger logger = LoggerFactory.getLogger(CriterioSolicitudServiceImpl.class);
+	
     private final RestTemplate restTemplate;
 
     @Autowired
@@ -61,7 +65,8 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 
     @Override
     public boolean validarCriteriosResolucion(Integer idSolicitud, boolean esArchivo, boolean esBotonValidar, String esPortuario){
-        listaCriterios.clear();
+    	long tiempoInicio = System.currentTimeMillis();
+    	listaCriterios.clear();
         listaCriteriosCausante.clear();
         //List<SolicitudDTO> listaSolicitud = solicitudPagoDAO.consultarSolicitudPago(idSolicitud);
         //SolicitudDTO solicitud = listaSolicitud.get(0);
@@ -140,12 +145,26 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
                 if(!esArchivo) {
                 
                 }
-                if(!esBotonValidar) {        
-			        for(CriterioSolicitudCausanteDTO criterio: listaCriteriosCausante){
-			            criterioSolicitudDAO.insertarCriterioCausante(criterio);
-			        }
+                if(!esBotonValidar) { 
+                	long tiempoInicioInsertarCriterio = System.currentTimeMillis();
+                    
+                	int i = 1;
+                	criterioSolicitudDAO.insertarCriteriosCausanteMasivo(listaCriteriosCausante);
+                	/*for (CriterioSolicitudCausanteDTO criterio : listaCriteriosCausante) {
+                	    long inicio = System.currentTimeMillis();
+
+                	    criterioSolicitudDAO.insertarCriterioCausante(criterio);
+
+                	    long fin = System.currentTimeMillis();
+                	    System.out.println("Insert #" + i + " tomó " + (fin - inicio) + " ms");
+                	    i++;
+                	}*/
+			        long tiempoFinInsertarCriterio = System.currentTimeMillis();
+			        logger.error("Tiempo Fin de Insertar Criterios: "+(tiempoInicioInsertarCriterio-tiempoFinInsertarCriterio));
                 }
         System.out.println("Finalizó validación de Criterios de Resolución por Causante");
+        long tiempoFin = System.currentTimeMillis();
+        logger.error("Tiempo Fin de los Criterios: "+(tiempoInicio-tiempoFin));
         }
         return solicitudAprobada;
     }
@@ -226,14 +245,21 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     	for(DetalleCausanteDTO detalleCausante: detalle) {
     		if(detalleCausante.getEstado()==1 || detalleCausante.getEstado()==6) {
     			contadorAprobados++;
+    			long tiempoInicioObtenerDiasTrabajados = System.currentTimeMillis();
+    	   
     			int diasCotizaciones = causanteService.obtenerDiasCotizacion(detalleCausante.getRutBeneficiario(), detalleCausante.getRutEmpleador(), String.valueOf(detalleCausante.getPeriodo())); //Llamar a API que trae los dias trabajados
-	 
+    			long tiempoFinObtenerDiasTrabajados = System.currentTimeMillis();
+    	        logger.error("Obtener dias trabajados demoró: "+(tiempoInicioObtenerDiasTrabajados-tiempoFinObtenerDiasTrabajados));
     			Map<String, String> fechas = UtilServiceImpl.obtenerFechasDesdePeriodo(String.valueOf(detalleCausante.getPeriodo()));
     			System.out.println("Inicio: " + fechas.get("inicio")); // 2014-01-01
     			System.out.println("Fin: " + fechas.get("fin"));       // 2014-01-31
-    			
+    			long tiempoInicioObtenerLicencias = System.currentTimeMillis();
+    	        
 	    		int diasLicenciasFiniquitos = licenciaFiniquitoService.obtenerDiasLicenciaFiniquito(detalleCausante.getRutBeneficiario(), fechas.get("inicio"), fechas.get("fin"));	
-	    		    	
+	    		long tiempoFinObtenerLicencias = System.currentTimeMillis();
+	            logger.error("Obtener licencias demoró: "+(tiempoInicioObtenerLicencias-tiempoFinObtenerLicencias));    	
+	    		
+	            long tiempoInicioCalculo = System.currentTimeMillis();
 	    		int diasReconocimiento = detalleCausante.getDiasReconocimiento();
 	    		
 	    		if((diasCotizaciones+diasLicenciasFiniquitos)==0) {
@@ -281,7 +307,13 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    			detalleCausante.setDiasPago(diasPago);
 	    			
 	    		}
-	    		causanteService.actualizarDetalleCausante(detalleCausante);
+	    		long tiempoFinCalculo = System.currentTimeMillis();
+	            logger.error("Obtener calculo demoró: "+(tiempoInicioCalculo-tiempoFinCalculo));
+	    		
+	            long tiempoInicioActualizarDetalleCausante = System.currentTimeMillis();
+	            causanteService.actualizarDetalleCausante(detalleCausante);
+	    		long tiempoFinActualizarDetalleCausante = System.currentTimeMillis();
+	            logger.error("Actualizar detalle causante demoró: "+(tiempoInicioActualizarDetalleCausante-tiempoFinActualizarDetalleCausante));
     		}
     	}//Fin for
     	     	
@@ -303,6 +335,8 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     
 
     public boolean validarRut(String rut) {
+    	long tiempoInicioValidarRut = System.currentTimeMillis();
+        
         // Limpiar el RUT, eliminando puntos, guiones y espacios
         rut = rut.replace(".", "").replace("-", "").trim();
 
@@ -329,6 +363,8 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
         char dvEsperado = calcularDigitoVerificador(rutInt);
 
         // Comparar el dígito verificador esperado con el proporcionado
+        long tiempoFinValidarRut = System.currentTimeMillis();
+        logger.error("validar rut demoró: "+(tiempoInicioValidarRut-tiempoFinValidarRut));
         return dv == dvEsperado;
     }
 

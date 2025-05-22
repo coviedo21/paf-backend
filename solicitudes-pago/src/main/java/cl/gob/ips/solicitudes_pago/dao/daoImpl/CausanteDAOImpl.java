@@ -1,6 +1,8 @@
 package cl.gob.ips.solicitudes_pago.dao.daoImpl;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -10,6 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.jdbc.support.SqlValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +23,9 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
+
+import com.microsoft.sqlserver.jdbc.SQLServerDataTable;
+import com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement;
 
 import cl.gob.ips.solicitudes_pago.dao.CausanteDAO;
 import cl.gob.ips.solicitudes_pago.dto.CausanteDTO;
@@ -131,6 +137,159 @@ public class CausanteDAOImpl implements CausanteDAO{
     }
 
     @Override
+    public String insertarDetalleCausanteMasivo(List<DetalleCausanteDTO> lista) {
+        try {
+            SQLServerDataTable tvp = new SQLServerDataTable();
+
+            tvp.addColumnMetadata("iIdCausanteSolicitud", Types.INTEGER);
+            tvp.addColumnMetadata("iRutBeneficiario", Types.INTEGER);
+            tvp.addColumnMetadata("vcDvBeneficiario", Types.VARCHAR);
+            tvp.addColumnMetadata("iRutCausante", Types.INTEGER);
+            tvp.addColumnMetadata("vcDvCausante", Types.VARCHAR);
+            tvp.addColumnMetadata("iPeriodo", Types.INTEGER);
+            tvp.addColumnMetadata("iTipoMovimiento", Types.INTEGER);
+            tvp.addColumnMetadata("dFechaMovimiento", Types.DATE);
+            tvp.addColumnMetadata("vcEntradaSalida", Types.CHAR);
+            tvp.addColumnMetadata("nMontoMovimiento", Types.DECIMAL);
+            tvp.addColumnMetadata("iTipoCausante", Types.INTEGER);
+            tvp.addColumnMetadata("iIdBeneficio", Types.INTEGER);
+            tvp.addColumnMetadata("nRentaPromedio", Types.DECIMAL);
+            tvp.addColumnMetadata("iDiasReconocimiento", Types.INTEGER);
+            tvp.addColumnMetadata("iCodigoTramo", Types.INTEGER);
+            tvp.addColumnMetadata("dFechaFinVigencia", Types.DATE);
+            tvp.addColumnMetadata("dFechaInicioVigencia", Types.DATE);
+            tvp.addColumnMetadata("iEstado", Types.INTEGER);
+            tvp.addColumnMetadata("iRutEmpleador", Types.INTEGER);
+            tvp.addColumnMetadata("vcDvEmpleador", Types.VARCHAR);
+            tvp.addColumnMetadata("iNis", Types.VARCHAR);
+            tvp.addColumnMetadata("vcDvNis", Types.VARCHAR);
+            tvp.addColumnMetadata("iNumeroDocumento", Types.INTEGER);
+            tvp.addColumnMetadata("vcDvNumeroDocumento", Types.VARCHAR);
+            tvp.addColumnMetadata("dFechaPago", Types.DATE);
+            tvp.addColumnMetadata("iIdRetencion", Types.INTEGER);
+            tvp.addColumnMetadata("iRutReteniente", Types.INTEGER);
+            tvp.addColumnMetadata("vcDvReteniente", Types.VARCHAR);
+            tvp.addColumnMetadata("vcNombresReteniente", Types.VARCHAR);
+            tvp.addColumnMetadata("vcApellidoPaternoReteniente", Types.VARCHAR);
+            tvp.addColumnMetadata("vcApellidoMaternoReteniente", Types.VARCHAR);
+            tvp.addColumnMetadata("iFormaPagoFinal", Types.INTEGER);
+            tvp.addColumnMetadata("iBancoFinal", Types.INTEGER);
+            tvp.addColumnMetadata("vcNumeroCuentaFinal", Types.VARCHAR);
+            tvp.addColumnMetadata("iTipoCuentaFinal", Types.INTEGER);
+            tvp.addColumnMetadata("vcArchivo", Types.VARCHAR);
+            tvp.addColumnMetadata("iDiasPago", Types.INTEGER);
+
+            for (DetalleCausanteDTO d : lista) {
+            	System.out.println("iIdCausanteSolicitud: " + d.getIdCausanteSolicitud());
+            	System.out.println("iRutBeneficiario: " + d.getRutBeneficiario());
+            	System.out.println("vcDvBeneficiario: " + d.getDvBeneficiario());
+            	System.out.println("iRutCausante: " + d.getRutCausante());
+            	System.out.println("vcDvCausante: " + d.getDvCausante());
+            	System.out.println("iPeriodo: " + d.getPeriodo());
+            	System.out.println("iTipoMovimiento: " + d.getTipoMovimiento());
+            	System.out.println("dFechaMovimiento: " + d.getFechaMovimiento());
+            	System.out.println("vcEntradaSalida: " + d.getEntradaSalida());
+            	System.out.println("nMontoMovimiento (diferencia): " + d.getDiferencia());
+            	System.out.println("iTipoCausante: " + d.getTipoCausante());
+            	System.out.println("iIdBeneficio: " + d.getIdBeneficio());
+            	System.out.println("nRentaPromedio: " + d.getRentaPromedio());
+            	System.out.println("iDiasReconocimiento: " + d.getDiasReconocimiento());
+            	System.out.println("iCodigoTramo: " + d.getCodigoTramo());
+            	System.out.println("dFechaFinVigencia: " + d.getFechaFinVigencia());
+            	System.out.println("dFechaInicioVigencia: " + d.getFechaInicioVigencia());
+            	System.out.println("iEstado: " + d.getEstado());
+            	System.out.println("iRutEmpleador: " + d.getRutEmpleador());
+            	System.out.println("vcDvEmpleador: " + d.getDvEmpleador());
+            	System.out.println("iNis: " + d.getRutNis());
+            	System.out.println("vcDvNis: " + d.getDvNis());
+            	System.out.println("iNumeroDocumento: " + d.getNumeroDocumento());
+            	System.out.println("vcDvNumeroDocumento: " + d.getDvDocumento());
+            	System.out.println("dFechaPago: " + d.getFechaPago());
+            	System.out.println("iIdRetencion: " + d.getIdRetencion());
+            	System.out.println("iRutReteniente: " + d.getRutReteniente());
+            	System.out.println("vcDvReteniente: " + d.getDvReteniente());
+            	System.out.println("vcNombresReteniente: " + d.getNombresReteniente());
+            	System.out.println("vcApellidoPaternoReteniente: " + d.getApellidoPaternoReteniente());
+            	System.out.println("vcApellidoMaternoReteniente: " + d.getApellidoMaternoReteniente());
+            	System.out.println("iFormaPagoFinal: " + d.getIdFormaPagoFinal());
+            	System.out.println("iBancoFinal: " + d.getIdBancoFinal());
+            	System.out.println("vcNumeroCuentaFinal: " + d.getNumeroCuentaFinal());
+            	System.out.println("iTipoCuentaFinal: " + d.getIdTipoCuentaFinal());
+            	System.out.println("vcArchivo: " + d.getArchivo());
+            	System.out.println("iDiasPago: " + d.getDiasPago());
+
+            	
+                tvp.addRow(
+                    d.getIdCausanteSolicitud(),
+                    d.getRutBeneficiario(),
+                    d.getDvBeneficiario(),
+                    d.getRutCausante(),
+                    d.getDvCausante(),
+                    d.getPeriodo(),
+                    d.getTipoMovimiento(),
+                    d.getFechaMovimiento(),
+                    d.getEntradaSalida(),
+                    d.getDiferencia(),
+                    d.getTipoCausante(),
+                    d.getIdBeneficio(),
+                    d.getRentaPromedio(),
+                    d.getDiasReconocimiento(),
+                    d.getCodigoTramo(),
+                    d.getFechaFinVigencia(),
+                    d.getFechaInicioVigencia(),
+                    d.getEstado(),
+                    d.getRutEmpleador(),
+                    d.getDvEmpleador(),
+                    d.getRutNis(),
+                    d.getDvNis(),
+                    d.getNumeroDocumento(),
+                    d.getDvDocumento(), // Asegúrate que este sea vcDvNumeroDocumento en la DTO
+                    d.getFechaPago(),
+                    d.getIdRetencion(),
+                    d.getRutReteniente(),
+                    d.getDvReteniente(),
+                    d.getNombresReteniente(),
+                    d.getApellidoPaternoReteniente(),
+                    d.getApellidoMaternoReteniente(),
+                    d.getIdFormaPagoFinal(), // ← iFormaPagoFinal
+                    d.getIdBancoFinal(),
+                    d.getNumeroCuentaFinal(),
+                    d.getIdTipoCuentaFinal(),
+                    d.getArchivo(),
+                    d.getDiasPago()
+                );
+            }
+
+            SimpleJdbcCall call = new SimpleJdbcCall(jdbcTemplate)
+                .withSchemaName(esquema)
+                .withProcedureName("SP_InsertarDetalleCausante_Masivo")
+                .withoutProcedureColumnMetaDataAccess()
+                .declareParameters(
+                    new SqlParameter("detalles", Types.STRUCT),
+                    new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
+                );
+
+            MapSqlParameterSource param = new MapSqlParameterSource()
+                .addValue("detalles", new SqlValue() {
+                    @Override
+                    public void setValue(PreparedStatement ps, int paramIndex) throws SQLException {
+                        ((SQLServerPreparedStatement) ps).setStructured(paramIndex, "paf.TVP_DetalleCausanteV3", tvp);
+                    }
+
+                    @Override
+                    public void cleanup() {}
+                });
+
+            Map<String, Object> result = call.execute(param);
+            return (String) result.get("mensajeRespuesta");
+
+        } catch (Exception e) {
+            System.err.println("Error al insertar detalle causante masivo: " + e.getMessage());
+            return "Error al insertar detalle causante masivo: " + e.getMessage();
+        }
+    }
+
+    @Override
     public String insertarDetalleCausante(DetalleCausanteDTO causanteDTO) {
 
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate)
@@ -147,7 +306,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("iTipoMovimiento", causanteDTO.getTipoMovimiento())
                 .addValue("dFechaMovimiento", causanteDTO.getFechaMovimiento())
                 .addValue("vcEntradaSalida", causanteDTO.getEntradaSalida())
-                .addValue("nMontoMovimiento", causanteDTO.getDiferenciaDerecho())
+                .addValue("nMontoMovimiento", causanteDTO.getDiferencia())
                 .addValue("iTipoCausante", causanteDTO.getTipoCausante())
                 .addValue("iIdBeneficio", causanteDTO.getIdBeneficio())
                 .addValue("nRentaPromedio", causanteDTO.getRentaPromedio())

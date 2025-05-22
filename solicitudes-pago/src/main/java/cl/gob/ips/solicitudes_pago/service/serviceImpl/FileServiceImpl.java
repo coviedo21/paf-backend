@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -39,6 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
+import cl.gob.ips.solicitudes_pago.controller.FileController;
 import cl.gob.ips.solicitudes_pago.dao.FileDAO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoResponseDTO;
 import cl.gob.ips.solicitudes_pago.dto.ArchivoSolicitudDTO;
@@ -56,6 +59,8 @@ import lombok.RequiredArgsConstructor;
 public class FileServiceImpl implements FileService {
     private final RestTemplate restTemplate;
 
+    private static final Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
+    
     @Autowired
     private FileDAO fileDAO;
     
@@ -105,8 +110,11 @@ public class FileServiceImpl implements FileService {
                 } else {
                     // Validar la región si no está en la caché
                     //String url = String.format("https://pagosafback-dev.azurewebsites.net/pagos-asignacion-familiar-v1/pagos/crear-solicitud");
-                    String url = String.format(baseUrl+"/validarRegion/"+archivo.getNombreRegion());
+                	long tiempoInicioObtenerRegion = System.currentTimeMillis();
+                	String url = String.format(baseUrl+"/validarRegion/"+archivo.getNombreRegion());
                     region = restTemplate.getForObject(url, ResultadoRegionDTO.class);
+                    long tiempoFinObtenerRegion = System.currentTimeMillis();
+                    logger.error("validar región demoró: "+(tiempoInicioObtenerRegion-tiempoFinObtenerRegion));
                     //region = comunaService.validarRegion(archivo.getRegionEmpleador());
                     if (region != null) {
                         regionCache.put(regionKey, region);
@@ -127,8 +135,12 @@ public class FileServiceImpl implements FileService {
                         comuna = comunaCache.get(comunaKey);
                     } else {
                         // Validar la comuna si no está en la caché
-                        String url = String.format(baseUrl+"/validarComuna/"+region.getCodigoRegion()+"/"+archivo.getComunaEmpleador());
+                    	long tiempoInicioValidarComuna = System.currentTimeMillis();
+                        
+                    	String url = String.format(baseUrl+"/validarComuna/"+region.getCodigoRegion()+"/"+archivo.getComunaEmpleador());
                         comuna = restTemplate.getForObject(url, ListaComunaDTO.class);
+                        long tiempoFinValidarComuna = System.currentTimeMillis();
+                        logger.error("validar comuna demoró: "+(tiempoInicioValidarComuna-tiempoFinValidarComuna));
                         //comuna = comunaService.validarComuna(region.getCodigoRegion(), archivo.getComunaEmpleador());
                         if (comuna != null) {
                             // Guardar la comuna validada en la caché
