@@ -67,4 +67,5 @@ public class DetalleCausanteDTO {
     private int valorTramo30;
     private int diasTrabajados;
     private int diasPagados;
+    private int diasPorPagar;
 }
