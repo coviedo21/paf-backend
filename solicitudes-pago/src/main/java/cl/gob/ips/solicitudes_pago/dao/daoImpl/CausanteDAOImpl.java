@@ -511,7 +511,16 @@ public class CausanteDAOImpl implements CausanteDAO{
                 if (row.get("dvBeneficiario") != null) 
                     detalleDTO.setDvBeneficiario((String) row.get("dvBeneficiario"));
 
+                if (row.get("valorTramo") != null) 
+                    detalleDTO.setValorTramo30((Integer) row.get("valorTramo"));
                 
+                if (row.get("diasTrabajados") != null) 
+                    detalleDTO.setDiasTrabajados((Integer) row.get("diasTrabajados"));
+                
+                if (row.get("diasPagados") != null) 
+                    detalleDTO.setDiasPagados((Integer) row.get("diasPagados"));
+
+                detalleDTO.setDiasPorPagar((detalleDTO.getDiasReconocimiento()-detalleDTO.getDiasTrabajados())>0?detalleDTO.getDiasReconocimiento()-detalleDTO.getDiasTrabajados():0);
                 detallesCausante.add(detalleDTO);
             }
 
