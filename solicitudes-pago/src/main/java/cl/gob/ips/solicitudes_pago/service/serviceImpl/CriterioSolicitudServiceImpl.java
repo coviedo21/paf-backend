@@ -235,7 +235,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     	
     	int diasPago = 0;
     	int contadorAprobados = 0;
-    	int tramo = 0;
+    	BigDecimal tramo = BigDecimal.ZERO;
     	int valorDiario = 0;
     	int diasPorPagar = 0;
     	int diasTrabajados = 0;
@@ -249,17 +249,17 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     	for(DetalleCausanteDTO detalleCausante: detalle) {
     		if(detalleCausante.getEstado()==1 || detalleCausante.getEstado()==6) {
     			tramo = detalleCausante.getValorTramo30();
-    			valorDiario = (int) Math.round((double) tramo / 30);
+    			valorDiario = (int) Math.round(tramo.doubleValue() / 30);
     			diasPorPagar = detalleCausante.getDiasReconocimiento() - detalleCausante.getDiasTrabajados();
     			diasTrabajados = detalleCausante.getDiasTrabajados();
     			
-    			if(diasTrabajados == 0) {
+    			/*if(diasTrabajados == 0) {
     				cumpleRelacionLaboral = false;
-    			}
+    			}*/
     			contadorAprobados++;
     			long tiempoInicioObtenerDiasTrabajados = System.currentTimeMillis();
     	   
-    			//int diasCotizaciones = causanteService.obtenerDiasCotizacion(detalleCausante.getRutBeneficiario(), detalleCausante.getRutEmpleador(), String.valueOf(detalleCausante.getPeriodo())); //Llamar a API que trae los dias trabajados
+    			int diasCotizaciones = causanteService.obtenerDiasCotizacion(detalleCausante.getRutBeneficiario(), detalleCausante.getRutEmpleador(), String.valueOf(detalleCausante.getPeriodo())); //Llamar a API que trae los dias trabajados
     			long tiempoFinObtenerDiasTrabajados = System.currentTimeMillis();
     	        logger.error("Obtener dias trabajados demoró: "+(tiempoInicioObtenerDiasTrabajados-tiempoFinObtenerDiasTrabajados));
     			Map<String, String> fechas = UtilServiceImpl.obtenerFechasDesdePeriodo(String.valueOf(detalleCausante.getPeriodo()));
@@ -279,9 +279,9 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    		int diasReconocimiento = detalleCausante.getDiasReconocimiento();
 	    		
 	    		
-	    		/*if((diasCotizaciones+diasLicenciasFiniquitos)==0) {
+	    		if((diasCotizaciones+diasLicencias)==0) {
 	    			cumpleRelacionLaboral = false;
-	    		}*/
+	    		}
 	    		
 	    		if(esPortuario.equalsIgnoreCase("S")) {
 	    			if(diasTrabajados>0) {

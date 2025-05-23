@@ -178,6 +178,9 @@ public class CausanteDAOImpl implements CausanteDAO{
             tvp.addColumnMetadata("iTipoCuentaFinal", Types.INTEGER);
             tvp.addColumnMetadata("vcArchivo", Types.VARCHAR);
             tvp.addColumnMetadata("iDiasPago", Types.INTEGER);
+            tvp.addColumnMetadata("nValorTramo", Types.INTEGER);
+            tvp.addColumnMetadata("iDiasTrabajados", Types.INTEGER);
+            tvp.addColumnMetadata("iDiasPagados", Types.INTEGER);
 
             for (DetalleCausanteDTO d : lista) {
             	System.out.println("iIdCausanteSolicitud: " + d.getIdCausanteSolicitud());
@@ -227,8 +230,8 @@ public class CausanteDAOImpl implements CausanteDAO{
                     d.getDvCausante(),
                     d.getPeriodo(),
                     d.getTipoMovimiento(),
-                    d.getFechaMovimiento(),
-                    d.getEntradaSalida(),
+                    new java.sql.Date(d.getFechaMovimiento().getTime()),
+                    d.getEntradaSalida().equalsIgnoreCase("Entrada")?"E":"S",
                     d.getDiferencia(),
                     d.getTipoCausante(),
                     d.getIdBeneficio(),
@@ -256,8 +259,11 @@ public class CausanteDAOImpl implements CausanteDAO{
                     d.getNumeroCuentaFinal(),
                     d.getIdTipoCuentaFinal(),
                     d.getArchivo(),
-                    d.getDiasPago()
-                );
+                    d.getDiasPago(),
+                    d.getValorTramo30(),
+                    d.getDiasTrabajados(),
+                    d.getDiasPagados()
+                		);
             }
 
             SimpleJdbcCall call = new SimpleJdbcCall(jdbcTemplate)
@@ -273,7 +279,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("detalles", new SqlValue() {
                     @Override
                     public void setValue(PreparedStatement ps, int paramIndex) throws SQLException {
-                        ((SQLServerPreparedStatement) ps).setStructured(paramIndex, "paf.TVP_DetalleCausanteV3", tvp);
+                        ((SQLServerPreparedStatement) ps).setStructured(paramIndex, "paf.TVP_DetalleCausanteV5", tvp);
                     }
 
                     @Override
@@ -512,7 +518,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                     detalleDTO.setDvBeneficiario((String) row.get("dvBeneficiario"));
 
                 if (row.get("valorTramo") != null) 
-                    detalleDTO.setValorTramo30((Integer) row.get("valorTramo"));
+                    detalleDTO.setValorTramo30((BigDecimal) row.get("valorTramo"));
                 
                 if (row.get("diasTrabajados") != null) 
                     detalleDTO.setDiasTrabajados((Integer) row.get("diasTrabajados"));
