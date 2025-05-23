@@ -141,12 +141,7 @@ public class FileDAOImpl implements FileDAO{
                 	                        derecho.setFechaMovimiento(null);
                 	                    }
 
-                	                    if(origen.getEntradaSalida().equalsIgnoreCase("Entrada")){
-                	                    	derecho.setEntradaSalida("E");
-                	                    }
-                	                    else {
-                	                    	derecho.setEntradaSalida("S");
-                	                    }	
+                	                    derecho.setEntradaSalida(origen.getEntradaSalida());
                 	                    derecho.setMontoMovimiento(new BigDecimal(origen.getMontoMovimiento()));
                 	                    derecho.setTipoCausante(origen.getTipoCausante());
                 	                    derecho.setIdBeneficio(origen.getIdBeneficio());
@@ -157,6 +152,9 @@ public class FileDAOImpl implements FileDAO{
                 	                    derecho.setDvEmpleador(origen.getDvEmpleador());
                 	                    derecho.setDiferencia(new BigDecimal(origen.getDiferencia()));
                 	                    derecho.setEstado(1);
+                	                    derecho.setValorTramo30(new BigDecimal(origen.getValorTramo30()));
+                	                    derecho.setDiasTrabajados(origen.getDiasTrabajados());
+                	                    derecho.setDiasPagados(origen.getDiasPagados());
                 	                    tieneDerecho = true;
                 	                }
 
@@ -184,6 +182,9 @@ public class FileDAOImpl implements FileDAO{
                 	        derecho.setRutEmpleador(0);
                 	        derecho.setDvEmpleador(null);
                 	        derecho.setEstado(2);
+                	        derecho.setValorTramo30(BigDecimal.ZERO);
+                	        derecho.setDiasTrabajados(0);
+                	        derecho.setDiasPagados(0);
                 	    }
 
                 	    listaDetalle.add(derecho);
