@@ -220,7 +220,9 @@ public class CausanteDAOImpl implements CausanteDAO{
             	System.out.println("iTipoCuentaFinal: " + d.getIdTipoCuentaFinal());
             	System.out.println("vcArchivo: " + d.getArchivo());
             	System.out.println("iDiasPago: " + d.getDiasPago());
-
+            	System.out.println("tramo30: " + d.getValorTramo30());
+            	System.out.println("iDiasTrabajados: " + d.getDiasTrabajados());
+            	System.out.println("iDiasPagados: " + d.getDiasPagados());
             	
                 tvp.addRow(
                     d.getIdCausanteSolicitud(),
@@ -230,24 +232,24 @@ public class CausanteDAOImpl implements CausanteDAO{
                     d.getDvCausante(),
                     d.getPeriodo(),
                     d.getTipoMovimiento(),
-                    new java.sql.Date(d.getFechaMovimiento().getTime()),
-                    d.getEntradaSalida().equalsIgnoreCase("Entrada")?"E":"S",
+                    d.getFechaMovimiento() != null ? new java.sql.Date(d.getFechaMovimiento().getTime()) : null,
+                    d.getEntradaSalida() != null ? (d.getEntradaSalida().equalsIgnoreCase("Entrada") ? "E" : "S") : null,
                     d.getDiferencia(),
                     d.getTipoCausante(),
                     d.getIdBeneficio(),
                     d.getRentaPromedio(),
                     d.getDiasReconocimiento(),
                     d.getCodigoTramo(),
-                    d.getFechaFinVigencia(),
-                    d.getFechaInicioVigencia(),
+                    d.getFechaFinVigencia() != null ? new java.sql.Date(d.getFechaFinVigencia().getTime()) : null,
+                    d.getFechaInicioVigencia() != null ? new java.sql.Date(d.getFechaInicioVigencia().getTime()) : null,
                     d.getEstado(),
                     d.getRutEmpleador(),
                     d.getDvEmpleador(),
                     d.getRutNis(),
                     d.getDvNis(),
                     d.getNumeroDocumento(),
-                    d.getDvDocumento(), // Asegúrate que este sea vcDvNumeroDocumento en la DTO
-                    d.getFechaPago(),
+                    d.getDvDocumento(),
+                    d.getFechaPago() != null ? new java.sql.Date(d.getFechaPago().getTime()) : null,
                     d.getIdRetencion(),
                     d.getRutReteniente(),
                     d.getDvReteniente(),
@@ -290,8 +292,13 @@ public class CausanteDAOImpl implements CausanteDAO{
             return (String) result.get("mensajeRespuesta");
 
         } catch (Exception e) {
-            System.err.println("Error al insertar detalle causante masivo: " + e.getMessage());
-            return "Error al insertar detalle causante masivo: " + e.getMessage();
+            e.printStackTrace(); // <<< Esto imprime TODO, incluso el stack
+            Throwable cause = e.getCause();
+            while (cause != null) {
+                System.err.println("Causa: " + cause.getMessage());
+                cause = cause.getCause();
+            }
+            return "Error al insertar detalle causante masivo: " + e.toString();
         }
     }
 
