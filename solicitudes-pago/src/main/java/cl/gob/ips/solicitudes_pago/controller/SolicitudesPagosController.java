@@ -23,6 +23,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Log4j2
 @RestController
 @CrossOrigin("*")
@@ -694,6 +696,16 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         }
 
         return ResponseEntity.ok(datos);
+    }
+    
+    @GetMapping("/prueba")
+    public ResponseEntity<String> verificarToken(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No se recibió el token");
+        }
+
+        String token = authHeader.replace("Bearer ", "");
+        return ResponseEntity.ok("Token recibido correctamente:\n" + token);
     }
 
 }

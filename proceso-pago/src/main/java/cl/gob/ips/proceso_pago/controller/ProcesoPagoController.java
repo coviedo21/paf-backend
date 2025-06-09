@@ -5,6 +5,7 @@ import cl.gob.ips.proceso_pago.service.CtaCtePAFService;
 import cl.gob.ips.proceso_pago.service.EmisionService;
 import cl.gob.ips.proceso_pago.service.NominaPagoService;
 import cl.gob.ips.proceso_pago.service.ProcesoService;
+
 import com.azure.storage.file.share.ShareFileClient;
 import com.azure.storage.file.share.ShareFileClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -31,6 +33,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -58,13 +61,18 @@ public class ProcesoPagoController {
     
     @PostMapping("/crear-proceso")
     public ResponseEntity<ResponseDTO> crearProceso(
-            @RequestBody ProcesoDTO insertarProcesoDTO) {
+            @RequestBody ProcesoDTO insertarProcesoDTO, @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
+    	if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    		return null;
+        }
+    	String token = authHeader.replace("Bearer ", "");
+    	
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(new Date());
 
         int resultado = procesoService
-                .crearProceso(insertarProcesoDTO);
+                .crearProceso(insertarProcesoDTO,token);
 
         if (resultado>0){
             ProcesoDTO proceso = new ProcesoDTO();
@@ -147,8 +155,15 @@ public class ProcesoPagoController {
     }
 
     @PostMapping("/procesarEmision")
-    public ResponseEntity<ResponseDTO> procesarEmision(@RequestParam("file") MultipartFile file, @RequestParam("idProceso") Integer idProceso, @RequestParam("usuario") String usuario) {
-        List<EmisionArchivoDTO> registros = new ArrayList<>();
+    public ResponseEntity<ResponseDTO> procesarEmision(@RequestParam("file") MultipartFile file, @RequestParam("idProceso") Integer idProceso, @RequestParam("usuario") String usuario, @RequestHeader(value = "Authorization", required = false) String authHeader) {
+    	if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    		return null;
+        }
+    	String token = authHeader.replace("Bearer ", "");
+    	// Aquí puedes usar el token para llamar a la API externa, loguearlo, etc.
+        System.out.println("TOKEN RECIBIDO: " + token);
+    	
+    	List<EmisionArchivoDTO> registros = new ArrayList<>();
         int[] posiciones = {2, 3, 13, 1, 1, 2, 1, 1, 3, 3, 4, 1, 1, 40, 8, 40, 8, 8, 1, 8, 1, 2, 1, 8, 1, 1, 2, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7, 1, 3, 5, 7,1, 3, 5, 7, 7, 7, 7, 3, 4, 7, 1, 8, 7, 7, 7, 7, 7, 48, 15, 1, 1, 2, 2, 2, 2, 7, 8, 8, 10, 8};
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setTimestamp(new Date());
@@ -314,7 +329,7 @@ registro.setHDmonto15(valores[86]);
                 registros.add(registro);
                 } //Fin While
 
-                if(emisionService.validarSolicitudesEmitidas(registros,idProceso)){
+                if(emisionService.validarSolicitudesEmitidas(registros,idProceso,token)){
                     try {
                     	
                         String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
@@ -485,4 +500,5 @@ registro.setHDmonto15(valores[86]);
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+    
 }

@@ -533,7 +533,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 if (row.get("diasPagados") != null) 
                     detalleDTO.setDiasPagados((Integer) row.get("diasPagados"));
 
-                detalleDTO.setDiasPorPagar((detalleDTO.getDiasReconocimiento()-detalleDTO.getDiasTrabajados())>0?detalleDTO.getDiasReconocimiento()-detalleDTO.getDiasTrabajados():0);
+                detalleDTO.setDiasPorPagar(detalleDTO.getDiasReconocimiento()==detalleDTO.getDiasTrabajados() && detalleDTO.getDiasPagados()==0?detalleDTO.getDiasTrabajados():(detalleDTO.getDiasReconocimiento()-detalleDTO.getDiasTrabajados())>0?detalleDTO.getDiasReconocimiento()-detalleDTO.getDiasTrabajados():0);
                 detallesCausante.add(detalleDTO);
             }
 

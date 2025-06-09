@@ -33,6 +33,7 @@ import cl.gob.ips.proceso_pago.dto.ResolucionDTO;
 import cl.gob.ips.proceso_pago.dto.ResponseDTO;
 import cl.gob.ips.proceso_pago.dto.SolicitudDTO;
 import cl.gob.ips.proceso_pago.service.EmisionService;
+import cl.gob.ips.proceso_pago.service.SecureRestClient;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -40,6 +41,9 @@ import lombok.RequiredArgsConstructor;
 public class EmisionServiceImpl implements EmisionService {
     private final RestTemplate restTemplate;
 
+    @Autowired
+	private SecureRestClient secureRestClient;
+    
     @Autowired
     private ProcesoDAO procesoDAO;
 
@@ -53,7 +57,7 @@ public class EmisionServiceImpl implements EmisionService {
     private String baseUrlRetencionPagos; 
 
     @Override
-    public Boolean validarSolicitudesEmitidas(List<EmisionArchivoDTO> emision, int idProceso) {
+    public Boolean validarSolicitudesEmitidas(List<EmisionArchivoDTO> emision, int idProceso, String token) {
         if (emision == null || emision.isEmpty()) {
             System.out.println("Lista de emisiones vacía o nula.");
             return false;
@@ -129,7 +133,7 @@ public class EmisionServiceImpl implements EmisionService {
 	                		pagoRetencion.setIdRetencion(detalle.getIdRetencion());
 	                		pagoRetencion.setMontoPagado(detalle.getTotalPago());
 	                		pagoRetencion.setTipoPago(5);
-	                		insertarPagoRetencion(pagoRetencion);
+	                		insertarPagoRetencion(pagoRetencion,token);
                 		}
                 		catch(Exception e) {
                 			System.out.println("Error al insertar pago en Retención Judicial");
@@ -192,25 +196,24 @@ public class EmisionServiceImpl implements EmisionService {
     }
     
     @Override
-    public boolean insertarPagoRetencion(PagoRetencionDTO dto) {
+    public boolean insertarPagoRetencion(PagoRetencionDTO dto, String token) {
         String url = baseUrlRetencionPagos + "/insertar-pago-retencion";
         System.out.println("Insertando pago en: " + url);
 
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<PagoRetencionDTO> request = new HttpEntity<>(dto, headers);
-
         try {
-            ResponseEntity<ResponseDTO> response = restTemplate.postForEntity(url, request, ResponseDTO.class);
+            ResponseDTO response = secureRestClient.postConTokenManual(
+                url,
+                dto,
+                ResponseDTO.class,
+                "Bearer " + token
+            );
 
-            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                System.out.println("Respuesta: " + response.getBody().getGlosaRetorno());
+            if (response != null) {
+                System.out.println("Respuesta: " + response.getGlosaRetorno());
                 return true;
             }
 
-            System.err.println("No se insertó el pago. Código: " + response.getStatusCode());
+            System.err.println("No se insertó el pago. La respuesta fue null.");
             return false;
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {

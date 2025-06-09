@@ -29,12 +29,16 @@ import cl.gob.ips.proceso_pago.dto.DatosProcesoPorTipoDTO;
 import cl.gob.ips.proceso_pago.dto.DetalleCausanteDTO;
 import cl.gob.ips.proceso_pago.dto.PagoRetencionDTO;
 import cl.gob.ips.proceso_pago.service.ProcesoService;
+import cl.gob.ips.proceso_pago.service.SecureRestClient;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class ProcesoServiceImpl implements ProcesoService {
 	private final RestTemplate restTemplate;
+	
+	@Autowired
+	private SecureRestClient secureRestClient;
 	
 	@Autowired
     private ProcesoDAO procesoDAO;
@@ -47,7 +51,7 @@ public class ProcesoServiceImpl implements ProcesoService {
        
 
     @Override
-    public int crearProceso(ProcesoDTO insertarProcesoDTO) {
+    public int crearProceso(ProcesoDTO insertarProcesoDTO, String token) {
     	int idProceso = procesoDAO.insertarProceso(insertarProcesoDTO);
          
         if(idProceso>0) {
@@ -55,7 +59,7 @@ public class ProcesoServiceImpl implements ProcesoService {
          	
             for(DetalleCausanteDTO detalle: listaDetalleCausante) {
             	if(detalle.getTipoSolicitante()!=2) {
-	            	RetencionJudicialDTO retencion = obtenerRetencionJudicial(detalle.getRutCausante(),detalle.getRutBeneficiario(), detalle.getPeriodo());
+	            	RetencionJudicialDTO retencion = obtenerRetencionJudicial(detalle.getRutCausante(),detalle.getRutBeneficiario(), detalle.getPeriodo(),token);
 	            	if(retencion!=null) {
 		            	detalle.setIdRetencion(retencion.getIdRetencion());
 		            	detalle.setRutReteniente(retencion.getRutRetenedor());
@@ -70,7 +74,7 @@ public class ProcesoServiceImpl implements ProcesoService {
 		            	detalle.setRutBeneficiarioPago(retencion.getRutRetenedor());
 		            	detalle.setDvBeneficiarioPago(retencion.getDvRetenedor());
 		            	
-		            	RetencionJudicialDTO ultimaRetencion = obtenerRetencionJudicialUltima(detalle.getRutCausante(),detalle.getRutBeneficiario(), detalle.getPeriodo());
+		            	RetencionJudicialDTO ultimaRetencion = obtenerRetencionJudicialUltima(detalle.getRutCausante(),detalle.getRutBeneficiario(), detalle.getPeriodo(),token);
 		            	if(ultimaRetencion!=null) {
 			            	detalle.setIdFormaPagoFinal(ultimaRetencion.getIdFormaPago());
 			            	detalle.setIdBancoFinal(ultimaRetencion.getCodBanco());
@@ -88,43 +92,39 @@ public class ProcesoServiceImpl implements ProcesoService {
         return idProceso;
     }
     
-    public RetencionJudicialDTO obtenerRetencionJudicial(int rutCausante, int rutBeneficiario, int periodo) {
+    public RetencionJudicialDTO obtenerRetencionJudicial(int rutCausante, int rutBeneficiario, int periodo, String token) {
         String url = String.format(
             baseUrlRetencion + "/obtener-detalle-causante/%s/%s/%s",
             rutCausante, rutBeneficiario, periodo
         );
 
-        System.out.println("Esta es la URL: " + url);
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseDTO response = null;
+        System.out.println("Llamando a: " + url);
 
         try {
-            response = restTemplate.getForObject(url, ResponseDTO.class);
+            ResponseDTO response = secureRestClient.getConTokenManual(url, ResponseDTO.class, "Bearer " + token);
+
+            if (response != null && response.getResultado() != null) {
+                ObjectMapper mapper = new ObjectMapper();
+                return mapper.convertValue(response.getResultado(), RetencionJudicialDTO.class);
+            }
+
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                System.err.println("La API retornó 404: No se encontraron retenciones para el causante en este periodo " + periodo + ".");
+                System.err.println("404: No se encontraron retenciones para el causante en el periodo " + periodo + ".");
                 return null;
             } else {
-                System.err.println("Error al llamar a la API: " + e.getMessage());
+                System.err.println("Error al llamar a la API externa: " + e.getMessage());
                 throw e;
             }
-        }
-
-        if (response != null && response.getResultado() != null) {
-            try {
-                ObjectMapper objectMapper = new ObjectMapper();
-                return objectMapper.convertValue(response.getResultado(), RetencionJudicialDTO.class);
-            } catch (IllegalArgumentException e) {
-                System.err.println("Error al convertir resultado a RetencionJudicialDTO: " + e.getMessage());
-            }
+        } catch (Exception e) {
+            System.err.println("Error inesperado: " + e.getMessage());
         }
 
         return null;
     }
 
 
-    public RetencionJudicialDTO obtenerRetencionJudicialUltima(int rutCausante, int rutBeneficiario, int periodo) {
+    public RetencionJudicialDTO obtenerRetencionJudicialUltima(int rutCausante, int rutBeneficiario, int periodo, String token) {
         String url = String.format(
             baseUrlRetencion + "/obtener-detalle-causante-retenedor/%s/%s",
             rutCausante, rutBeneficiario
@@ -132,33 +132,21 @@ public class ProcesoServiceImpl implements ProcesoService {
 
         System.out.println("Esta es la URL de la segunda API: " + url);
 
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseDTO response = null;
-
         try {
-            response = restTemplate.getForObject(url, ResponseDTO.class);
-        } catch (HttpClientErrorException e) {
-            /*if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                System.err.println("Segunda API retornó 404: No se encontraron datos adicionales para el causante en este periodo " + periodo + ".");
-                return null;
-            } else {
-                System.err.println("Error al llamar a la segunda API: " + e.getMessage());
-                return null;
-            }*/
-        	return null;
-        }
+            ResponseDTO response = secureRestClient.getConTokenManual(url, ResponseDTO.class, "Bearer " + token);
 
-        if (response != null && response.getResultado() != null) {
-            try {
+            if (response != null && response.getResultado() != null) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 return objectMapper.convertValue(response.getResultado(), RetencionJudicialDTO.class);
-            } catch (IllegalArgumentException e) {
-                System.err.println("Error al convertir resultado a RetencionJudicialDTO: " + e.getMessage());
             }
+
+        } catch (Exception e) {
+            System.err.println("Error al llamar a la segunda API o convertir el resultado: " + e.getMessage());
         }
 
         return null;
     }
+
 
     @Override
     public List<ProcesoDTO> consultarProceso(Long idProceso) {

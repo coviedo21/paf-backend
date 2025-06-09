@@ -7,7 +7,7 @@ import cl.gob.ips.proceso_pago.dto.DetalleCausanteDTO;
 import cl.gob.ips.proceso_pago.dto.PagoRetencionDTO;
 
 public interface ProcesoService {
-    public int crearProceso(ProcesoDTO insertarProcesoDTO);
+    public int crearProceso(ProcesoDTO insertarProcesoDTO, String token);
 
     public List<ProcesoDTO> consultarProceso(Long idProceso);
 

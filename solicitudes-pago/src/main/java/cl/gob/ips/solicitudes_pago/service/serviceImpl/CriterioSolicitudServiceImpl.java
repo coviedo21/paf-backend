@@ -247,10 +247,17 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     	} 
     	
     	for(DetalleCausanteDTO detalleCausante: detalle) {
+    		diasPago=0;
     		if(detalleCausante.getEstado()==1 || detalleCausante.getEstado()==6) {
     			tramo = detalleCausante.getValorTramo30();
     			valorDiario = (int) Math.round(tramo.doubleValue() / 30);
-    			diasPorPagar = detalleCausante.getDiasReconocimiento() - detalleCausante.getDiasTrabajados();
+    			if(detalleCausante.getDiasReconocimiento() == detalleCausante.getDiasTrabajados() && detalleCausante.getDiasPagados()==0) {
+    				diasPorPagar = detalleCausante.getDiasTrabajados();
+    			}
+    			else {
+    				diasPorPagar = detalleCausante.getDiasReconocimiento() - detalleCausante.getDiasTrabajados();
+    			}
+    			
     			diasTrabajados = detalleCausante.getDiasTrabajados();
     			
     			/*if(diasTrabajados == 0) {
@@ -259,7 +266,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     			contadorAprobados++;
     			long tiempoInicioObtenerDiasTrabajados = System.currentTimeMillis();
     	   
-    			int diasCotizaciones = causanteService.obtenerDiasCotizacion(detalleCausante.getRutBeneficiario(), detalleCausante.getRutEmpleador(), String.valueOf(detalleCausante.getPeriodo())); //Llamar a API que trae los dias trabajados
+    			//int diasCotizaciones = causanteService.obtenerDiasCotizacion(detalleCausante.getRutBeneficiario(), detalleCausante.getRutEmpleador(), String.valueOf(detalleCausante.getPeriodo())); //Llamar a API que trae los dias trabajados
     			long tiempoFinObtenerDiasTrabajados = System.currentTimeMillis();
     	        logger.error("Obtener dias trabajados demoró: "+(tiempoInicioObtenerDiasTrabajados-tiempoFinObtenerDiasTrabajados));
     			Map<String, String> fechas = UtilServiceImpl.obtenerFechasDesdePeriodo(String.valueOf(detalleCausante.getPeriodo()));
@@ -279,7 +286,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    		int diasReconocimiento = detalleCausante.getDiasReconocimiento();
 	    		
 	    		
-	    		if((diasCotizaciones+diasLicencias)==0) {
+	    		if((diasTrabajados+diasLicencias)==0) {
 	    			cumpleRelacionLaboral = false;
 	    		}
 	    		
@@ -292,29 +299,41 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    			}
 	    		}	
 	    		else {
-	    			if(diasReconocimiento == diasPorPagar) {
-	    				detalleCausante.setTotalPago(new BigDecimal(valorDiario*diasPorPagar));
-	    			}
-	    			else {
-	    				if(diasLicencias>diasPorPagar) {
-	    					detalleCausante.setTotalPago(new BigDecimal(valorDiario*diasPorPagar));
+	    			/*if(diasReconocimiento == diasPorPagar) {
+	    				detalleCausante.setTotalPago(detalleCausante.getMontoMovimiento());
+	    				detalleCausante.setDiasPago(diasPago);
+	    			}*/
+	    			//else {
+	    				if(diasPago<0) {
+	    					detalleCausante.setTotalPago(BigDecimal.ZERO);
+	    					detalleCausante.setDiasPago(0);
 	    				}
-	    				else{
-	    					detalleCausante.setTotalPago(new BigDecimal(valorDiario*diasLicencias));
+	    				else {
+		    				if(diasLicencias>diasPorPagar) {
+		    					detalleCausante.setTotalPago(new BigDecimal(valorDiario*diasPorPagar));
+		    					detalleCausante.setDiasPago(diasPago);
+		    				}
+		    				else{
+		    					detalleCausante.setTotalPago(new BigDecimal(valorDiario*diasLicencias));
+		    					detalleCausante.setDiasPago(diasPago);
+		    				}
 	    				}
-	    			}	
+	    			//}	
 	    		}	
 	    			
-	    			
-	    		if(diasTrabajados==0) {
-    				detalleCausante.setEstado(6);
-    			}
-	    		else {
-	    			if(detalleCausante.getEstado()==6) {
-	    				detalleCausante.setEstado(1);
+	    		//if (detalleCausante.getTotalPago().compareTo(BigDecimal.ZERO) == 0 && diasTrabajados>0) {
+	    			//detalleCausante.setEstado(2);
+	    		//}
+	    		//else {
+		    		if(diasTrabajados+diasLicencias==0) {
+	    				detalleCausante.setEstado(6);
 	    			}
-	    		}
-	    		
+		    		else {
+		    			if(detalleCausante.getEstado()==6) {
+		    				detalleCausante.setEstado(1);
+		    			}
+		    		}
+	    		//}
 	    		/*if(diasPago>=25) { //dias por pagar
 	    			detalleCausante.setTotalPago(detalleCausante.getMontoMovimiento());
 	    			detalleCausante.setDiasPago(diasPago);
