@@ -241,7 +241,7 @@ public class CausanteServiceImpl implements CausanteService{
         return YearMonth.of(year, month).atEndOfMonth();
     }
     
-    public int obtenerDiasCotizacion(int rutBeneficiario, int rutEmpleador, String periodo) {
+    /*public int obtenerDiasCotizacion(int rutBeneficiario, int rutEmpleador, String periodo) {
     	return causanteDAO.obtenerDiasCotizacion(rutBeneficiario, rutEmpleador, periodo);
-    }
+    }*/
 }

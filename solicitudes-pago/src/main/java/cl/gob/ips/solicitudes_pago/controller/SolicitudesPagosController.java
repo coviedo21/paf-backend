@@ -654,7 +654,7 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         return licenciaFiniquitoService.obtenerDiasLicenciaFiniquito(rutBeneficiario, fechaInicio, fechaFin);
     }
     
-    @GetMapping("/obtenerDiasCotizacion")
+    /*@GetMapping("/obtenerDiasCotizacion")
     public ResponseEntity<Integer> obtenerDiasCotizacion(
             @RequestParam int rutBeneficiario,
             @RequestParam int rutEmpleador,
@@ -662,7 +662,7 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
 
         int dias = causanteService.obtenerDiasCotizacion(rutBeneficiario, rutEmpleador, periodo);
         return ResponseEntity.ok(dias);
-    }
+    }*/
     
     @GetMapping("/verificar-relacion-laboral/{idCausanteSolicitud}")
     public ResponseEntity<Boolean> verificarRelacionLaboralVigente(@PathVariable int idCausanteSolicitud) {

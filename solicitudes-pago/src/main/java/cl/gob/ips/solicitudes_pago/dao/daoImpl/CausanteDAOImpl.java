@@ -1,6 +1,7 @@
 package cl.gob.ips.solicitudes_pago.dao.daoImpl;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -36,16 +37,14 @@ public class CausanteDAOImpl implements CausanteDAO{
     
     private final JdbcTemplate jdbcTemplate;
     private final JdbcTemplate genesysPJdbc;
-    private final JdbcTemplate coredJdbc;
     
     @Value("${spring.datasource.schema}")
     private String esquema;
 
     @Autowired
-    public CausanteDAOImpl(@Qualifier("pafJdbc") JdbcTemplate jdbcTemplate,@Qualifier("genesysPJdbc") JdbcTemplate genesysPJdbc,@Qualifier("coredJdbc") JdbcTemplate coredJdbc) {
+    public CausanteDAOImpl(@Qualifier("pafJdbc") JdbcTemplate jdbcTemplate,@Qualifier("genesysPJdbc") JdbcTemplate genesysPJdbc) {
         this.jdbcTemplate = jdbcTemplate;
         this.genesysPJdbc = genesysPJdbc;
-        this.coredJdbc = coredJdbc;
     }
 
     @Override
@@ -533,7 +532,11 @@ public class CausanteDAOImpl implements CausanteDAO{
                 if (row.get("diasPagados") != null) 
                     detalleDTO.setDiasPagados((Integer) row.get("diasPagados"));
 
-                detalleDTO.setDiasPorPagar(detalleDTO.getDiasReconocimiento()==detalleDTO.getDiasTrabajados() && detalleDTO.getDiasPagados()==0?detalleDTO.getDiasTrabajados():(detalleDTO.getDiasReconocimiento()-detalleDTO.getDiasTrabajados())>0?detalleDTO.getDiasReconocimiento()-detalleDTO.getDiasTrabajados():0);
+                BigDecimal valorDiario = detalleDTO.getValorTramo30().divide(BigDecimal.valueOf(30), 10, RoundingMode.HALF_UP);
+                BigDecimal diasPorPagar = detalleDTO.getTotalPago()!=null?detalleDTO.getTotalPago().divide(valorDiario, 0, RoundingMode.HALF_UP):BigDecimal.ZERO;
+
+                detalleDTO.setDiasPorPagar(diasPorPagar!=null?diasPorPagar.intValue():0);
+                //detalleDTO.setDiasPorPagar(detalleDTO.getDiasReconocimiento()==detalleDTO.getDiasTrabajados() && detalleDTO.getDiasPagados()==0?detalleDTO.getDiasTrabajados():(detalleDTO.getDiasReconocimiento()-detalleDTO.getDiasTrabajados())>0?detalleDTO.getDiasReconocimiento()-detalleDTO.getDiasTrabajados():0);
                 detallesCausante.add(detalleDTO);
             }
 
@@ -771,7 +774,7 @@ public class CausanteDAOImpl implements CausanteDAO{
         return "Actualización correcta".equalsIgnoreCase(mensajeRespuesta);
     }
     
-    @Override
+    /*@Override
     public int obtenerDiasCotizacion(int rutBeneficiario, int rutEmpleador, String periodo) {
         SimpleJdbcCall jdbcCall = new SimpleJdbcCall(coredJdbc)
                 .withProcedureName("PRC_WS_DIAS_TRABAJADOS")
@@ -805,6 +808,6 @@ public class CausanteDAOImpl implements CausanteDAO{
             // Podrías logear el error o lanzar una excepción si lo deseas
             return 0;
         }
-    }
+    }*/
 
 }

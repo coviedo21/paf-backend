@@ -1,6 +1,7 @@
 package cl.gob.ips.solicitudes_pago.service.serviceImpl;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -236,7 +237,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     	int diasPago = 0;
     	int contadorAprobados = 0;
     	BigDecimal tramo = BigDecimal.ZERO;
-    	int valorDiario = 0;
+    	BigDecimal valorDiario = BigDecimal.ZERO;
     	int diasPorPagar = 0;
     	int diasTrabajados = 0;
     	
@@ -250,7 +251,8 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     		diasPago=0;
     		if(detalleCausante.getEstado()==1 || detalleCausante.getEstado()==6) {
     			tramo = detalleCausante.getValorTramo30();
-    			valorDiario = (int) Math.round(tramo.doubleValue() / 30);
+    			//valorDiario = (int) Math.round(tramo.doubleValue() / 30);
+    			valorDiario = tramo.divide(BigDecimal.valueOf(30), MathContext.DECIMAL128);
     			if(detalleCausante.getDiasReconocimiento() == detalleCausante.getDiasTrabajados() && detalleCausante.getDiasPagados()==0) {
     				diasPorPagar = detalleCausante.getDiasTrabajados();
     			}
@@ -310,11 +312,19 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    				}
 	    				else {
 		    				if(diasLicencias>diasPorPagar) {
-		    					detalleCausante.setTotalPago(new BigDecimal(valorDiario*diasPorPagar));
+		    					BigDecimal totalPago = valorDiario
+		    						    .multiply(BigDecimal.valueOf(diasPorPagar))
+		    						    .setScale(0, RoundingMode.HALF_UP);
+
+		    						detalleCausante.setTotalPago(totalPago);
 		    					detalleCausante.setDiasPago(diasPago);
 		    				}
 		    				else{
-		    					detalleCausante.setTotalPago(new BigDecimal(valorDiario*diasLicencias));
+		    					BigDecimal totalPago = valorDiario
+		    						    .multiply(BigDecimal.valueOf(diasLicencias))
+		    						    .setScale(0, RoundingMode.HALF_UP);
+
+		    						detalleCausante.setTotalPago(totalPago);
 		    					detalleCausante.setDiasPago(diasPago);
 		    				}
 	    				}
@@ -325,12 +335,18 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    			//detalleCausante.setEstado(2);
 	    		//}
 	    		//else {
+	    		
 		    		if(diasTrabajados+diasLicencias==0) {
 	    				detalleCausante.setEstado(6);
 	    			}
 		    		else {
-		    			if(detalleCausante.getEstado()==6) {
-		    				detalleCausante.setEstado(1);
+		    			if (detalleCausante.getTotalPago().compareTo(BigDecimal.ZERO) == 0) {
+		    				detalleCausante.setEstado(2);
+		    			}
+		    			else {
+			    			if(detalleCausante.getEstado()==6) {
+			    				detalleCausante.setEstado(1);
+			    			}
 		    			}
 		    		}
 	    		//}
