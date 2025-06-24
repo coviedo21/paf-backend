@@ -87,10 +87,13 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	            criterioSolicitudDAO.insertarCriterioSolicitud(criterio);
 	        }
         }
+        listaCriterios.clear();
         System.out.println("Finalizó validación de Criterios de Resolución por Solicitud");
 
+        boolean criterioCreado = false;
         for(CausanteSolicitudDTO causante: listaCausantes){
         	listaCriteriosCausante.clear();
+        	listaCriterios.clear();
         	if(!esBotonValidar) {
         // 1) Validación de Rol Único Tributario Causante
             agregarCriterioCausante(causante.getIdCausanteSolicitud(),1,true,null,null,null);
@@ -109,14 +112,25 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
                 //if(!esArchivo) {
 	                if (verificarRelacionLaboralVigente(causante.getIdCausanteSolicitud(),esPortuario)) {
 	                	if(!esBotonValidar) {
-	                		agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, true, null,null,null);
+	                		agregarCriterioResolucion(causante.getIIdSolicitud(), 7, true, null,null,null);
+	                		if(!criterioCreado) {
+		                		for(CriterioSolicitudDTO criterio: listaCriterios){
+		            	            criterioSolicitudDAO.insertarCriterioSolicitud(criterio);
+		            	        }
+		                		criterioCreado = true;
+	                		}
+	                		else{
+	                			for(CriterioSolicitudDTO criterio: listaCriterios){
+		            	            criterioSolicitudDAO.actualizarCriterioSolicitud(criterio);
+		            	        }
+	                		}
 	                	}
 	                    if(esBotonValidar) {
-	                    	List<CriterioSolicitudCausanteDTO> criterios = consultarCriteriosCausante(causante.getIdCausanteSolicitud());
-	                    	for(CriterioSolicitudCausanteDTO criterio: criterios) {
+	                    	List<CriterioSolicitudDTO> criterios = consultarCriteriosSolicitud(causante.getIIdSolicitud());
+	                    	for(CriterioSolicitudDTO criterio: criterios) {
 	                    		if(criterio.getIdCriterio()==7) {
 	                    			criterio.setCumple("S");
-	                    			actualizarCriterioCausante(criterio);
+	                    			actualizarCriterioSolicitud(criterio);
 	                    		}
 	                    	}
 	                    	
@@ -125,12 +139,23 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	                } else {
 	                    if(esArchivo) {
 	                    	solicitudAprobada = true;
-	                    	agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, true, null,null,null);
+	                    	agregarCriterioResolucion(causante.getIIdSolicitud(), 7, true, null,null,null);
 	                    }
 	                    else {
 	                    	solicitudAprobada = false;
-	                    	agregarCriterioCausante(causante.getIdCausanteSolicitud(), 7, false, null,null,null);
+	                    	agregarCriterioResolucion(causante.getIIdSolicitud(), 7, false, null,null,null);
 	                    }
+	                    if(!criterioCreado) {
+		                    for(CriterioSolicitudDTO criterio: listaCriterios){
+	            	            criterioSolicitudDAO.insertarCriterioSolicitud(criterio);
+	            	        }
+		                    criterioCreado = true;
+	                    }
+	                    else{
+                			for(CriterioSolicitudDTO criterio: listaCriterios){
+	            	            criterioSolicitudDAO.actualizarCriterioSolicitud(criterio);
+	            	        }
+                		}
 	                }
                 /*}
                 else {
@@ -249,7 +274,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     	
     	for(DetalleCausanteDTO detalleCausante: detalle) {
     		diasPago=0;
-    		if(detalleCausante.getEstado()==1 || detalleCausante.getEstado()==6) {
+    		if(detalleCausante.getEstado()==1 || detalleCausante.getEstado()==2 || detalleCausante.getEstado()==6) {
     			tramo = detalleCausante.getValorTramo30();
     			//valorDiario = (int) Math.round(tramo.doubleValue() / 30);
     			valorDiario = tramo.divide(BigDecimal.valueOf(30), MathContext.DECIMAL128);
@@ -288,7 +313,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    		int diasReconocimiento = detalleCausante.getDiasReconocimiento();
 	    		
 	    		
-	    		if((diasTrabajados+diasLicencias)==0) {
+	    		if((diasTrabajados+diasLicencias)<detalleCausante.getDiasReconocimiento()) {
 	    			cumpleRelacionLaboral = false;
 	    		}
 	    		
@@ -344,7 +369,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 		    				detalleCausante.setEstado(2);
 		    			}
 		    			else {
-			    			if(detalleCausante.getEstado()==6) {
+			    			if(detalleCausante.getEstado()==6 || detalleCausante.getEstado()==2) {
 			    				detalleCausante.setEstado(1);
 			    			}
 		    			}
