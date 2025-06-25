@@ -130,7 +130,7 @@ public class LicenciaFiniquitoDAOImpl implements LicenciaFiniquitoDAO {
             log.info(result.get("idLicFin"));
 
             respuesta.put("Estado", "OK");
-            respuesta.put("Mensaje", "Se a creado el registro correctamente");
+            respuesta.put("Mensaje", "Se ha creado el registro correctamente");
 
         } catch (DataIntegrityViolationException ex) {
             log.error(ex.getMessage());

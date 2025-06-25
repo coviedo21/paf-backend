@@ -143,7 +143,19 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	                    }
 	                    else {
 	                    	solicitudAprobada = false;
-	                    	agregarCriterioResolucion(causante.getIIdSolicitud(), 7, false, null,null,null);
+	                    	if(!esBotonValidar) {
+	                    		agregarCriterioResolucion(causante.getIIdSolicitud(), 7, false, null,null,null);
+	                    	}
+	                    	else {
+	                    		List<CriterioSolicitudDTO> criterios = consultarCriteriosSolicitud(causante.getIIdSolicitud());
+		                    	for(CriterioSolicitudDTO criterio: criterios) {
+		                    		if(criterio.getIdCriterio()==7) {
+		                    			criterio.setCumple("N");
+		                    			actualizarCriterioSolicitud(criterio);
+		                    		}
+		                    	}
+	                    	}	
+	                    	
 	                    }
 	                    if(!criterioCreado) {
 		                    for(CriterioSolicitudDTO criterio: listaCriterios){
@@ -313,7 +325,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    		int diasReconocimiento = detalleCausante.getDiasReconocimiento();
 	    		
 	    		
-	    		if((diasTrabajados+diasLicencias)<detalleCausante.getDiasReconocimiento()) {
+	    		if(diasTrabajados==0) {
 	    			cumpleRelacionLaboral = false;
 	    		}
 	    		
