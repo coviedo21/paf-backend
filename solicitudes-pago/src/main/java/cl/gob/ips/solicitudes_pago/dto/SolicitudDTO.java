@@ -70,4 +70,5 @@ public class SolicitudDTO {
     private int corrHaber;
     private String usuarioCreacion;
     private String usuarioModificacion;
+    private String finiquitoValidado;
 }

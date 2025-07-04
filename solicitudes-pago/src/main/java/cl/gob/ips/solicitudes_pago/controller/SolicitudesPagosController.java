@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -603,26 +604,46 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
 
         CompletableFuture.runAsync(() -> {
             try {
-            	String esPortuario = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0).getEsPortuario();
+            	SolicitudDTO solicitud = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0);
+            	String esPortuario = solicitud.getEsPortuario();
+            	int tipoSolicitante = solicitud.getTipoSolicitante();
                 boolean validacionCriterios = criterioSolicitudService.validarCriteriosResolucion(idSolicitud, false, true,esPortuario);
 
                 if (validacionCriterios) {
-                    ResolucionDTO resolucion = new ResolucionDTO();
-                    resolucion.setIdSolicitud(idSolicitud);
-                    resolucion.setAutor(1);
-                    resolucion.setIdEstado(2);
-                    resolucion.setVcDescripcion("Se valida solicitud.");
-                    resolucion.setMotivoRechazo(null);
-                    resolucion.setUsuario(usuario);
-
-                    int resolucionResponse = solicitudPagoService.insertarResolucion(resolucion);
-                    if (resolucionResponse > 0) {
-                        datosTarea.put("estado", "completado");
-                        datosTarea.put("mensaje", "Se validó la solicitud de pago. Puede ser asignada a un proceso de pago.");
-                    } else {
-                        datosTarea.put("estado", "error");
-                        datosTarea.put("mensaje", "Error al insertar resolución.");
-                    }
+                	SolicitudDTO actualizarSolicitud = new SolicitudDTO();
+                    actualizarSolicitud.setIdSolicitud(solicitud.getIdSolicitud());
+                    actualizarSolicitud.setCumpleCriterios("S");
+                     
+                    solicitudPagoService.actualizarSolicitudPago(actualizarSolicitud);
+                    
+                	if (solicitud.getTotalPago().compareTo(BigDecimal.ZERO) > 0) {
+                		if(solicitud.getTipoSolicitante()==3 && solicitud.getFiniquitoValidado().equals("N")) {
+                			datosTarea.put("estado", "rechazada");
+                            datosTarea.put("mensaje", "No se ha validado el finiquito.");
+                		}
+                		else {
+		                    ResolucionDTO resolucion = new ResolucionDTO();
+		                    resolucion.setIdSolicitud(idSolicitud);
+		                    resolucion.setAutor(1);
+		                    resolucion.setIdEstado(2);
+		                    resolucion.setVcDescripcion("Se valida solicitud.");
+		                    resolucion.setMotivoRechazo(null);
+		                    resolucion.setUsuario(usuario);
+		
+		                    int resolucionResponse = solicitudPagoService.insertarResolucion(resolucion);
+		                    if (resolucionResponse > 0) {
+		                        datosTarea.put("estado", "completado");
+		                        datosTarea.put("mensaje", "Se validó la solicitud de pago. Puede ser asignada a un proceso de pago.");
+		                    } else {
+		                        datosTarea.put("estado", "error");
+		                        datosTarea.put("mensaje", "Error al insertar resolución.");
+		                    }
+                		}
+                	}
+                	else {
+                		datosTarea.put("estado", "rechazada");
+                        datosTarea.put("mensaje", "La solicitud no tiene derecho a pago.");
+                	}
                 } else {
                     datosTarea.put("estado", "rechazada");
                     datosTarea.put("mensaje", "La solicitud no cumple con todos los criterios de aceptación.");
@@ -707,5 +728,15 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         String token = authHeader.replace("Bearer ", "");
         return ResponseEntity.ok("Token recibido correctamente:\n" + token);
     }
+    
+    @GetMapping("/aprobarFiniquito/{idSolicitud}/{estado}")
+    public ResponseEntity<String> aprobarFiniquito(@PathVariable("idSolicitud") Integer idSolicitud, @PathVariable("estado") String estado) {
+        SolicitudDTO solicitud = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0);
+        solicitud.setFiniquitoValidado(estado.equals("S")?"S":"N");
+        solicitudPagoService.actualizarSolicitudPago(solicitud);
+        String mensaje = "S".equals(estado) ? "Finiquito aprobado." : "Finiquito rechazado.";
+        return ResponseEntity.ok(mensaje);
+    }
+
 
 }

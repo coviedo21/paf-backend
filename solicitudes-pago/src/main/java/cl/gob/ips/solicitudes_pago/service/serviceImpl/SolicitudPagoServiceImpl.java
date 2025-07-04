@@ -1,5 +1,6 @@
 package cl.gob.ips.solicitudes_pago.service.serviceImpl;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,22 +71,38 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 long tiempoFinActualizarSolicitud = System.currentTimeMillis();
                 logger.error("Actualizar solicitud demoró: "+(tiempoInicioActualizarSolicitud-tiempoFinActualizarSolicitud));
                 
-                ResolucionDTO resolucion = new ResolucionDTO();
-                resolucion.setIdSolicitud((int) response.getResultado());
-                resolucion.setAutor(solicitudPago.getIdUsuario());
-                resolucion.setIdEstado(2);
-                resolucion.setVcDescripcion("Solicitud cumple criterios y es enviada automáticamente.");
-                resolucion.setMotivoRechazo(null);
-                resolucion.setUsuario("Sistema");
-                insertarResolucion(resolucion);
-                try {
+                if (actualizarSolicitud.getTotalPago().compareTo(BigDecimal.ZERO) > 0) {
+                	if(actualizarSolicitud.getTipoSolicitante()==3 && actualizarSolicitud.getFiniquitoValidado().equals("N")) {
+                		response.setGlosaRetorno("Solicitud Nº "+(int) response.getResultado()+" creada. Debe aprobar el finiquito para poder asignarla a un proceso de pago.");
+                        if(!esArchivo){
+                        	emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" recibida con error(es)","Su solicitud N° "+(int) response.getResultado()+" fue ingresada pero debe ser aprobado el finiquito para poder continuar.");
+                        }
+                	}
+                	else {
+		                ResolucionDTO resolucion = new ResolucionDTO();
+		                resolucion.setIdSolicitud((int) response.getResultado());
+		                resolucion.setAutor(solicitudPago.getIdUsuario());
+		                resolucion.setIdEstado(2);
+		                resolucion.setVcDescripcion("Solicitud cumple criterios y es enviada automáticamente.");
+		                resolucion.setMotivoRechazo(null);
+		                resolucion.setUsuario("Sistema");
+		                insertarResolucion(resolucion);
+		                try {
+		                    if(!esArchivo){
+		                    	response.setGlosaRetorno("Solicitud Nº "+(int) response.getResultado()+" creada exitósamente. Puede ser asignada a un proceso de pago ya que cumple con todos los criterios de aceptación.");
+		                        emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" enviada","Su solicitud N° "+(int) response.getResultado()+" cumple con todos los criterios de aceptación por lo que ha sido enviada para su resolución.");    
+		                    }
+		                } catch (Exception e) {
+		                    // Captura cualquier excepción relacionada con el envío del correo y loguea el error
+		                    System.err.println("Error enviando correo para la solicitud " + (int) response.getResultado() + ": " + e.getMessage());
+		                }
+	                }
+                }
+                else {
+                	response.setGlosaRetorno("Solicitud Nº "+(int) response.getResultado()+" creada. No tiene derecho a pago.");
                     if(!esArchivo){
-                    	response.setGlosaRetorno("Solicitud Nº "+(int) response.getResultado()+" creada exitósamente. Puede ser asignada a un proceso de pago ya que cumple con todos los criterios de aceptación.");
-                        emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" enviada","Su solicitud N° "+(int) response.getResultado()+" cumple con todos los criterios de aceptación por lo que ha sido enviada para su resolución.");    
+                    	emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" recibida con error(es)","Su solicitud N° "+(int) response.getResultado()+" NO tiene derecho a pago. A partir de este momento cuenta con "+diasAntiguedad+" días para subsanarla. Deberá adjuntar la documentación necesaria.");
                     }
-                } catch (Exception e) {
-                    // Captura cualquier excepción relacionada con el envío del correo y loguea el error
-                    System.err.println("Error enviando correo para la solicitud " + (int) response.getResultado() + ": " + e.getMessage());
                 }
             }
             else{
@@ -181,8 +198,8 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 ResolucionDTO resolucion = new ResolucionDTO();
                 resolucion.setIdSolicitud(solicitud.getIdSolicitud());
                 resolucion.setAutor(solicitud.getIdUsuario());
-                resolucion.setIdEstado(7);
-                resolucion.setVcDescripcion("Termina plazo para subsanar, solicitud no es enviada y debe ser revisada");
+                resolucion.setIdEstado(2);
+                resolucion.setVcDescripcion("Termina plazo para subsanar, solicitud es enviada.");
                 resolucion.setMotivoRechazo(null);
                 resolucion.setUsuario("Sistema");
                 insertarResolucion(resolucion);

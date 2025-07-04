@@ -37,21 +37,23 @@ public class CausanteDAOImpl implements CausanteDAO{
     
     private final JdbcTemplate jdbcTemplate;
     private final JdbcTemplate genesysPJdbc;
+    private final JdbcTemplate ctaCteJdbc;
     
     @Value("${spring.datasource.schema}")
     private String esquema;
 
     @Autowired
-    public CausanteDAOImpl(@Qualifier("pafJdbc") JdbcTemplate jdbcTemplate,@Qualifier("genesysPJdbc") JdbcTemplate genesysPJdbc) {
+    public CausanteDAOImpl(@Qualifier("pafJdbc") JdbcTemplate jdbcTemplate,@Qualifier("genesysPJdbc") JdbcTemplate genesysPJdbc,@Qualifier("ctaCteJdbc") JdbcTemplate ctaCteJdbc) {
         this.jdbcTemplate = jdbcTemplate;
         this.genesysPJdbc = genesysPJdbc;
+        this.ctaCteJdbc = ctaCteJdbc;
     }
 
     @Override
     public List<CausanteDTO> obtenerDetalleCausante(int rutBeneficiario) {
 
-        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(genesysPJdbc)
-                .withProcedureName("SP_DETALLECAUSANTES")
+        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(ctaCteJdbc)
+                .withProcedureName("SP_DETALLECAUSANTESPAF")
                 .declareParameters(
                         new SqlOutParameter("p_cursor", Types.REF_CURSOR),
                         new SqlParameter("RUT_BENEFICIARIO", Types.INTEGER));

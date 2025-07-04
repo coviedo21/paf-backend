@@ -460,6 +460,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("totalPago") != null) solicitudPagoDTO.setTotalPago((BigDecimal) row.get("totalPago"));
             if (row.get("usuarioCreacion") != null) solicitudPagoDTO.setUsuarioCreacion((String) row.get("usuarioCreacion"));
             if (row.get("usuarioModificacion") != null) solicitudPagoDTO.setUsuarioModificacion((String) row.get("usuarioModificacion"));
+            if (row.get("finiquitoValidado") != null) solicitudPagoDTO.setFiniquitoValidado((String) row.get("finiquitoValidado"));
             solicitudesPago.add(solicitudPagoDTO);
 
             // Consulta los causantes de la solicitud actual 
@@ -536,6 +537,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                         new SqlParameter("cumpleCriterios", Types.VARCHAR),
                         new SqlParameter("nombreRegion", Types.VARCHAR),
                         new SqlParameter("vcUsuarioModificacion", Types.VARCHAR),
+                        new SqlParameter("vcFiniquitoValidado", Types.VARCHAR),
                         new SqlOutParameter("mensajeRespuesta", Types.VARCHAR)
                 );
 
@@ -582,7 +584,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("nombreComuna", solicitudPago.getNombreComuna())
                 .addValue("cumpleCriterios", solicitudPago.getCumpleCriterios())
                 .addValue("nombreRegion", solicitudPago.getNombreRegion())
-        		.addValue("vcUsuarioModificacion", solicitudPago.getUsuarioModificacion());
+        		.addValue("vcUsuarioModificacion", solicitudPago.getUsuarioModificacion())
+        		.addValue("vcFiniquitoValidado", solicitudPago.getFiniquitoValidado());
 
         try {
             Map<String, Object> result = jdbcCall.execute(inParams);

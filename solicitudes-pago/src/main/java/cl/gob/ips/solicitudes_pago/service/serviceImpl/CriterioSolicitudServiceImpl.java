@@ -277,6 +277,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     	BigDecimal valorDiario = BigDecimal.ZERO;
     	int diasPorPagar = 0;
     	int diasTrabajados = 0;
+    	int diasMaximosLicencia = 0;
     	
     	boolean cumpleRelacionLaboral = true;
     	
@@ -286,6 +287,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     	
     	for(DetalleCausanteDTO detalleCausante: detalle) {
     		diasPago=0;
+    		diasMaximosLicencia = detalleCausante.getDiasReconocimiento()-detalleCausante.getDiasTrabajados();
     		if(detalleCausante.getEstado()==1 || detalleCausante.getEstado()==2 || detalleCausante.getEstado()==6) {
     			tramo = detalleCausante.getValorTramo30();
     			//valorDiario = (int) Math.round(tramo.doubleValue() / 30);
@@ -315,6 +317,9 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     	        
 	    		int diasLicencias = licenciaFiniquitoService.obtenerDiasLicenciaFiniquito(detalleCausante.getRutBeneficiario(), fechas.get("inicio"), fechas.get("fin"));	
 	    		if(diasLicencias>0) {
+	    			if(diasLicencias>diasMaximosLicencia) {
+	    				diasLicencias = diasMaximosLicencia;
+	    			}
 	    			diasPago = diasLicencias;
 	    		}
 	    		
@@ -325,7 +330,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    		int diasReconocimiento = detalleCausante.getDiasReconocimiento();
 	    		
 	    		
-	    		if(diasTrabajados==0) {
+	    		if(diasTrabajados+diasLicencias==0) {
 	    			cumpleRelacionLaboral = false;
 	    		}
 	    		
@@ -387,11 +392,11 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 		    			}
 		    		}
 	    		//}
-	    		/*if(diasPago>=25) { //dias por pagar
+	    		if(diasPago>=25) { //dias por pagar
 	    			detalleCausante.setTotalPago(detalleCausante.getMontoMovimiento());
-	    			detalleCausante.setDiasPago(diasPago);
+	    			detalleCausante.setDiasPago(30);
 	    		}
-	    		else {
+	    		/*else {
 	    			BigDecimal dias = new BigDecimal(diasPago);
 	    			BigDecimal divisor = new BigDecimal(diasReconocimiento);
 	    			// (monto / 30) * diasPago
