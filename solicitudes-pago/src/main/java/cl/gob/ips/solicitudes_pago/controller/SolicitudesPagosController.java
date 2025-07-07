@@ -610,8 +610,8 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
                 boolean validacionCriterios = criterioSolicitudService.validarCriteriosResolucion(idSolicitud, false, true,esPortuario);
 
                 if (validacionCriterios) {
-                	SolicitudDTO actualizarSolicitud = new SolicitudDTO();
-                    actualizarSolicitud.setIdSolicitud(solicitud.getIdSolicitud());
+                	SolicitudDTO actualizarSolicitud = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0);
+                    //actualizarSolicitud.setIdSolicitud(solicitud.getIdSolicitud());
                     actualizarSolicitud.setCumpleCriterios("S");
                      
                     solicitudPagoService.actualizarSolicitudPago(actualizarSolicitud);

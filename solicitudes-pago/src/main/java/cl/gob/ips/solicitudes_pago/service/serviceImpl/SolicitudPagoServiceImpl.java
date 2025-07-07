@@ -61,7 +61,8 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                long tiempoFinValidarCriterios = System.currentTimeMillis();
                logger.error("Validar criterios demoró: "+(tiempoInicioValidarCriterios-tiempoFinValidarCriterios));
                if(enviar){
-                SolicitudDTO actualizarSolicitud = new SolicitudDTO();
+            	SolicitudDTO actualizarSolicitud = consultarSolicitudPago((int) response.getResultado()).get(0);
+                //SolicitudDTO actualizarSolicitud = new SolicitudDTO();
                 actualizarSolicitud.setIdSolicitud((int) response.getResultado());
                 actualizarSolicitud.setCumpleCriterios("S");
                 
