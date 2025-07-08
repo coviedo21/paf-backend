@@ -52,6 +52,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.azure.storage.file.share.ShareClient;
+import com.azure.storage.file.share.ShareClientBuilder;
+import com.azure.storage.file.share.ShareDirectoryClient;
 import com.azure.storage.file.share.ShareFileClient;
 import com.azure.storage.file.share.ShareFileClientBuilder;
 
@@ -494,31 +497,62 @@ public class FileController {
 
     @PostMapping("/subirEvidenciaSolicitud")
     public ResponseEntity<String> subirEvidenciaSolicitud(@RequestParam("file") MultipartFile file, int idCriterioSolicitud) {
-        try {
-            String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        
+    	try {
+            // Datos base
+            //String nombreArchivo = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        	String nombreArchivo = "";
+            String carpeta = "evidencias-criterios";
+            //String rutaRemota = carpeta + "/" + nombreArchivo;
+            String rutaRemota = "";
+            String nombre = file.getOriginalFilename();
+            String extension = nombre != null && nombre.contains(".")
+            	    ? nombre.substring(nombre.lastIndexOf("."))
+            	    : "";
 
-            // Guardar temporalmente el archivo
-            Path tempFile = Files.createTempFile("upload-", nombreRemoto);
-            Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
-
-            // Crear cliente para subir archivo a Azure
-            ShareFileClient fileClient = new ShareFileClientBuilder()
+            // Obtener solicitud
+            CriterioSolicitudDTO criterio = criterioSolicitudService.obtenerCriteriosPorIdCriterio(idCriterioSolicitud);
+            SolicitudDTO solicitud = solicitudPagoService.consultarSolicitudPago(criterio.getIdSolicitud()).get(0);
+            nombreArchivo = UUID.randomUUID().toString()+"_"+"Solicitud"+solicitud.getIdSolicitud()+"_Criterio"+criterio.getIdCriterio()+"_"+solicitud.getRutBeneficiario()+"-"+solicitud.getDvBeneficiario()+extension;
+            rutaRemota = carpeta + "/" + nombreArchivo;
+            
+            // Crear cliente del file share
+            ShareClient shareClient = new ShareClientBuilder()
                     .connectionString(connectionString)
                     .shareName(fileShareName)
-                    .resourcePath(nombreRemoto)
-                    .buildFileClient();
+                    .buildClient();
 
+            // Verificar o crear carpeta
+            ShareDirectoryClient directoryClient = shareClient.getDirectoryClient(carpeta);
+            if (!directoryClient.exists()) {
+                directoryClient.create();
+            }
+
+            // Crear cliente del archivo en esa carpeta
+            ShareFileClient fileClient = directoryClient.getFileClient(nombreArchivo);
+
+            // Guardar archivo temporal
+            Path tempFile = Files.createTempFile("upload-", nombreArchivo);
+            Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+
+            // Subir a Azure
             fileClient.create(file.getSize());
             fileClient.uploadFromFile(tempFile.toString());
 
+            // Eliminar archivo temporal
+            Files.deleteIfExists(tempFile);
 
-            CriterioSolicitudDTO criterio = criterioSolicitudService.obtenerCriteriosPorIdCriterio(idCriterioSolicitud);
-            criterio.setArchivo(nombreRemoto);
+            // Actualizar ruta en solicitud
+            
+            criterio.setArchivo(rutaRemota);
             criterioSolicitudService.actualizarCriterioSolicitud(criterio);
-            return ResponseEntity.ok("✅ Archivo subido correctamente: " + nombreRemoto);
+
+            return ResponseEntity.ok("✅ Archivo subido correctamente: " + rutaRemota);
+
         } catch (Exception e) {
             return ResponseEntity.status(500).body("❌ Error subiendo el archivo: " + e.getMessage());
         }
+       
     }
 
     @PostMapping("/subirEvidenciaCausante")
@@ -564,9 +598,13 @@ public class FileController {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             fileClient.download(outputStream);
 
+         // Obtener solo el nombre del archivo
+            String nombreArchivo = Paths.get(rutaArchivo).getFileName().toString();
+
+            // Configurar cabeceras para forzar descarga
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDisposition(ContentDisposition.attachment().filename(rutaArchivo).build());
+            headers.setContentDisposition(ContentDisposition.attachment().filename(nombreArchivo).build());
 
             return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
         } catch (Exception e) {
@@ -601,29 +639,63 @@ public class FileController {
     }
 
     @PostMapping("/subirEvidenciaFiniquitado")
-    public ResponseEntity<String> subirEvidenciaFiniquitado(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> subirEvidenciaFiniquitado(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("idSolicitud") int idSolicitud) {
+
         try {
-        	String nombreRemoto = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            String nombreArchivo = "";
+            String carpeta = "finiquitos";
+            String rutaRemota = "";
+            String nombre = file.getOriginalFilename();
+            String extension = nombre != null && nombre.contains(".")
+                    ? nombre.substring(nombre.lastIndexOf("."))
+                    : "";
 
-            // Guardar temporalmente el archivo
-            Path tempFile = Files.createTempFile("upload-", nombreRemoto);
-            Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+            // Obtener solicitud
+            SolicitudDTO solicitud = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0);
+            nombreArchivo = UUID.randomUUID().toString() + "_Solicitud" + idSolicitud + "_" +
+                    solicitud.getRutBeneficiario() + "-" + solicitud.getDvBeneficiario() + extension;
 
-            // Crear cliente para subir archivo a Azure
-            ShareFileClient fileClient = new ShareFileClientBuilder()
+            rutaRemota = carpeta + "/" + nombreArchivo;
+
+            // Crear cliente del file share
+            ShareClient shareClient = new ShareClientBuilder()
                     .connectionString(connectionString)
                     .shareName(fileShareName)
-                    .resourcePath(nombreRemoto)
-                    .buildFileClient();
+                    .buildClient();
 
+            // Verificar o crear carpeta
+            ShareDirectoryClient directoryClient = shareClient.getDirectoryClient(carpeta);
+            if (!directoryClient.exists()) {
+                directoryClient.create();
+            }
+
+            // Crear cliente del archivo en esa carpeta
+            ShareFileClient fileClient = directoryClient.getFileClient(nombreArchivo);
+
+            // Guardar archivo temporal
+            Path tempFile = Files.createTempFile("upload-", nombreArchivo);
+            Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+
+            // Subir a Azure
             fileClient.create(file.getSize());
             fileClient.uploadFromFile(tempFile.toString());
 
-            return ResponseEntity.ok(nombreRemoto);
+            // Eliminar archivo temporal
+            Files.deleteIfExists(tempFile);
+
+            // Aquí puedes guardar la ruta si tienes un campo en tu modelo para evidencia finiquitada:
+             solicitud.setFiniquito(rutaRemota);
+             solicitudPagoService.actualizarSolicitudPago(solicitud);
+
+            return ResponseEntity.ok("✅ Archivo subido correctamente: " + rutaRemota);
+
         } catch (Exception e) {
             return ResponseEntity.status(500).body("❌ Error subiendo el archivo: " + e.getMessage());
         }
     }
+
 
     @GetMapping("/descargarEvidenciaFiniquitado/{idSolicitud}")
     public ResponseEntity<byte[]> descargarEvidenciaFiniquitado(@PathVariable int idSolicitud) {
@@ -639,9 +711,14 @@ public class FileController {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             fileClient.download(outputStream);
 
+         // Obtener solo el nombre del archivo
+            String nombreArchivo = Paths.get(rutaArchivo).getFileName().toString();
+
+            // Configurar cabeceras para forzar descarga
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDisposition(ContentDisposition.attachment().filename(rutaArchivo).build());
+            headers.setContentDisposition(ContentDisposition.attachment().filename(nombreArchivo).build());
+
 
             return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
         } catch (Exception e) {
@@ -649,5 +726,99 @@ public class FileController {
                     .body(("Error al descargar archivo: " + e.getMessage()).getBytes());
         }
     }
+    
+    @PostMapping("/subirMaestroSolicitud")
+    public ResponseEntity<String> subirMaestroSolicitud(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("idSolicitud") int idSolicitud) {
+
+        try {
+            // Datos base
+            //String nombreArchivo = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        	String nombreArchivo = "";
+            String carpeta = "maestros-licencias";
+            //String rutaRemota = carpeta + "/" + nombreArchivo;
+            String rutaRemota = "";
+            String nombre = file.getOriginalFilename();
+            String extension = nombre != null && nombre.contains(".")
+            	    ? nombre.substring(nombre.lastIndexOf("."))
+            	    : "";
+
+            // Obtener solicitud
+            SolicitudDTO solicitud = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0);
+            nombreArchivo = UUID.randomUUID().toString()+"_"+"Solicitud"+idSolicitud+"_"+solicitud.getRutBeneficiario()+"-"+solicitud.getDvBeneficiario()+extension;
+            rutaRemota = carpeta + "/" + nombreArchivo;
+            
+            // Crear cliente del file share
+            ShareClient shareClient = new ShareClientBuilder()
+                    .connectionString(connectionString)
+                    .shareName(fileShareName)
+                    .buildClient();
+
+            // Verificar o crear carpeta
+            ShareDirectoryClient directoryClient = shareClient.getDirectoryClient(carpeta);
+            if (!directoryClient.exists()) {
+                directoryClient.create();
+            }
+
+            // Crear cliente del archivo en esa carpeta
+            ShareFileClient fileClient = directoryClient.getFileClient(nombreArchivo);
+
+            // Guardar archivo temporal
+            Path tempFile = Files.createTempFile("upload-", nombreArchivo);
+            Files.copy(file.getInputStream(), tempFile, StandardCopyOption.REPLACE_EXISTING);
+
+            // Subir a Azure
+            fileClient.create(file.getSize());
+            fileClient.uploadFromFile(tempFile.toString());
+
+            // Eliminar archivo temporal
+            Files.deleteIfExists(tempFile);
+
+            // Actualizar ruta en solicitud
+            solicitud.setRutaMaestro(rutaRemota);
+            solicitudPagoService.actualizarSolicitudPago(solicitud);
+
+            return ResponseEntity.ok("✅ Archivo subido correctamente: " + rutaRemota);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("❌ Error subiendo el archivo: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/descargarMaestroSolicitud/{idSolicitud}")
+    public ResponseEntity<byte[]> descargarMaestroSolicitud(@PathVariable("idSolicitud") int idSolicitud) {
+        try {
+            // Obtener ruta del archivo remoto desde la base de datos
+            String rutaArchivo = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0).getRutaMaestro();
+            
+            // Cliente del archivo en Azure
+            ShareFileClient fileClient = new ShareFileClientBuilder()
+                    .connectionString(connectionString)
+                    .shareName(fileShareName)
+                    .resourcePath(rutaArchivo)
+                    .buildFileClient();
+
+            // Descargar contenido a memoria
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            fileClient.download(outputStream);
+
+            // Obtener solo el nombre del archivo
+            String nombreArchivo = Paths.get(rutaArchivo).getFileName().toString();
+
+            // Configurar cabeceras para forzar descarga
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDisposition(ContentDisposition.attachment().filename(nombreArchivo).build());
+
+            // Respuesta con archivo descargable
+            return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("Error al descargar archivo: " + e.getMessage()).getBytes());
+        }
+    }
+
 
 }

@@ -461,6 +461,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("usuarioCreacion") != null) solicitudPagoDTO.setUsuarioCreacion((String) row.get("usuarioCreacion"));
             if (row.get("usuarioModificacion") != null) solicitudPagoDTO.setUsuarioModificacion((String) row.get("usuarioModificacion"));
             if (row.get("finiquitoValidado") != null) solicitudPagoDTO.setFiniquitoValidado((String) row.get("finiquitoValidado"));
+            if (row.get("rutaMaestro") != null) solicitudPagoDTO.setRutaMaestro((String) row.get("rutaMaestro"));
             solicitudesPago.add(solicitudPagoDTO);
 
             // Consulta los causantes de la solicitud actual 
@@ -585,7 +586,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
                 .addValue("cumpleCriterios", solicitudPago.getCumpleCriterios())
                 .addValue("nombreRegion", solicitudPago.getNombreRegion())
         		.addValue("vcUsuarioModificacion", solicitudPago.getUsuarioModificacion())
-        		.addValue("vcFiniquitoValidado", solicitudPago.getFiniquitoValidado());
+        		.addValue("vcFiniquitoValidado", solicitudPago.getFiniquitoValidado())
+        		.addValue("vcRutaMaestro", solicitudPago.getRutaMaestro());
 
         try {
             Map<String, Object> result = jdbcCall.execute(inParams);

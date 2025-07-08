@@ -71,4 +71,5 @@ public class SolicitudDTO {
     private String usuarioCreacion;
     private String usuarioModificacion;
     private String finiquitoValidado;
+    private String rutaMaestro;
 }
