@@ -282,7 +282,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("detalles", new SqlValue() {
                     @Override
                     public void setValue(PreparedStatement ps, int paramIndex) throws SQLException {
-                        ((SQLServerPreparedStatement) ps).setStructured(paramIndex, "paf.TVP_DetalleCausanteV5", tvp);
+                        ((SQLServerPreparedStatement) ps).setStructured(paramIndex, esquema+".TVP_DetalleCausanteV5", tvp);
                     }
 
                     @Override

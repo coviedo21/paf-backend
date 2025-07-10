@@ -165,7 +165,7 @@ public class CriterioSolicitudDAOImpl implements CriterioSolicitudDAO {
                 .addValue("criterios", new SqlValue() {
                     @Override
                     public void setValue(PreparedStatement ps, int paramIndex) throws SQLException {
-                        ((SQLServerPreparedStatement) ps).setStructured(paramIndex, "paf.TVP_CriterioCausante", tvp);
+                        ((SQLServerPreparedStatement) ps).setStructured(paramIndex, esquema+".TVP_CriterioCausante", tvp);
                     }
 
                     @Override

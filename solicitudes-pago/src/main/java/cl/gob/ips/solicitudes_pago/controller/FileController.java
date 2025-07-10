@@ -640,8 +640,7 @@ public class FileController {
 
     @PostMapping("/subirEvidenciaFiniquitado")
     public ResponseEntity<String> subirEvidenciaFiniquitado(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("idSolicitud") int idSolicitud) {
+            @RequestParam("file") MultipartFile file) {
 
         try {
             String nombreArchivo = "";
@@ -653,10 +652,9 @@ public class FileController {
                     : "";
 
             // Obtener solicitud
-            SolicitudDTO solicitud = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0);
-            nombreArchivo = UUID.randomUUID().toString() + "_Solicitud" + idSolicitud + "_" +
-                    solicitud.getRutBeneficiario() + "-" + solicitud.getDvBeneficiario() + extension;
-
+            //SolicitudDTO solicitud = solicitudPagoService.consultarSolicitudPago(idSolicitud).get(0);
+            nombreArchivo = UUID.randomUUID().toString() + "_" +nombre+"."+extension;
+        
             rutaRemota = carpeta + "/" + nombreArchivo;
 
             // Crear cliente del file share
@@ -685,11 +683,7 @@ public class FileController {
             // Eliminar archivo temporal
             Files.deleteIfExists(tempFile);
 
-            // Aquí puedes guardar la ruta si tienes un campo en tu modelo para evidencia finiquitada:
-             solicitud.setFiniquito(rutaRemota);
-             solicitudPagoService.actualizarSolicitudPago(solicitud);
-
-            return ResponseEntity.ok("✅ Archivo subido correctamente: " + rutaRemota);
+            return ResponseEntity.ok(rutaRemota);
 
         } catch (Exception e) {
             return ResponseEntity.status(500).body("❌ Error subiendo el archivo: " + e.getMessage());
