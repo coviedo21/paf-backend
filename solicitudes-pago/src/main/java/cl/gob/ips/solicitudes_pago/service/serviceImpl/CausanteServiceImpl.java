@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -34,9 +35,12 @@ public class CausanteServiceImpl implements CausanteService{
 
     private final RestTemplate restTemplate;
 
+    @Value("${app.urlCuentaCorriente}")
+    private String baseUrl;
+    
     @Override
     public List<CausanteCuentaCorrienteDTO> obtenerDerechoCausantes(String rutCausante, String rutBeneficiario, String rutEmpleador, String periodoDesde, String periodoHasta, String tipoCausante) {
-        String baseUrl = "https://ctacorrienteback-dev.azurewebsites.net/causante-service/v1/ctacte/causante/derecho/sinPagar/listar";
+        //String baseUrl = "https://ctacorrienteback-dev.azurewebsites.net/causante-service/v1/ctacte/causante/derecho/sinPagar/listar";
 
         // Construcción de la URL con parámetros en query string
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl)

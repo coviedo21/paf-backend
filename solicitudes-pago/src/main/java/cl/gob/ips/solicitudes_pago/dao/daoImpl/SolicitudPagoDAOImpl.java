@@ -137,7 +137,7 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
 	                            resolucion.setUsuario(solicitudPago.getUsuarioModificacion());
 	                            insertarResolucion(resolucion);
 	                            try {
-	                                emailService.enviarCorreo(solicitudAntigua.getEmail(),"Solicitud "+solicitudAntigua.getIdSolicitud()+" rechazada.","Su solicitud N° "+solicitudAntigua.getIdSolicitud()+" ha sido rechazada. Motivo de Rechazo: Solicitud Duplicada");    
+	                                emailService.enviarCorreo(solicitudAntigua.getEmail(),"Solicitud "+solicitudAntigua.getIdSolicitud()+" rechazada.","Su solicitud N° "+solicitudAntigua.getIdSolicitud()+" ha sido rechazada. Motivo de Rechazo: Solicitud Duplicada",false,solicitudAntigua.getIdSolicitud());    
 	                            } catch (Exception e) {
 	                                // Captura cualquier excepción relacionada con el envío del correo y loguea el error
 	                                System.err.println("Error enviando correo para la solicitud " + solicitudAntigua.getIdSolicitud() + ": " + e.getMessage());
@@ -462,6 +462,8 @@ public class SolicitudPagoDAOImpl implements SolicitudPagoDAO {
             if (row.get("usuarioModificacion") != null) solicitudPagoDTO.setUsuarioModificacion((String) row.get("usuarioModificacion"));
             if (row.get("finiquitoValidado") != null) solicitudPagoDTO.setFiniquitoValidado((String) row.get("finiquitoValidado"));
             if (row.get("rutaMaestro") != null) solicitudPagoDTO.setRutaMaestro((String) row.get("rutaMaestro"));
+            if (row.get("nombreFormaPago") != null) solicitudPagoDTO.setNombreFormaPago((String) row.get("nombreFormaPago"));
+            if (row.get("cuentaBancaria") != null) solicitudPagoDTO.setCuentaBancaria((String) row.get("cuentaBancaria"));
             solicitudesPago.add(solicitudPagoDTO);
 
             // Consulta los causantes de la solicitud actual 

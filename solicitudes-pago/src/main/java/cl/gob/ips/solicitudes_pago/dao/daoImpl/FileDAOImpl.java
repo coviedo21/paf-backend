@@ -155,6 +155,7 @@ public class FileDAOImpl implements FileDAO{
                 	                    derecho.setValorTramo30(new BigDecimal(origen.getValorTramo30()));
                 	                    derecho.setDiasTrabajados(origen.getDiasTrabajados());
                 	                    derecho.setDiasPagados(origen.getDiasPagados());
+                	                    derecho.setMontoPagos(new BigDecimal(origen.getMontoPagos()));
                 	                    tieneDerecho = true;
                 	                }
 
@@ -185,6 +186,7 @@ public class FileDAOImpl implements FileDAO{
                 	        derecho.setValorTramo30(BigDecimal.ZERO);
                 	        derecho.setDiasTrabajados(0);
                 	        derecho.setDiasPagados(0);
+                	        derecho.setMontoPagos(BigDecimal.ZERO);
                 	    }
 
                 	    listaDetalle.add(derecho);

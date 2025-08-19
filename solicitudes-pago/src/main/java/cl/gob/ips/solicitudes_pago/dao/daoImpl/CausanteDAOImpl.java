@@ -184,46 +184,6 @@ public class CausanteDAOImpl implements CausanteDAO{
             tvp.addColumnMetadata("iDiasPagados", Types.INTEGER);
 
             for (DetalleCausanteDTO d : lista) {
-            	System.out.println("iIdCausanteSolicitud: " + d.getIdCausanteSolicitud());
-            	System.out.println("iRutBeneficiario: " + d.getRutBeneficiario());
-            	System.out.println("vcDvBeneficiario: " + d.getDvBeneficiario());
-            	System.out.println("iRutCausante: " + d.getRutCausante());
-            	System.out.println("vcDvCausante: " + d.getDvCausante());
-            	System.out.println("iPeriodo: " + d.getPeriodo());
-            	System.out.println("iTipoMovimiento: " + d.getTipoMovimiento());
-            	System.out.println("dFechaMovimiento: " + d.getFechaMovimiento());
-            	System.out.println("vcEntradaSalida: " + d.getEntradaSalida());
-            	System.out.println("nMontoMovimiento (diferencia): " + d.getDiferencia());
-            	System.out.println("iTipoCausante: " + d.getTipoCausante());
-            	System.out.println("iIdBeneficio: " + d.getIdBeneficio());
-            	System.out.println("nRentaPromedio: " + d.getRentaPromedio());
-            	System.out.println("iDiasReconocimiento: " + d.getDiasReconocimiento());
-            	System.out.println("iCodigoTramo: " + d.getCodigoTramo());
-            	System.out.println("dFechaFinVigencia: " + d.getFechaFinVigencia());
-            	System.out.println("dFechaInicioVigencia: " + d.getFechaInicioVigencia());
-            	System.out.println("iEstado: " + d.getEstado());
-            	System.out.println("iRutEmpleador: " + d.getRutEmpleador());
-            	System.out.println("vcDvEmpleador: " + d.getDvEmpleador());
-            	System.out.println("iNis: " + d.getRutNis());
-            	System.out.println("vcDvNis: " + d.getDvNis());
-            	System.out.println("iNumeroDocumento: " + d.getNumeroDocumento());
-            	System.out.println("vcDvNumeroDocumento: " + d.getDvDocumento());
-            	System.out.println("dFechaPago: " + d.getFechaPago());
-            	System.out.println("iIdRetencion: " + d.getIdRetencion());
-            	System.out.println("iRutReteniente: " + d.getRutReteniente());
-            	System.out.println("vcDvReteniente: " + d.getDvReteniente());
-            	System.out.println("vcNombresReteniente: " + d.getNombresReteniente());
-            	System.out.println("vcApellidoPaternoReteniente: " + d.getApellidoPaternoReteniente());
-            	System.out.println("vcApellidoMaternoReteniente: " + d.getApellidoMaternoReteniente());
-            	System.out.println("iFormaPagoFinal: " + d.getIdFormaPagoFinal());
-            	System.out.println("iBancoFinal: " + d.getIdBancoFinal());
-            	System.out.println("vcNumeroCuentaFinal: " + d.getNumeroCuentaFinal());
-            	System.out.println("iTipoCuentaFinal: " + d.getIdTipoCuentaFinal());
-            	System.out.println("vcArchivo: " + d.getArchivo());
-            	System.out.println("iDiasPago: " + d.getDiasPago());
-            	System.out.println("tramo30: " + d.getValorTramo30());
-            	System.out.println("iDiasTrabajados: " + d.getDiasTrabajados());
-            	System.out.println("iDiasPagados: " + d.getDiasPagados());
             	
                 tvp.addRow(
                     d.getIdCausanteSolicitud(),
@@ -265,7 +225,8 @@ public class CausanteDAOImpl implements CausanteDAO{
                     d.getDiasPago(),
                     d.getValorTramo30(),
                     d.getDiasTrabajados(),
-                    d.getDiasPagados()
+                    d.getDiasPagados(),
+                    d.getMontoPagos()
                 		);
             }
 
@@ -282,7 +243,7 @@ public class CausanteDAOImpl implements CausanteDAO{
                 .addValue("detalles", new SqlValue() {
                     @Override
                     public void setValue(PreparedStatement ps, int paramIndex) throws SQLException {
-                        ((SQLServerPreparedStatement) ps).setStructured(paramIndex, esquema+".TVP_DetalleCausanteV5", tvp);
+                        ((SQLServerPreparedStatement) ps).setStructured(paramIndex, esquema+".TVP_DetalleCausanteV6", tvp);
                     }
 
                     @Override
@@ -533,6 +494,9 @@ public class CausanteDAOImpl implements CausanteDAO{
                 
                 if (row.get("diasPagados") != null) 
                     detalleDTO.setDiasPagados((Integer) row.get("diasPagados"));
+
+                if (row.get("montoPagos") != null) 
+                    detalleDTO.setMontoPagos((BigDecimal) row.get("montoPagos"));
 
                 BigDecimal valorDiario = detalleDTO.getValorTramo30().divide(BigDecimal.valueOf(30), 10, RoundingMode.HALF_UP);
                 BigDecimal diasPorPagar = detalleDTO.getTotalPago()!=null?detalleDTO.getTotalPago().divide(valorDiario, 0, RoundingMode.HALF_UP):BigDecimal.ZERO;

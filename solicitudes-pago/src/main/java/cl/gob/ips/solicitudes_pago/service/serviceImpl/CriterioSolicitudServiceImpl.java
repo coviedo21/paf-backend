@@ -289,14 +289,22 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     		diasPago=0;
     		diasMaximosLicencia = detalleCausante.getDiasReconocimiento()-detalleCausante.getDiasTrabajados();
     		if(detalleCausante.getEstado()==1 || detalleCausante.getEstado()==2 || detalleCausante.getEstado()==6) {
+    			//Se obtiene el tramo
     			tramo = detalleCausante.getValorTramo30();
-    			//valorDiario = (int) Math.round(tramo.doubleValue() / 30);
+    			
+    			//Se calcula el valor diario
     			valorDiario = tramo.divide(BigDecimal.valueOf(30), MathContext.DECIMAL128);
+    			
     			if(detalleCausante.getDiasReconocimiento() == detalleCausante.getDiasTrabajados() && detalleCausante.getDiasPagados()==0) {
     				diasPorPagar = detalleCausante.getDiasTrabajados();
     			}
     			else {
-    				diasPorPagar = detalleCausante.getDiasReconocimiento() - detalleCausante.getDiasTrabajados();
+    				if(detalleCausante.getDiasReconocimiento() < detalleCausante.getDiasTrabajados()) {
+    					diasPorPagar = 0;
+    				}
+    				else {
+    					diasPorPagar = detalleCausante.getDiasReconocimiento() - detalleCausante.getDiasTrabajados();
+    				}
     			}
     			
     			diasTrabajados = detalleCausante.getDiasTrabajados();
@@ -343,10 +351,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    			}
 	    		}	
 	    		else {
-	    			/*if(diasReconocimiento == diasPorPagar) {
-	    				detalleCausante.setTotalPago(detalleCausante.getMontoMovimiento());
-	    				detalleCausante.setDiasPago(diasPago);
-	    			}*/
+	    			
 	    			//else {
 	    				if(diasPago<0) {
 	    					detalleCausante.setTotalPago(BigDecimal.ZERO);
@@ -354,6 +359,9 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    				}
 	    				else {
 		    				if(diasLicencias>diasPorPagar) {
+		    					if(diasPorPagar==0) {
+		    						//if(detalleCausante.getValorTramo30()!=) {
+		    					}
 		    					BigDecimal totalPago = valorDiario
 		    						    .multiply(BigDecimal.valueOf(diasPorPagar))
 		    						    .setScale(0, RoundingMode.HALF_UP);

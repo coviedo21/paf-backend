@@ -6,7 +6,9 @@ import cl.gob.ips.solicitudes_pago.service.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,6 +56,9 @@ public class SolicitudesPagosController {
     @Autowired
     private LicenciaFiniquitoService licenciaFiniquitoService;
 
+    @Autowired
+    private PDFService pdfService;
+    
     @Autowired
     private PersonaDAO personaDAO;
     
@@ -738,5 +743,20 @@ List<CausanteCuentaCorrienteDTO> derechoCausantes = new ArrayList<>();
         return ResponseEntity.ok(mensaje);
     }
 
+    @GetMapping("/obtenerComprobanteSolicitud/{idSolicitud}")
+    public ResponseEntity<byte[]> generarPDF(@PathVariable("idSolicitud") Integer idSolicitud) {
+        try {
+            byte[] pdfBytes = pdfService.generarSolicitudAsignacionFamiliar(idSolicitud);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("filename", "solicitud_pago.pdf");
+
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(("Error generando PDF: " + e.getMessage()).getBytes());
+        }
+    }
 
 }

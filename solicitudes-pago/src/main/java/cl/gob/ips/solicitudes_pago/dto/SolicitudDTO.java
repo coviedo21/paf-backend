@@ -72,4 +72,6 @@ public class SolicitudDTO {
     private String usuarioModificacion;
     private String finiquitoValidado;
     private String rutaMaestro;
+    private String nombreFormaPago;
+    private String cuentaBancaria;
 }

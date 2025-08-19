@@ -68,4 +68,5 @@ public class DetalleCausanteDTO {
     private int diasTrabajados;
     private int diasPagados;
     private int diasPorPagar;
+    private BigDecimal montoPagos;
 }

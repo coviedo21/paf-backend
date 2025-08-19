@@ -76,7 +76,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 	if(actualizarSolicitud.getTipoSolicitante()==3 && actualizarSolicitud.getFiniquitoValidado().equals("N")) {
                 		response.setGlosaRetorno("Solicitud Nº "+(int) response.getResultado()+" creada. Debe aprobar el finiquito para poder asignarla a un proceso de pago.");
                         if(!esArchivo){
-                        	emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" recibida con error(es)","Su solicitud N° "+(int) response.getResultado()+" fue ingresada pero debe ser aprobado el finiquito para poder continuar.");
+                        	emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" recibida con error(es)","Su solicitud N° "+(int) response.getResultado()+" fue ingresada pero debe ser aprobado el finiquito para poder continuar.",false,(int) response.getResultado());
                         }
                 	}
                 	else {
@@ -91,7 +91,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
 		                try {
 		                    if(!esArchivo){
 		                    	response.setGlosaRetorno("Solicitud Nº "+(int) response.getResultado()+" creada exitósamente. Puede ser asignada a un proceso de pago ya que cumple con todos los criterios de aceptación.");
-		                        emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" enviada","Su solicitud N° "+(int) response.getResultado()+" cumple con todos los criterios de aceptación por lo que ha sido enviada para su resolución.");    
+		                        emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" enviada","Su solicitud N° "+(int) response.getResultado()+" cumple con todos los criterios de aceptación por lo que ha sido enviada para su resolución.",true,(int) response.getResultado());    
 		                    }
 		                } catch (Exception e) {
 		                    // Captura cualquier excepción relacionada con el envío del correo y loguea el error
@@ -102,7 +102,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 else {
                 	response.setGlosaRetorno("Solicitud Nº "+(int) response.getResultado()+" creada. No tiene derecho a pago.");
                     if(!esArchivo){
-                    	emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" recibida con error(es)","Su solicitud N° "+(int) response.getResultado()+" NO tiene derecho a pago. A partir de este momento cuenta con "+diasAntiguedad+" días para subsanarla. Deberá adjuntar la documentación necesaria.");
+                    	emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" recibida con error(es)","Su solicitud N° "+(int) response.getResultado()+" NO tiene derecho a pago. A partir de este momento cuenta con "+diasAntiguedad+" días para subsanarla. Deberá adjuntar la documentación necesaria.",false,(int) response.getResultado());
                     }
                 }
             }
@@ -114,7 +114,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                     actualizarSolicitudPago(actualizarSolicitud);
                     response.setGlosaRetorno("Solicitud Nº "+(int) response.getResultado()+" creada. No cumple con todos los criterios de aceptación.");
                     if(!esArchivo){
-                    	emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" recibida con error(es)","Su solicitud N° "+(int) response.getResultado()+" NO cumple con todos los criterios de aceptación. A partir de este momento cuenta con "+diasAntiguedad+" días para subsanarla. Deberá adjuntar la documentación necesaria, de lo contrario será enviada automáticamente para su resolución");
+                    	emailService.enviarCorreo(solicitudPago.getEmail(),"Solicitud N°"+(int) response.getResultado()+" recibida con error(es)","Su solicitud N° "+(int) response.getResultado()+" NO cumple con todos los criterios de aceptación. A partir de este momento cuenta con "+diasAntiguedad+" días para subsanarla. Deberá adjuntar la documentación necesaria, de lo contrario será enviada automáticamente para su resolución",true,(int) response.getResultado());
                     }
                 } catch (Exception e) {
                     // Captura cualquier excepción relacionada con el envío del correo y loguea el error
@@ -205,7 +205,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
                 resolucion.setUsuario("Sistema");
                 insertarResolucion(resolucion);
                 try {
-                    emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" enviada","Terminó plazo de "+diasAntiguedad+" días para subsanar su solicitud N° "+solicitud.getIdSolicitud()+". Será revisada.");    
+                    emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" enviada","Terminó plazo de "+diasAntiguedad+" días para subsanar su solicitud N° "+solicitud.getIdSolicitud()+". Será revisada.",false,solicitud.getIdSolicitud());    
                 } catch (Exception e) {
                     // Captura cualquier excepción relacionada con el envío del correo y loguea el error
                     System.err.println("Error enviando correo para la solicitud " + solicitud.getIdSolicitud() + ": " + e.getMessage());
@@ -249,7 +249,7 @@ public class SolicitudPagoServiceImpl implements SolicitudPagoService {
         resolucion.setUsuario(rechazoSolicitudDTO.getUsuario());
         insertarResolucion(resolucion);
         try {
-            emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" rechazada.","Su solicitud N° "+solicitud.getIdSolicitud()+" ha sido rechazada. Motivo de Rechazo:  "+rechazo.getNombre());    
+            emailService.enviarCorreo(solicitud.getEmail(),"Solicitud "+solicitud.getIdSolicitud()+" rechazada.","Su solicitud N° "+solicitud.getIdSolicitud()+" ha sido rechazada. Motivo de Rechazo:  "+rechazo.getNombre(),false,solicitud.getIdSolicitud());    
             return true;
         } catch (Exception e) {
             // Captura cualquier excepción relacionada con el envío del correo y loguea el error
