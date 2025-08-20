@@ -12,7 +12,7 @@ public class DerechoCausanteDTO {
     private String dvBeneficiario;
     private int periodo;
     private int tipoMovimientoId;
-    private String fechaMovimiento; // O usa OffsetDateTime si prefieres trabajar como fecha
+    private String fechaMovimiento;
     private String entradaSalida;
     private int montoMovimiento;
     private int tipoCausante;

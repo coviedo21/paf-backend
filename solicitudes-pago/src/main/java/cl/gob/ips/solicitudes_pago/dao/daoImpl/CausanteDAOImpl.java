@@ -182,6 +182,7 @@ public class CausanteDAOImpl implements CausanteDAO{
             tvp.addColumnMetadata("nValorTramo", Types.INTEGER);
             tvp.addColumnMetadata("iDiasTrabajados", Types.INTEGER);
             tvp.addColumnMetadata("iDiasPagados", Types.INTEGER);
+            tvp.addColumnMetadata("nMontoPagos", Types.INTEGER);
 
             for (DetalleCausanteDTO d : lista) {
             	

@@ -275,9 +275,14 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     	int contadorAprobados = 0;
     	BigDecimal tramo = BigDecimal.ZERO;
     	BigDecimal valorDiario = BigDecimal.ZERO;
+    	BigDecimal montoPagado = BigDecimal.ZERO;
+    	BigDecimal montoDebeTenerPagado = BigDecimal.ZERO;
+    	BigDecimal totalPago = BigDecimal.ZERO;
     	int diasPorPagar = 0;
     	int diasTrabajados = 0;
     	int diasMaximosLicencia = 0;
+    	int diasPagados = 0;
+    	int diasReconocimiento=0;
     	
     	boolean cumpleRelacionLaboral = true;
     	
@@ -295,29 +300,10 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     			//Se calcula el valor diario
     			valorDiario = tramo.divide(BigDecimal.valueOf(30), MathContext.DECIMAL128);
     			
-    			if(detalleCausante.getDiasReconocimiento() == detalleCausante.getDiasTrabajados() && detalleCausante.getDiasPagados()==0) {
-    				diasPorPagar = detalleCausante.getDiasTrabajados();
-    			}
-    			else {
-    				if(detalleCausante.getDiasReconocimiento() < detalleCausante.getDiasTrabajados()) {
-    					diasPorPagar = 0;
-    				}
-    				else {
-    					diasPorPagar = detalleCausante.getDiasReconocimiento() - detalleCausante.getDiasTrabajados();
-    				}
-    			}
-    			
     			diasTrabajados = detalleCausante.getDiasTrabajados();
     			
-    			/*if(diasTrabajados == 0) {
-    				cumpleRelacionLaboral = false;
-    			}*/
-    			contadorAprobados++;
-    			long tiempoInicioObtenerDiasTrabajados = System.currentTimeMillis();
-    	   
-    			//int diasCotizaciones = causanteService.obtenerDiasCotizacion(detalleCausante.getRutBeneficiario(), detalleCausante.getRutEmpleador(), String.valueOf(detalleCausante.getPeriodo())); //Llamar a API que trae los dias trabajados
-    			long tiempoFinObtenerDiasTrabajados = System.currentTimeMillis();
-    	        logger.error("Obtener dias trabajados demoró: "+(tiempoInicioObtenerDiasTrabajados-tiempoFinObtenerDiasTrabajados));
+    			diasReconocimiento = detalleCausante.getDiasReconocimiento();
+	    		
     			Map<String, String> fechas = UtilServiceImpl.obtenerFechasDesdePeriodo(String.valueOf(detalleCausante.getPeriodo()));
     			System.out.println("Inicio: " + fechas.get("inicio")); // 2014-01-01
     			System.out.println("Fin: " + fechas.get("fin"));       // 2014-01-31
@@ -330,13 +316,33 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    			}
 	    			diasPago = diasLicencias;
 	    		}
+	    		detalleCausante.setDiasPago(diasPago);
 	    		
-	    		long tiempoFinObtenerLicencias = System.currentTimeMillis();
-	            logger.error("Obtener licencias demoró: "+(tiempoInicioObtenerLicencias-tiempoFinObtenerLicencias));    	
-	    		
-	            long tiempoInicioCalculo = System.currentTimeMillis();
-	    		int diasReconocimiento = detalleCausante.getDiasReconocimiento();
-	    		
+    			if(detalleCausante.getDiasReconocimiento() < (diasTrabajados+diasLicencias)) {
+					diasPagados = detalleCausante.getDiasReconocimiento();
+				}
+    			else {
+    				diasPagados = (diasTrabajados+diasLicencias);
+    			}
+    			
+    			if(diasPagados>=25) {
+    				diasPagados = 30;
+    			}
+    			
+    			diasPorPagar = 30-diasPagados;
+    			
+    			montoPagado = detalleCausante.getMontoPagos();
+    			montoDebeTenerPagado = new BigDecimal(diasPagados).multiply(valorDiario);
+    			
+    			totalPago = montoDebeTenerPagado.subtract(montoPagado);
+    			
+    			if (totalPago.compareTo(BigDecimal.ZERO) < 0) {
+    			    totalPago = BigDecimal.ZERO;
+    			}
+    			
+    			
+    			contadorAprobados++;
+    			
 	    		
 	    		if(diasTrabajados+diasLicencias==0) {
 	    			cumpleRelacionLaboral = false;
@@ -351,42 +357,10 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 	    			}
 	    		}	
 	    		else {
-	    			
-	    			//else {
-	    				if(diasPago<0) {
-	    					detalleCausante.setTotalPago(BigDecimal.ZERO);
-	    					detalleCausante.setDiasPago(0);
-	    				}
-	    				else {
-		    				if(diasLicencias>diasPorPagar) {
-		    					if(diasPorPagar==0) {
-		    						//if(detalleCausante.getValorTramo30()!=) {
-		    					}
-		    					BigDecimal totalPago = valorDiario
-		    						    .multiply(BigDecimal.valueOf(diasPorPagar))
-		    						    .setScale(0, RoundingMode.HALF_UP);
-
-		    						detalleCausante.setTotalPago(totalPago);
-		    					detalleCausante.setDiasPago(diasPago);
-		    				}
-		    				else{
-		    					BigDecimal totalPago = valorDiario
-		    						    .multiply(BigDecimal.valueOf(diasLicencias))
-		    						    .setScale(0, RoundingMode.HALF_UP);
-
-		    						detalleCausante.setTotalPago(totalPago);
-		    					detalleCausante.setDiasPago(diasPago);
-		    				}
-	    				}
-	    			//}	
-	    		}	
-	    			
-	    		//if (detalleCausante.getTotalPago().compareTo(BigDecimal.ZERO) == 0 && diasTrabajados>0) {
-	    			//detalleCausante.setEstado(2);
-	    		//}
-	    		//else {
-	    		
-		    		if(diasTrabajados+diasLicencias==0) {
+	    			detalleCausante.setTotalPago(totalPago);
+	   	    	}	
+	   
+	    		if(diasTrabajados+diasLicencias==0) {
 	    				detalleCausante.setEstado(6);
 	    			}
 		    		else {
@@ -400,30 +374,10 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
 		    			}
 		    		}
 	    		//}
-	    		if(diasPago>=25) { //dias por pagar
-	    			detalleCausante.setTotalPago(detalleCausante.getMontoMovimiento());
-	    			detalleCausante.setDiasPago(30);
-	    		}
-	    		/*else {
-	    			BigDecimal dias = new BigDecimal(diasPago);
-	    			BigDecimal divisor = new BigDecimal(diasReconocimiento);
-	    			// (monto / 30) * diasPago
-	    			BigDecimal totalPago = detalleCausante.getMontoMovimiento()
-	    			    .divide(divisor, 2, RoundingMode.HALF_UP)  // División con escala y redondeo
-	    			    .multiply(dias);                           // Multiplicación
 	
-	    			detalleCausante.setTotalPago(totalPago);
-	    			detalleCausante.setDiasPago(diasPago);
-	    			
-	    		}*/
-	    		long tiempoFinCalculo = System.currentTimeMillis();
-	            logger.error("Obtener calculo demoró: "+(tiempoInicioCalculo-tiempoFinCalculo));
 	    		
-	            long tiempoInicioActualizarDetalleCausante = System.currentTimeMillis();
 	            causanteService.actualizarDetalleCausante(detalleCausante);
-	    		long tiempoFinActualizarDetalleCausante = System.currentTimeMillis();
-	            logger.error("Actualizar detalle causante demoró: "+(tiempoInicioActualizarDetalleCausante-tiempoFinActualizarDetalleCausante));
-    		}
+			}
     	}//Fin for
     	     	
     	if(contadorAprobados==0) {
