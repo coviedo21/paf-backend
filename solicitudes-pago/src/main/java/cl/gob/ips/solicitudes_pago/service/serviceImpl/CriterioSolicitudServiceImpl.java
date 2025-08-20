@@ -330,6 +330,7 @@ public class CriterioSolicitudServiceImpl implements CriterioSolicitudService {
     			}
     			
     			diasPorPagar = 30-diasPagados;
+    			detalleCausante.setDiasPorPagar(diasPorPagar);
     			
     			montoPagado = detalleCausante.getMontoPagos();
     			montoDebeTenerPagado = new BigDecimal(diasPagados).multiply(valorDiario);
