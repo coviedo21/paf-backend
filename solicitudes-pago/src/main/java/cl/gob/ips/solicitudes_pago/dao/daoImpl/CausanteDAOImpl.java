@@ -500,9 +500,9 @@ public class CausanteDAOImpl implements CausanteDAO{
                     detalleDTO.setMontoPagos((BigDecimal) row.get("montoPagos"));
 
                 BigDecimal valorDiario = detalleDTO.getValorTramo30().divide(BigDecimal.valueOf(30), 10, RoundingMode.HALF_UP);
-                //BigDecimal diasPorPagar = detalleDTO.getTotalPago()!=null?detalleDTO.getTotalPago().divide(valorDiario, 0, RoundingMode.HALF_UP):BigDecimal.ZERO;
+                BigDecimal diasPorPagar = detalleDTO.getTotalPago()!=null?detalleDTO.getTotalPago().divide(valorDiario, 0, RoundingMode.HALF_UP):BigDecimal.ZERO;
 
-                //detalleDTO.setDiasPorPagar(diasPorPagar!=null?diasPorPagar.intValue():0);
+                detalleDTO.setDiasPorPagar(diasPorPagar!=null?diasPorPagar.intValue():0);
                 //detalleDTO.setDiasPorPagar(detalleDTO.getDiasReconocimiento()==detalleDTO.getDiasTrabajados() && detalleDTO.getDiasPagados()==0?detalleDTO.getDiasTrabajados():(detalleDTO.getDiasReconocimiento()-detalleDTO.getDiasTrabajados())>0?detalleDTO.getDiasReconocimiento()-detalleDTO.getDiasTrabajados():0);
                 detallesCausante.add(detalleDTO);
             }
